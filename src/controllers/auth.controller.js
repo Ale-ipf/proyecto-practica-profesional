@@ -1,75 +1,101 @@
-import db from '../config/db.js';
+import { Usuario } from '../models/index.js';
+import bcrypt from 'bcrypt';
 
+// Registro de usuario
 export const registrar = async (req, res) => {
-    const { email, password, rol } = req.body;
-    
-    if (!email || !password || !rol) {
-        return res.send('<h3>Faltan campos obligatorios. <a href="/registro.html">Volver</a></h3>');
+  try {
+    const { nombre, email, password, rol, telefono } = req.body;
+
+    // Verificar si el usuario ya existe
+    const usuarioExistente = await Usuario.findOne({ where: { email } });
+    if (usuarioExistente) {
+      return res.status(400).json({ error: 'El correo electrónico ya está registrado.' });
     }
 
-    try {
-        const [existe] = await db.query('SELECT * FROM usuarios WHERE email = ?', [email]);
-        if (existe.length > 0) {
-            return res.send('<h3>El email ya está registrado. <a href="/registro.html">Volver</a></h3>');
-        }
+    // Hashear la contraseña
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
 
-        await db.query('INSERT INTO usuarios (email, password, rol) VALUES (?, ?, ?)', [email, password, rol]);
-        res.redirect('/login.html');
-    } catch (error) {
-        console.error("Error en el registro:", error);
-        res.status(500).send('<h3>Error interno del servidor al registrar.</h3>');
-    }
+    // Crear el usuario en la base de datos
+    const nuevoUsuario = await Usuario.create({
+      nombre,
+      email,
+      password: passwordHash,
+      rol: rol || 'estudiante',
+      telefono,
+      fotoPerfil: req.file ? `/uploads/${req.file.filename}` : null // Por si querés usar multer en el registro
+    });
+
+    return res.status(201).json({
+      mensaje: 'Usuario registrado con éxito',
+      usuario: {
+        id: nuevoUsuario.id,
+        nombre: nuevoUsuario.nombre,
+        email: nuevoUsuario.email,
+        rol: nuevoUsuario.rol
+      }
+    });
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
 
+// Inicio de sesión
 export const login = async (req, res) => {
+  try {
     const { email, password } = req.body;
 
-    try {
-        const [usuariosEncontrados] = await db.query(
-            'SELECT * FROM usuarios WHERE email = ? AND password = ?', 
-            [email, password]
-        );
-
-        if (usuariosEncontrados.length === 0) {
-            return res.send('<h3>Credenciales incorrectas. <a href="/login.html">Volver</a></h3>');
-        }
-
-        const usuario = usuariosEncontrados[0];
-        const rolDefinido = (usuario.rol && usuario.rol.trim() !== '') ? usuario.rol : 'estudiante';
-
-        req.session.usuarioLogueado = {
-            id: usuario.id,
-            email: usuario.email,
-            rol: rolDefinido
-        };
-
-        if (rolDefinido === 'dueno') {
-            res.redirect('/perfil-dueno.html');
-        } else {
-            res.redirect('/perfil-estudiante.html');
-        }
-
-    } catch (error) {
-        console.error("Error en el login:", error);
-        res.status(500).send('<h3>Error interno del servidor al iniciar sesión.</h3>');
+    // Buscar el usuario por email
+    const usuario = await Usuario.findOne({ where: { email } });
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciales inválidas (usuario no encontrado).' });
     }
+
+    // Validar contraseña
+    const passwordValida = await bcrypt.compare(password, usuario.password);
+    if (!passwordValida) {
+      return res.status(401).json({ error: 'Credenciales inválidas (contraseña incorrecta).' });
+    }
+
+    // Guardar datos esenciales en la sesión
+    req.session.usuarioId = usuario.id;
+    req.session.rol = usuario.rol;
+    req.session.nombre = usuario.nombre;
+
+    return res.status(200).json({
+      mensaje: 'Inicio de sesión exitoso',
+      rol: usuario.rol,
+      redirect: usuario.rol === 'dueno' ? '/perfil-dueno.html' : '/perfil-estudiante.html'
+    });
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error);
+    return res.status(500).json({ error: 'Error interno del servidor' });
+  }
 };
 
+// Cerrar sesión
 export const logout = (req, res) => {
-    req.session.destroy();
-    res.redirect('/');
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ error: 'No se pudo cerrar la sesión' });
+    }
+    res.clearCookie('connect.sid');
+    return res.status(200).json({ mensaje: 'Sesión cerrada correctamente' });
+  });
 };
 
-export const quienSoy = (req, res) => {
-    if (req.session.usuarioLogueado) {
-        res.json({
-            logueado: true,
-            usuario: {
-                email: req.session.usuarioLogueado.email,
-                rol: req.session.usuarioLogueado.rol
-            }
-        });
-    } else {
-        res.json({ logueado: false });
-    }
+// Verificar sesión actual (para el front)
+export const verificarSesion = (req, res) => {
+  if (req.session.usuarioId) {
+    return res.status(200).json({
+      autenticado: true,
+      usuario: {
+        id: req.session.usuarioId,
+        nombre: req.session.nombre,
+        rol: req.session.rol
+      }
+    });
+  }
+  return res.status(401).json({ autenticado: false });
 };

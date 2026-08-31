@@ -1,12 +1,17 @@
-import express from 'express';
-import { obtenerAlquileres, crearAlquiler, editarPrecio, borrarAlquiler } from '../controllers/alquileres.controller.js';
-import { upload } from '../middlewares/upload.middleware.js';
+import { Router } from 'express';
+import { 
+  obtenerAlquileres, 
+  crearAlquiler, 
+  obtenerMisAlquileres, 
+  eliminarAlquiler 
+} from '../controllers/alquileres.controller.js';
+import upload from '../middlewares/upload.middleware.js';
 
-const router = express.Router();
+const router = Router();
 
 router.get('/', obtenerAlquileres);
-router.post('/', upload.single('foto'), crearAlquiler);
-router.post('/editar-precio', editarPrecio);
-router.post('/borrar', borrarAlquiler);
+router.get('/mis-alquileres', obtenerMisAlquileres);
+router.post('/', upload.single('imagen'), crearAlquiler);
+router.delete('/:id', eliminarAlquiler);
 
 export default router;

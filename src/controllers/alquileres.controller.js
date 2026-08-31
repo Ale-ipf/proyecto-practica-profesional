@@ -1,101 +1,92 @@
-import db from '../config/db.js';
+import { Alquiler, Usuario } from '../models/index.js';
 
+// Obtener todos los alquileres (para el catálogo/home)
 export const obtenerAlquileres = async (req, res) => {
-    try {
-        const [filas] = await db.query(`
-            SELECT a.id, a.titulo, a.precio, a.barrio, a.ambientes, 
-                   a.tipoInmueble, a.tieneAire, a.imagen, u.email AS dueno 
-            FROM alquileres a
-            JOIN usuarios u ON a.usuario_id = u.id
-            ORDER BY a.id DESC
-        `);
-        
-        const alquileresFormateados = filas.map(a => ({
-            ...a,
-            tieneAire: Boolean(a.tieneAire)
-        }));
-
-        res.json(alquileresFormateados);
-    } catch (error) {
-        console.error("Error al obtener alquileres:", error);
-        res.status(500).json({ error: "Error al obtener las publicaciones" });
-    }
+  try {
+    const alquileres = await Alquiler.findAll({
+      where: { disponible: true },
+      include: [{
+        model: Usuario,
+        as: 'dueno',
+        attributes: ['id', 'nombre', 'email', 'telefono']
+      }],
+      order: [['createdAt', 'DESC']]
+    });
+    return res.status(200).json(alquileres);
+  } catch (error) {
+    console.error('Error al obtener alquileres:', error);
+    return res.status(500).json({ error: 'Error al cargar las publicaciones.' });
+  }
 };
 
+// Crear una nueva publicación (solo para dueños)
 export const crearAlquiler = async (req, res) => {
-    const usuario = req.session.usuarioLogueado;
-    
-    if (!usuario || usuario.rol !== 'dueno') {
-        return res.status(403).send('No tenés permisos para publicar. Debes ser dueño.');
+  try {
+    const { titulo, descripcion, precio, ubicacion, habitaciones } = req.body;
+
+    // Verificar que haya sesión de dueño
+    if (!req.session.usuarioId || req.session.rol !== 'dueno') {
+      return res.status(403).json({ error: 'No tienes permiso para publicar un alquiler.' });
     }
 
-    const { titulo, precio, barrio, ambientes, tipoInmueble, tieneAire } = req.body;
-    const rutaImagen = req.file ? `/uploads/${req.file.filename}` : "/uploads/default-depto.jpg";
+    const nuevoAlquiler = await Alquiler.create({
+      titulo,
+      descripcion,
+      precio,
+      ubicacion,
+      habitaciones,
+      imagen: req.file ? `/uploads/${req.file.filename}` : null,
+      duenoId: req.session.usuarioId
+    });
 
-    try {
-        await db.query(
-            `INSERT INTO alquileres 
-            (titulo, precio, barrio, ambientes, tipoInmueble, tieneAire, imagen, usuario_id) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                titulo,
-                Number(precio),
-                barrio,
-                Number(ambientes),
-                tipoInmueble || "Directo",
-                tieneAire === 'si' || tieneAire === true ? 1 : 0,
-                rutaImagen,
-                usuario.id
-            ]
-        );
-
-        res.redirect('/perfil-dueno.html');
-    } catch (error) {
-        console.error("Error al guardar alquiler:", error);
-        res.status(500).send('<h3>Error interno al publicar el alquiler.</h3>');
-    }
+    return res.status(201).json({
+      mensaje: 'Alquiler publicado correctamente',
+      alquiler: nuevoAlquiler
+    });
+  } catch (error) {
+    console.error('Error al crear alquiler:', error);
+    return res.status(500).json({ error: 'Error interno al guardar la publicación.' });
+  }
 };
 
-export const editarPrecio = async (req, res) => {
-    const usuario = req.session.usuarioLogueado;
-    const { idAlquiler, nuevoPrecio } = req.body;
-
-    if (!usuario) return res.status(401).json({ exito: false, mensaje: "No logueado" });
-
-    try {
-        const [filas] = await db.query('SELECT * FROM alquileres WHERE id = ?', [Number(idAlquiler)]);
-        if (filas.length === 0) return res.status(404).json({ exito: false, mensaje: "No se encontró el alquiler" });
-
-        if (filas[0].usuario_id !== usuario.id) {
-            return res.status(403).json({ exito: false, mensaje: "No eres el dueño de esta publicación" });
-        }
-
-        await db.query('UPDATE alquileres SET precio = ? WHERE id = ?', [Number(nuevoPrecio), Number(idAlquiler)]);
-        res.json({ exito: true });
-    } catch (error) {
-        console.error("Error al editar precio:", error);
-        res.status(500).json({ exito: false, mensaje: "Error de servidor" });
+// Obtener las publicaciones específicas del dueño logueado (para perfil-dueno.html)
+export const obtenerMisAlquileres = async (req, res) => {
+  try {
+    if (!req.session.usuarioId) {
+      return res.status(401).json({ error: 'Sesión no iniciada.' });
     }
+
+    const misAlquileres = await Alquiler.findAll({
+      where: { duenoId: req.session.usuarioId },
+      order: [['createdAt', 'DESC']]
+    });
+
+    return res.status(200).json(misAlquileres);
+  } catch (error) {
+    console.error('Error al obtener tus alquileres:', error);
+    return res.status(500).json({ error: 'Error al recuperar tus publicaciones.' });
+  }
 };
 
-export const borrarAlquiler = async (req, res) => {
-    const usuario = req.session.usuarioLogueado;
-    const { idAlquiler } = req.body;
+// Eliminar un alquiler
+export const eliminarAlquiler = async (req, res) => {
+  try {
+    const { id } = req.params;
 
-    if (!usuario) return res.status(401).send("No autorizado");
-
-    try {
-        const [filas] = await db.query('SELECT * FROM alquileres WHERE id = ?', [Number(idAlquiler)]);
-        if (filas.length === 0) return res.status(404).send("No encontrado");
-
-        if (filas[0].usuario_id !== usuario.id) {
-            return res.status(403).send("No tienes permiso");
-        }
-
-        await db.query('DELETE FROM alquileres WHERE id = ?', [Number(idAlquiler)]);
-        res.redirect('/perfil-dueno.html');
-    } catch (error) {
-        console.error("Error al borrar alquiler:", error);
-        res.status(500).send("Error interno al eliminar");
+    const alquiler = await Alquiler.findByPk(id);
+    if (!alquiler) {
+      return res.status(404).json({ error: 'Publicación no encontrada.' });
     }
+
+    // Verificar que el alquiler pertenezca al dueño logueado
+    if (alquiler.duenoId !== req.session.usuarioId) {
+      return res.status(403).json({ error: 'No tienes autorización para eliminar esta publicación.' });
+    }
+
+    await alquiler.destroy();
+    return res.status(200).json({ mensaje: 'Publicación eliminada correctamente.' });
+  } catch (error) {
+    console.error('Error al eliminar alquiler:', error);
+    return res.status(500).json({ error: 'Error interno al intentar eliminar.' });
+  }
 };

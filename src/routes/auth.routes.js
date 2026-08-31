@@ -1,11 +1,12 @@
-import express from 'express';
-import { registrar, login, logout, quienSoy } from '../controllers/auth.controller.js';
+import { Router } from 'express';
+import { registrar, login, logout, verificarSesion } from '../controllers/auth.controller.js';
+import upload from '../middlewares/upload.middleware.js'; // Opcional si querés foto en registro
 
-const router = express.Router();
+const router = Router();
 
-router.post('/registro', registrar);
+router.post('/registro', upload.single('fotoPerfil'), registrar);
 router.post('/login', login);
-router.get('/logout', logout);
-router.get('/quien-soy', quienSoy);
+router.post('/logout', logout);
+router.get('/verificar', verificarSesion);
 
 export default router;

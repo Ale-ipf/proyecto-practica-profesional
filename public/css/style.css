@@ -1,0 +1,57 @@
+:root {
+    --color-terracota: #9a3412;
+    --color-atardecer: #ea580c;
+    --color-crema-fondo: #fdfbf7;
+}
+
+body {
+    background-color: var(--color-crema-fondo) !important;
+    color: #292524;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.brand-title { 
+    color: var(--color-terracota); 
+    font-weight: 800; 
+    text-decoration: none; 
+}
+
+.panel-premium { 
+    border-radius: 12px !important; 
+    border: none !important; 
+    background-color: #ffffff; 
+    box-shadow: 0 4px 6px -1px rgba(124, 45, 18, 0.05); 
+}
+
+.btn-primario { 
+    background-color: var(--color-terracota); 
+    color: white; 
+    border: none; 
+}
+
+.btn-primario:hover { 
+    background-color: #7c2d12; 
+    color: white; 
+}
+
+.btn-volver { 
+    color: var(--color-atardecer); 
+    text-decoration: none; 
+    font-weight: 600; 
+}
+
+.card-img-top { 
+    height: 180px; 
+    object-fit: cover; 
+}
+
+.nav-pills .nav-link { 
+    color: #57534e; 
+    font-weight: 600; 
+    border-radius: 8px; 
+}
+
+.nav-pills .nav-link.active { 
+    background-color: var(--color-terracota); 
+    color: white; 
+}
