@@ -1,8 +1,8 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database.js";
 
-export const Product = sequelize.define(
-  "Product",
+export const UserModel = sequelize.define(
+  "User",
   {
     // Model attributes are defined here
     id: {
