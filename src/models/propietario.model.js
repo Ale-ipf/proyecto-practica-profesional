@@ -1,64 +1,45 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/database.js";
 
-export const Property = sequelize.define("Property", {
+export const PropertyModel = sequelize.define("Property", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
     primaryKey: true,
   },
-
   title: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(150),
     allowNull: false,
   },
-
   description: {
     type: DataTypes.TEXT,
     allowNull: false,
   },
-
   price: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
-
   address: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(200),
     allowNull: false,
   },
-
   city: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(100),
     allowNull: false,
   },
-
-  neighborhood: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-
-  type: {
-    type: DataTypes.ENUM("house", "apartment", "room"),
-    allowNull: false,
-  },
-
   bedrooms: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    defaultValue: 1,
   },
-
-  bathrooms: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
+  is_furnished: {
+    type: DataTypes.BOOLEAN, // Amoblado
+    defaultValue: false,
   },
-
-  available: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
+  status: {
+    type: DataTypes.ENUM("available", "rented"),
+    defaultValue: "available",
   },
-
-  ownerId: {
+  userId: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
