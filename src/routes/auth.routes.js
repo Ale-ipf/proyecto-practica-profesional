@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { registrar, login, logout, verificarSesion } from '../controllers/auth.controller.js';
-import upload from '../middlewares/upload.middleware.js'; // Opcional si querés foto en registro
+import { upload } from '../middlewares/upload.middleware.js'; // Opcional si querés foto en registro
 
-const router = Router();
+export const router = Router();
 
 router.post('/registro', upload.single('fotoPerfil'), registrar);
 router.post('/login', login);

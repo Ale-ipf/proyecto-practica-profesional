@@ -2,12 +2,11 @@ import express from 'express';
 import session from 'express-session';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import './src/models/index.js';
 
 
 import authRoutes from './src/routes/auth.routes.js';
 import alquileresRoutes from './src/routes/alquileres.routes.js';
-import { sequelize } from './src/config/db.js'; // Conexión a Sequelize
+import sequelize from './src/config/db.js'; // Conexión a Sequelize
 
 const app = express();
 const PORT = process.env.PORT || 3000;
