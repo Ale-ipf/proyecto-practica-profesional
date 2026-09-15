@@ -1,0 +1,305 @@
+/* --- Hero de inicio: único otro lugar (además del navbar) donde aparece
+   el degradé de atardecer, aplicado con moderación como franja lateral. --- */
+.hero-inicio {
+  display: grid;
+  grid-template-columns: 5px 1fr;
+  margin-bottom: 40px;
+}
+
+.hero-inicio__franja {
+  background: var(--degrade-atardecer);
+  border-radius: 4px;
+}
+
+.hero-inicio__texto {
+  padding-left: 24px;
+}
+
+.hero-inicio__kicker {
+  color: var(--color-terracota);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.hero-inicio__texto h1 {
+  font-size: 2.1rem;
+  max-width: 18ch;
+}
+
+.hero-inicio__texto p {
+  color: var(--color-carbon-suave);
+  font-size: 1.02rem;
+}
+
+.seccion-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* --- Auth (login/registro) --- */
+.pantalla-auth {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
+}
+
+.pantalla-auth__marca {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.pantalla-auth__marca h1 {
+  font-size: 1.5rem;
+}
+
+.pantalla-auth__marca p {
+  color: var(--color-carbon-suave);
+  margin: 0;
+}
+
+.pantalla-auth__pie {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: var(--color-carbon-suave);
+}
+
+.pantalla-auth__volver {
+  text-align: center;
+  margin-top: 12px;
+}
+.pantalla-auth__volver a {
+  color: var(--color-carbon-suave);
+  font-size: 0.85rem;
+}
+
+/* --- Dashboards (dueño / estudiante) --- */
+.panel-bienvenida {
+  background: linear-gradient(135deg, var(--color-terracota), var(--color-ocre));
+  color: var(--color-superficie);
+  border-radius: var(--radius-md);
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.panel-bienvenida h2 {
+  color: var(--color-superficie);
+  margin-bottom: 4px;
+}
+
+.panel-bienvenida p {
+  margin: 0;
+  opacity: 0.92;
+  max-width: 46ch;
+}
+
+.panel-bienvenida__rol {
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--color-linea);
+  margin-bottom: 28px;
+  overflow-x: auto;
+}
+
+.tabs__boton {
+  background: none;
+  border: none;
+  padding: 10px 4px;
+  margin-right: 24px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-carbon-suave);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+
+.tabs__boton:hover {
+  color: var(--color-terracota);
+}
+
+.tabs__boton--activo {
+  color: var(--color-terracota);
+  border-bottom-color: var(--color-terracota);
+}
+
+.tarjeta-info {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-linea);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+}
+
+.tarjeta-info__etiqueta {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-carbon-suave);
+  margin-bottom: 4px;
+}
+
+.tarjeta-info__valor {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.grilla-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.lista-accesos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.acceso-rapido {
+  display: block;
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-linea);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  color: var(--color-carbon);
+}
+
+.acceso-rapido:hover {
+  border-color: var(--color-terracota);
+  text-decoration: none;
+}
+
+.acceso-rapido strong {
+  display: block;
+  font-family: var(--font-display);
+  margin-bottom: 4px;
+}
+
+.acceso-rapido span {
+  font-size: 0.85rem;
+  color: var(--color-carbon-suave);
+}
+
+/* --- Detalle de propiedad --- */
+.detalle-propiedad {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  gap: 40px;
+}
+
+@media (max-width: 860px) {
+  .detalle-propiedad {
+    grid-template-columns: 1fr;
+  }
+  .hero-inicio {
+    grid-template-columns: 4px 1fr;
+  }
+}
+
+.detalle-propiedad__imagen {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-terracota-suave);
+  height: 340px;
+}
+
+.detalle-propiedad__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.detalle-propiedad__precio {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--color-terracota);
+  margin-bottom: 4px;
+}
+
+.detalle-propiedad__ficha {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-linea);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  align-self: start;
+}
+
+.detalle-propiedad__ficha dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 16px;
+  margin: 18px 0;
+  font-size: 0.92rem;
+}
+
+.detalle-propiedad__ficha dt {
+  color: var(--color-carbon-suave);
+}
+
+.detalle-propiedad__ficha dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+
+.enlace-volver {
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: var(--color-carbon-suave);
+}
+.enlace-volver:hover {
+  color: var(--color-terracota);
+}
+
+/* --- Institucional / Contacto --- */
+.pagina-simple {
+  max-width: 70ch;
+}
+
+.pagina-simple .etiqueta {
+  margin-bottom: 12px;
+}
+
+.tarjeta-contacto {
+  background-color: var(--color-superficie);
+  border: 1px solid var(--color-linea);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-top: 24px;
+}
+
+.tarjeta-contacto dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px 16px;
+  margin: 0;
+}
+.tarjeta-contacto dt {
+  color: var(--color-carbon-suave);
+  font-size: 0.85rem;
+}
+.tarjeta-contacto dd {
+  margin: 0;
+  font-weight: 600;
+}

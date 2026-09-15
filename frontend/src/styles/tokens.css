@@ -1,0 +1,47 @@
+/*
+  Paleta "Atardecer Litoraleño": el atardecer sobre el río Paraguay, visto
+  desde la costanera de Formosa. Terracota y ocre del cielo encendido,
+  ciruela de las sombras del anochecer, oliva de la vegetación ribereña.
+  Sin azules: el ciruela reemplaza al azul en enlaces/estados informativos.
+*/
+:root {
+  /* Base cálida (nunca blanco/negro puros) */
+  --color-arena: #f6ecdd;
+  --color-superficie: #fffcf7;
+  --color-carbon: #2a211b;
+  --color-carbon-suave: #6b5a4c;
+  --color-linea: #e4d4bc;
+  --color-linea-fuerte: #d7c2a0;
+
+  /* Acentos del atardecer */
+  --color-terracota: #b14a26;
+  --color-terracota-oscuro: #8a3a1d;
+  --color-terracota-suave: #f1ddd2;
+  --color-ocre: #e2932e;
+  --color-ocre-oscuro: #b9741c;
+  --color-ocre-suave: #fbe8c9;
+  --color-ciruela: #5b3a4b;
+  --color-ciruela-suave: #ece1e6;
+  --color-oliva: #74823e;
+  --color-oliva-suave: #e9edd9;
+
+  /* Semántica */
+  --color-error: #b3261e;
+  --color-error-suave: #f6e0dd;
+
+  /* Tipografía */
+  --font-display: "Bitter", Georgia, serif;
+  --font-ui: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Escala */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --sombra-sutil: 0 1px 2px rgba(42, 33, 27, 0.06);
+  --degrade-atardecer: linear-gradient(
+    90deg,
+    var(--color-terracota) 0%,
+    var(--color-ocre) 100%
+  );
+
+  --container-max: 1120px;
+}

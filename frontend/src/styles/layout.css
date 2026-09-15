@@ -1,0 +1,138 @@
+/* Barra superior con degradé de firma: el único lugar donde se usa el
+   degradé terracota→ocre completo, como toque distintivo de marca. */
+.franja-firma {
+  height: 4px;
+  background: var(--degrade-atardecer);
+}
+
+.navbar {
+  background-color: var(--color-superficie);
+  border-bottom: 1px solid var(--color-linea);
+}
+
+.navbar__contenido {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 24px;
+}
+
+.navbar__marca {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--color-carbon);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.navbar__marca span {
+  color: var(--color-terracota);
+}
+
+.navbar__marca:hover {
+  text-decoration: none;
+}
+
+.navbar__enlaces {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.navbar__enlace {
+  color: var(--color-carbon-suave);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.navbar__enlace:hover {
+  color: var(--color-terracota);
+  text-decoration: none;
+}
+
+.navbar__enlace--activo {
+  color: var(--color-terracota);
+}
+
+.navbar__acciones {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar__saludo {
+  font-size: 0.9rem;
+  color: var(--color-carbon-suave);
+}
+
+.navbar__saludo strong {
+  color: var(--color-carbon);
+}
+
+.navbar__movil-btn {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .navbar__contenido {
+    flex-wrap: wrap;
+  }
+  .navbar__enlaces {
+    order: 3;
+    width: 100%;
+    border-top: 1px solid var(--color-linea);
+    padding-top: 12px;
+  }
+}
+
+main {
+  min-height: 60vh;
+  padding: 40px 0 64px;
+}
+
+.footer {
+  border-top: 1px solid var(--color-linea);
+  background-color: var(--color-superficie);
+  padding: 32px 0;
+  margin-top: 48px;
+}
+
+.footer__contenido {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.footer__marca {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--color-carbon);
+}
+
+.footer__enlaces {
+  display: flex;
+  gap: 20px;
+}
+
+.footer__enlaces a {
+  color: var(--color-carbon-suave);
+  font-size: 0.9rem;
+}
+
+.footer__enlaces a:hover {
+  color: var(--color-terracota);
+}
+
+.footer__copy {
+  color: var(--color-carbon-suave);
+  font-size: 0.85rem;
+  width: 100%;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-linea);
+}
