@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { listarPropiedades } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
-import TarjetaPropiedad from "../components/TarjetaPropiedad.jsx";
-import BarraFiltros from "../components/BarraFiltros.jsx";
 
 const FILTROS_INICIALES = {
   city: "",

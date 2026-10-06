@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { obtenerMiPerfilEstudiante, actualizarMiPerfilEstudiante } from "../api/students.js";
 import { ApiRequestError } from "../api/client.js";
-import Tabs from "../components/Tabs.jsx";
 
 const PESTAÑAS = [
   { id: "perfil", etiqueta: "Mi perfil" },

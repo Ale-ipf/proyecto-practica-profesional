@@ -1,0 +1,179 @@
+@media (max-width: 900px) {
+  .site-header { 
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+}
+  .main-nav { 
+    order: 3; 
+    width: 100%; 
+}
+  .header-actions { 
+    margin-left: auto; 
+}
+  .hero-ui { 
+    grid-template-columns: 1fr .8fr; 
+}
+  .hero-copy { 
+    padding: 32px; 
+}
+  .institution-carousel { 
+    display: block; 
+}
+  .institution-slide { 
+    padding: 25px 30px 30px; 
+}
+  .map-page-layout { 
+    grid-template-columns: 1fr; 
+}
+  main { 
+    display: block; 
+}
+  .publish-panel, .filters-panel { 
+    margin-bottom: 22px; 
+}
+  .filter-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+}
+  .property-grid { 
+    grid-template-columns: repeat(2, 1fr); 
+}
+}
+
+@media (max-width: 600px) {
+  .site-header, main, .site-footer { 
+    width: min(100% - 24px, 1180px); 
+}
+  .site-header { 
+    gap: 15px; 
+}
+  .brand-title { 
+    font-size: 1.35rem; 
+}
+  .hero-ui { 
+    display: block; 
+    margin-top: 18px; 
+}
+  .hero-copy { 
+    padding: 28px 24px; 
+}
+  .hero-image-wrap { 
+    min-height: 190px; 
+}
+  .map-page-heading { 
+    align-items: flex-start; 
+    flex-direction: column; 
+    gap: 18px; 
+}
+  .map-selected-institution { 
+    max-width: none; 
+    width: 100%; 
+}
+  .leaflet-map-wrapper, .leaflet-map { 
+    min-height: 390px; 
+    height: 390px; 
+}
+  .map-preview-header { 
+    align-items: flex-start; 
+    flex-direction: column; 
+    gap: 15px; 
+    padding: 21px; 
+}
+  .map-preview-header .button { 
+    text-align: center; 
+    width: 100%; 
+}
+  .map-preview-frame { 
+    height: 280px; 
+}
+  .map-preview-legend { 
+    align-items: flex-start; 
+    flex-direction: column; 
+    gap: 8px; 
+    padding: 13px 21px; 
+}
+  .header-actions { 
+    width: 100%; 
+}
+  .header-actions .button { 
+    flex: 1; 
+    padding-inline: 8px; 
+    text-align: center; }
+  .greeting { 
+    display: none; 
+}
+  .publish-grid, .filter-grid, .property-grid { 
+    grid-template-columns: 1fr; 
+}
+  .property-form-grid { 
+    grid-template-columns: 1fr; 
+}
+  .listings-toolbar { 
+    align-items: flex-start; 
+    flex-direction: column; 
+    gap: 15px; 
+}
+  .listings-toolbar .button { 
+    text-align: center; 
+    width: 100%; 
+}
+  .form-footer, .filter-options { 
+    align-items: flex-start; 
+    flex-direction: column; 
+}
+  .form-footer .button { 
+    width: 100%; 
+}
+  .panel { 
+    padding: 19px; 
+}
+  .filter-heading { 
+    gap: 15px; 
+}
+  .clear-filters { 
+    white-space: nowrap;
+ }
+  .route-page { 
+    margin-top: 24px; 
+    padding: 30px 22px; 
+}
+  .property-details-hero, .property-details-content { 
+    display: block; 
+}
+  .property-details-image { 
+    min-height: 270px; 
+}
+  .property-details-summary { 
+    padding: 27px 22px; 
+}
+  .detail-features { 
+    grid-template-columns: repeat(2, 1fr); 
+}
+  .contact-owner-panel { 
+    margin-top: 16px; 
+}
+  .map-section { 
+    padding: 20px; 
+}
+  .map-heading { 
+    gap: 14px;
+ }
+  .map-location { 
+    white-space: nowrap; 
+}
+  .map-frame, .map-frame iframe { 
+    min-height: 250px; 
+    height: 250px; 
+}
+  .opinions-section {
+     padding: 20px; 
+    }
+  .opinions-header { 
+    gap: 16px; 
+}
+  .opinions-layout { 
+    display: block; 
+}
+  .opinion-form { 
+    margin-top: 24px; 
+}
+}

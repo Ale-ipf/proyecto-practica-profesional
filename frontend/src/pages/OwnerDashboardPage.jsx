@@ -2,9 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import { listarMisPropiedades, crearPropiedad } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
-import Tabs from "../components/Tabs.jsx";
-import TarjetaPropiedadDueno from "../components/TarjetaPropiedadDueno.jsx";
-import FormularioPropiedad from "../components/FormularioPropiedad.jsx";
 
 const PESTAÑAS = [
   { id: "propiedades", etiqueta: "Mis propiedades" },

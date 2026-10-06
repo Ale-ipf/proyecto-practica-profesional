@@ -1,0 +1,142 @@
+.institution-carousel { 
+    align-items: stretch; 
+    background: var(--surface); 
+    border: 1px solid var(--line); 
+    border-left: 4px solid var(--coral); 
+    border-radius: 14px; box-shadow: var(--shadow); 
+    display: grid; 
+    gap: 28px;
+    grid-column: 1 / -1; 
+    grid-template-columns: .8fr 1.2fr; 
+    margin-bottom: 2px; 
+    overflow: hidden; 
+}
+.carousel-copy { 
+    background: var(--green-dark); 
+    color: #fff; display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    padding: 30px; 
+}
+.carousel-copy .section-kicker { 
+    color: #b8d6c8; 
+}
+.carousel-copy h2 { 
+    color: #fff; 
+    font-family: Georgia, serif; 
+    font-size: clamp(1.35rem, 2.5vw, 2rem); 
+    letter-spacing: -.04em; 
+    line-height: 1.1; 
+    margin: 8px 0 12px; 
+}
+.carousel-copy p { 
+    color: rgb(255 255 255 / 70%); 
+    font-size: .8rem; 
+    line-height: 1.55; 
+    margin: 0; 
+}
+.carousel-controls { 
+    align-items: center; 
+    display: flex; 
+    gap: 13px; 
+    margin-top: 25px; 
+}
+.carousel-controls > button { 
+    background: transparent; 
+    border: 1px solid rgb(255 255 255 / 32%); 
+    border-radius: 50%; 
+    color: #fff; 
+    cursor: pointer; 
+    font-size: 1rem; 
+    height: 31px; 
+    width: 31px; 
+}
+.carousel-controls > button:hover { 
+    background: rgb(255 255 255 / 14%); 
+}
+.carousel-dots { 
+    display: flex; 
+    gap: 6px;
+ }
+.carousel-dots button { 
+    background: rgb(255 255 255 / 38%); 
+    border: 0; border-radius: 50%; cursor: pointer; 
+    height: 7px; 
+    padding: 0; 
+    width: 7px; 
+}
+.carousel-dots button.active { 
+    background: #fff; 
+    transform: scale(1.35); 
+}
+.institution-slide { 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center;
+    padding: 30px 36px 30px 0; 
+}
+.institution-badge { 
+    align-items: center; 
+    background: var(--coral-soft); 
+    border-radius: 10px; color: var(--coral); 
+    display: flex; font-size: .82rem; 
+    font-weight: 900; height: 48px; 
+    justify-content: center; 
+    margin-bottom: 13px; 
+    width: 48px; 
+}
+.institution-type { 
+    color: var(--green); 
+    font-size: .67rem; 
+    font-weight: 800; 
+    letter-spacing: .12em; 
+    text-transform: uppercase; 
+}
+.institution-slide h3 { 
+    color: var(--ink); 
+    font-family: Georgia, serif; 
+    font-size: 1.4rem; 
+    margin: 7px 0; 
+}
+.institution-slide > div:nth-child(2) p { 
+    color: var(--muted); 
+    font-size: .78rem; 
+    margin: 0 0 17px; 
+}
+.nearby-properties { 
+    border-top: 1px solid var(--line); 
+    display: grid; 
+    gap: 6px; 
+    padding-top: 12px; 
+}
+.nearby-label { 
+    color: var(--muted); 
+    font-size: .66rem; 
+    font-weight: 800; 
+    letter-spacing: .1em; 
+    text-transform: uppercase; 
+}
+.nearby-property { 
+    align-items: center; 
+    color: var(--ink); 
+    display: flex; 
+    font-size: .74rem; 
+    gap: 12px; 
+    justify-content: space-between; 
+    padding: 5px 0; 
+    text-decoration: none; 
+}
+.nearby-property span { 
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+}
+.nearby-property strong { 
+    color: var(--green); 
+    font-size: .7rem; 
+    white-space: nowrap; 
+}
+.institution-slide > .button { 
+    align-self: flex-start; 
+    margin-top: 12px; 
+}

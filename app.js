@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import "./src/models/associations.js";
 import { sequelize, testConnection } from "./src/config/database.js";
 import { errorHandler, notFound } from "./src/middlewares/error.middleware.js";
 import router from "./src/routes/index.routes.js";

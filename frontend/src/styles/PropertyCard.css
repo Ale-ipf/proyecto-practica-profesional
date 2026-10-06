@@ -1,0 +1,173 @@
+.property-card {
+	background: var(--surface);
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	box-shadow: 0 5px 18px rgb(31 42 42 / 6%);
+	overflow: hidden;
+	position: relative;
+	transition: border-color .2s, box-shadow .2s, transform .2s;
+}
+
+.property-card:hover {
+	border-color: rgb(37 94 85 / 34%);
+	box-shadow: 0 16px 30px rgb(31 42 42 / 12%);
+	transform: translateY(-4px);
+}
+
+.property-card > img,
+.property-image-link img {
+	display: block;
+	height: 208px;
+	object-fit: cover;
+	width: 100%;
+}
+
+.property-image-link {
+	display: block;
+}
+
+.property-image-link img {
+	transition: transform .3s;
+}
+
+.property-card:hover .property-image-link img {
+	transform: scale(1.03);
+}
+
+.property-body {
+	padding: 18px;
+}
+
+.badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	margin-bottom: 13px;
+}
+
+.badges span {
+	background: var(--surface-soft);
+	border: 1px solid var(--line);
+	border-radius: 5px;
+	color: var(--muted);
+	font-size: .67rem;
+	padding: 5px 7px;
+}
+
+.badges span:first-child {
+	background: #e3eee8;
+	color: var(--green-dark);
+}
+
+.badges span:last-child {
+	background: var(--coral-soft);
+	border-color: #efd2c7;
+	color: #98563f;
+}
+
+.property-card h3 {
+	font-family: Georgia, serif;
+	font-size: 1.1rem;
+	margin: 0 0 8px;
+}
+
+.property-title-link {
+	text-decoration: none;
+}
+
+.property-title-link:hover h3 {
+	color: var(--green);
+}
+
+.property-description {
+	color: var(--muted);
+	font-size: .76rem;
+	line-height: 1.5;
+	margin: 0 0 8px;
+}
+
+.property-address {
+	color: var(--green);
+	font-size: .74rem;
+	margin: 0 0 13px;
+}
+
+.price {
+	color: var(--green);
+	font-size: 1.55rem;
+	font-weight: 800;
+	margin: 0 0 8px;
+}
+
+.price small {
+	color: var(--muted);
+	font-size: .67rem;
+	font-weight: 400;
+}
+
+.property-features {
+	border-top: 1px solid var(--line);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 14px;
+	padding-top: 12px;
+}
+
+.property-features span {
+	color: var(--muted);
+	font-size: .7rem;
+}
+
+.detail-link {
+	color: var(--green);
+	display: inline-block;
+	font-size: .75rem;
+	font-weight: 800;
+	margin-top: 16px;
+	text-decoration: none;
+}
+
+.detail-link:hover {
+	color: var(--coral);
+}
+
+.favorite-button {
+	align-items: center;
+	background: rgb(255 255 255 / 94%);
+	border: 1px solid var(--line);
+	border-radius: 7px;
+	box-shadow: 0 4px 12px rgb(31 42 42 / 12%);
+	cursor: pointer;
+	display: flex;
+	font-size: 1.1rem;
+	height: 37px;
+	justify-content: center;
+	position: absolute;
+	right: 13px;
+	top: 13px;
+	width: 37px;
+	z-index: 1;
+}
+
+.owner-actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+.owner-actions form,
+.owner-actions button {
+	flex: 1;
+}
+
+.owner-actions form {
+	display: flex;
+}
+
+.property-card footer {
+	background: var(--surface-soft);
+	border-top: 1px solid var(--line);
+	color: var(--muted);
+	font-size: .74rem;
+	padding: 12px 18px;
+}

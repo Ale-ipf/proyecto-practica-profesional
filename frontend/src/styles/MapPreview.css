@@ -1,0 +1,56 @@
+.map-preview { 
+    background: var(--surface); 
+    border: 1px solid var(--line); 
+    border-radius: 14px; 
+    box-shadow: var(--shadow); 
+    grid-column: 1 / -1; 
+    overflow: hidden; 
+}
+.map-preview-header { 
+    align-items: flex-start; 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 25px 28px 19px; 
+}
+.map-preview-header h2 { 
+    color: var(--ink); 
+    font-family: Georgia, serif; 
+    margin: 8px 0 5px; 
+}
+.map-preview-header p { 
+    color: var(--muted); 
+    font-size: .78rem; 
+    margin: 0; 
+}
+.map-preview-frame { 
+    height: 340px; 
+}
+.preview-leaflet-map { 
+    height: 100%; 
+    width: 100%; 
+}
+.map-preview-legend { 
+    align-items: center; 
+    display: flex; 
+    gap: 22px; 
+    padding: 13px 28px; 
+}
+.map-preview-legend span { 
+    align-items: center; 
+    color: var(--muted); 
+    display: flex; 
+    font-size: .7rem; 
+    gap: 7px; 
+}
+.legend-dot { 
+    border-radius: 50%; 
+    display: inline-block; 
+    height: 9px; 
+    width: 9px; 
+}
+.institution-dot { 
+    background: var(--coral); 
+}
+.property-dot { 
+    background: var(--green); 
+}
