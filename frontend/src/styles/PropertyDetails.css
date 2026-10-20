@@ -127,6 +127,10 @@
 	margin-top: 18px;
 }
 
+.favorite-toggle {
+	margin-top: 16px;
+}
+
 .property-details-content {
 	display: grid;
 	gap: 22px;

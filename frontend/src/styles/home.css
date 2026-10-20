@@ -6,14 +6,24 @@ main {
 }
 .welcome-bar { 
     background: var(--green-dark);
-     color: #fff; font-size: .84rem; 
-     font-weight: 700; 
-     padding: 13px; 
-     text-align: center; 
-    }
+    color: #fff;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: .84rem;
+    font-weight: 700;
+    gap: 10px;
+    justify-content: center;
+    padding: 13px;
+    text-align: center;
+}
 .welcome-bar span { 
     color: rgb(255 255 255 / 72%); 
     font-weight: 400; 
+}
+.welcome-bar .button-accent {
+    background: var(--surface);
+    border-color: var(--surface);
 }
 .hero-ui { 
     align-items: stretch; 

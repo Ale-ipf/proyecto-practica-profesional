@@ -168,3 +168,10 @@ input[type='checkbox'] {
     display: flex; 
     gap: 20px; 
 }
+.property-form-image-preview {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    max-height: 240px;
+    object-fit: cover;
+    width: min(100%, 420px);
+}

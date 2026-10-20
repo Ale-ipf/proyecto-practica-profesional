@@ -96,7 +96,7 @@ export default function RegisterPage() {
           ¿Ya tenés cuenta? <Link to="/ingresar">Iniciá sesión</Link>
         </p>
         <p className="pantalla-auth__volver">
-          <Link to="/">← Volver al catálogo</Link>
+          <Link to="/alquileres">← Volver al catálogo</Link>
         </p>
       </div>
     </div>

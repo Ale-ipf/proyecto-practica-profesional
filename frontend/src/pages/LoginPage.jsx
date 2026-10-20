@@ -81,7 +81,7 @@ export default function LoginPage() {
           ¿No tenés cuenta? <Link to="/crear-cuenta">Creá una acá</Link>
         </p>
         <p className="pantalla-auth__volver">
-          <Link to="/">← Volver al catálogo</Link>
+          <Link to="/alquileres">← Volver al catálogo</Link>
         </p>
       </div>
     </div>

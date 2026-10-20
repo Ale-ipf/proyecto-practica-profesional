@@ -27,7 +27,7 @@ export default function PropertyDetailPage() {
       <div className="estado-vacio">
         <h3>No encontramos esta propiedad</h3>
         <p>{error || "Puede que ya no esté disponible."}</p>
-        <Link to="/" className="boton boton--primario" style={{ marginTop: 16 }}>
+        <Link to="/alquileres" className="boton boton--primario" style={{ marginTop: 16 }}>
           Volver al catálogo
         </Link>
       </div>
@@ -38,7 +38,7 @@ export default function PropertyDetailPage() {
 
   return (
     <div>
-      <Link to="/" className="enlace-volver">
+      <Link to="/alquileres" className="enlace-volver">
         ← Volver al catálogo
       </Link>
 
