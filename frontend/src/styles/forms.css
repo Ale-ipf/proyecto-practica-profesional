@@ -175,3 +175,17 @@ input[type='checkbox'] {
     object-fit: cover;
     width: min(100%, 420px);
 }
+.location-picker {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+}
+.location-picker-map {
+    height: 320px;
+    width: 100%;
+}
+.selected-location {
+    color: var(--muted);
+    font-size: .76rem;
+    margin: -10px 0 0;
+}

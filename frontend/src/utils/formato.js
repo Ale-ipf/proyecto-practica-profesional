@@ -13,3 +13,13 @@ export const textoAmbientes = (bedrooms) => {
 
 export const textoEstado = (status) =>
   status === "rented" ? "Alquilado" : "Disponible";
+
+export const textoDisponibilidad = (status, availableSpots) => {
+  if (status === "rented") return "Alquilado";
+
+  const cantidad = Number(availableSpots);
+  if (Number.isFinite(cantidad) && cantidad <= 0) return "Completo";
+
+  const cupos = Number.isFinite(cantidad) ? cantidad : 1;
+  return `${cupos} ${cupos === 1 ? "espacio libre" : "espacios libres"}`;
+};

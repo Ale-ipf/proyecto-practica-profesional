@@ -86,15 +86,18 @@ export const getMyProperties = asyncHandler(async (req, res) => {
 
 // POST /api/properties (protegida, solo owner)
 export const createProperty = asyncHandler(async (req, res) => {
-  const { title, description, price, address, city, bedrooms, is_furnished, status } = req.body;
+  const { title, description, price, address, latitude, longitude, city, bedrooms, available_spots, is_furnished, status } = req.body;
 
   const property = await PropertyModel.create({
     title,
     description,
     price,
     address,
+    latitude,
+    longitude,
     city,
     bedrooms,
+    available_spots,
     is_furnished,
     status,
     userId: req.user.id,
@@ -107,7 +110,7 @@ export const createProperty = asyncHandler(async (req, res) => {
 export const updateProperty = asyncHandler(async (req, res) => {
   const property = await findOwnedPropertyOrFail(req.params.id, req.user.id);
 
-  const fields = ["title", "description", "price", "address", "city", "bedrooms", "is_furnished", "status"];
+  const fields = ["title", "description", "price", "address", "latitude", "longitude", "city", "bedrooms", "available_spots", "is_furnished", "status"];
   const updates = {};
   fields.forEach((field) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];

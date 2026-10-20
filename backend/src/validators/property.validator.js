@@ -17,6 +17,14 @@ export const createPropertyValidator = [
     .notEmpty().withMessage("La dirección es obligatoria.")
     .isLength({ max: 200 }).withMessage("La dirección no puede superar los 200 caracteres."),
 
+  body("latitude")
+    .notEmpty().withMessage("Seleccioná la ubicación del alquiler en el mapa.")
+    .isFloat({ min: -90, max: 90 }).withMessage("La latitud debe estar entre -90 y 90."),
+
+  body("longitude")
+    .notEmpty().withMessage("Seleccioná la ubicación del alquiler en el mapa.")
+    .isFloat({ min: -180, max: 180 }).withMessage("La longitud debe estar entre -180 y 180."),
+
   body("city")
     .trim()
     .notEmpty().withMessage("La ciudad es obligatoria.")
@@ -25,6 +33,10 @@ export const createPropertyValidator = [
   body("bedrooms")
     .optional()
     .isInt({ min: 0 }).withMessage("La cantidad de dormitorios debe ser un número entero positivo."),
+
+  body("available_spots")
+    .optional()
+    .isInt({ min: 0 }).withMessage("Los cupos disponibles deben ser un número entero igual o mayor a 0."),
 
   body("is_furnished")
     .optional()
@@ -40,8 +52,19 @@ export const updatePropertyValidator = [
   body("description").optional().trim().notEmpty().withMessage("La descripción no puede estar vacía."),
   body("price").optional().isFloat({ gt: 0 }).withMessage("El precio debe ser un número mayor a 0."),
   body("address").optional().trim().isLength({ min: 1, max: 200 }).withMessage("La dirección debe tener entre 1 y 200 caracteres."),
+  body("latitude").optional().isFloat({ min: -90, max: 90 }).withMessage("La latitud debe estar entre -90 y 90."),
+  body("longitude").optional().isFloat({ min: -180, max: 180 }).withMessage("La longitud debe estar entre -180 y 180."),
+  body().custom((_, { req }) => {
+    const hasLatitude = req.body.latitude !== undefined;
+    const hasLongitude = req.body.longitude !== undefined;
+    if (hasLatitude !== hasLongitude) {
+      throw new Error("La latitud y la longitud deben enviarse juntas.");
+    }
+    return true;
+  }),
   body("city").optional().trim().isLength({ min: 1, max: 100 }).withMessage("La ciudad debe tener entre 1 y 100 caracteres."),
   body("bedrooms").optional().isInt({ min: 0 }).withMessage("La cantidad de dormitorios debe ser un número entero positivo."),
+  body("available_spots").optional().isInt({ min: 0 }).withMessage("Los cupos disponibles deben ser un número entero igual o mayor a 0."),
   body("is_furnished").optional().isBoolean().withMessage("is_furnished debe ser true o false."),
   body("status").optional().isIn(["available", "rented"]).withMessage("El estado debe ser 'available' o 'rented'."),
 ];

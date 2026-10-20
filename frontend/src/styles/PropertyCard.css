@@ -65,6 +65,22 @@
 	color: #98563f;
 }
 
+.capacity-status {
+	background: #e3eee8;
+	border-radius: 5px;
+	color: var(--green-dark);
+	display: inline-block;
+	font-size: .72rem;
+	font-weight: 800;
+	margin: 0 0 12px;
+	padding: 6px 9px;
+}
+
+.capacity-status-full {
+	background: #f8e5df;
+	color: #98563f;
+}
+
 .property-card h3 {
 	font-family: Georgia, serif;
 	font-size: 1.1rem;

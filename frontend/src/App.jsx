@@ -28,11 +28,14 @@ function normalizarPropiedad(property) {
     barrio: address.match(/Barrio ([^,]+)/i)?.[1] || property.city || 'Formosa',
     direccion: address,
     ambientes: Number(property.bedrooms) || 1,
+    cuposDisponibles: Number(property.available_spots ?? 1),
     tipoInmueble: 'Directo',
     tieneAire: /aire acondicionado/i.test(property.description || ''),
     amoblado: Boolean(property.is_furnished),
     imagen: property.images?.[0]?.url || property.imageUrl || '',
-    coordenadas: property.coordinates || null,
+    coordenadas: property.latitude != null && property.longitude != null
+      ? [Number(property.latitude), Number(property.longitude)]
+      : null,
     dueno: owner.name || 'Propietario',
     propietario: { ...owner, id: owner.id, nombre: owner.name },
     estado: property.status,

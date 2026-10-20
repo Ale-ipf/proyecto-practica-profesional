@@ -23,12 +23,25 @@ export const PropertyModel = sequelize.define("Property", {
     type: DataTypes.STRING(200),
     allowNull: false,
   },
+  latitude: {
+    type: DataTypes.DECIMAL(10, 7),
+    allowNull: true,
+  },
+  longitude: {
+    type: DataTypes.DECIMAL(10, 7),
+    allowNull: true,
+  },
   city: {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
   bedrooms: {
     type: DataTypes.INTEGER,
+    defaultValue: 1,
+  },
+  available_spots: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
     defaultValue: 1,
   },
   is_furnished: {

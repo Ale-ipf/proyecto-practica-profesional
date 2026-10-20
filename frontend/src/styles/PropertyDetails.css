@@ -95,6 +95,11 @@
 	top: 20px;
 }
 
+.detail-status-full {
+	background: #f8e5df;
+	color: #98563f;
+}
+
 .property-details-summary {
 	align-self: center;
 	padding: 44px;
@@ -156,7 +161,7 @@
 .detail-features {
 	display: grid;
 	gap: 14px;
-	grid-template-columns: repeat(4, 1fr);
+	grid-template-columns: repeat(5, 1fr);
 }
 
 .detail-features span {

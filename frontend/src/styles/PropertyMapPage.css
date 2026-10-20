@@ -105,3 +105,9 @@
     color: var(--muted);
     font-size: .7rem;
 }
+
+.map-empty-message {
+    color: var(--muted);
+    font-size: .82rem;
+    line-height: 1.6;
+}
