@@ -5,6 +5,7 @@ import "./src/models/associations.js";
 import { sequelize, testConnection } from "./src/config/database.js";
 import { errorHandler, notFound } from "./src/middlewares/error.middleware.js";
 import router from "./src/routes/index.routes.js";
+import { seedInstitutions } from "./src/seeders/institution.seed.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ const startServer = async () => {
   // Crea/actualiza las tablas en la base de datos según los modelos.
   // alter: true ajusta las tablas existentes sin borrar los datos (ideal en desarrollo).
   await sequelize.sync({ alter: true });
+  await seedInstitutions();
   console.log("✅ Modelos sincronizados con la base de datos.");
 
   app.listen(PORT, () => {

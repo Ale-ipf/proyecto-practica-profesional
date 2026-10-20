@@ -8,9 +8,10 @@ import PropertyFormPage from './components/PropertyFromPage'
 import PropertyMapPage from './components/PropertyMapPage'
 import InstitutionCarousel from './components/InstitutionCarousel'
 import MapPreview from './components/MapPreview'
+import InstitutionsPage from './pages/InstitutionsPage'
 import { useAuth } from './context/AuthContext'
-import { listarPropiedades, listarMisPropiedades, obtenerPropiedad, crearPropiedad, actualizarPropiedad } from './api/properties'
-import { institucionesEducativas } from './data/appData'
+import { listarPropiedades, listarMisPropiedades, obtenerPropiedad, crearPropiedad, actualizarPropiedad, eliminarPropiedad, agregarImagenes, eliminarImagen } from './api/properties'
+import { listarInstituciones } from './api/institutions'
 
 const barrios = ['Centro', 'San Miguel', 'Guadalupe', 'UNaF']
 
@@ -41,11 +42,43 @@ function normalizarPropiedad(property) {
 const rolDeUsuario = (usuario) => usuario?.role
 const nombreDeUsuario = (usuario) => usuario?.name || 'Usuario'
 
+function useInstituciones() {
+  const [instituciones, setInstituciones] = useState([])
+  const [cargandoInstituciones, setCargandoInstituciones] = useState(true)
+  const [errorInstituciones, setErrorInstituciones] = useState('')
+
+  useEffect(() => {
+    let cancelado = false
+    listarInstituciones()
+      .then((data) => {
+        if (!cancelado) {
+          setInstituciones((data.institutions || []).map((institution) => ({
+            ...institution,
+            abreviatura: institution.abbreviation,
+            nombre: institution.name,
+            tipo: institution.type,
+            coordenadas: [Number(institution.latitude), Number(institution.longitude)],
+          })))
+        }
+      })
+      .catch((requestError) => {
+        if (!cancelado) setErrorInstituciones(requestError.message || 'No pudimos cargar las instituciones educativas.')
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoInstituciones(false)
+      })
+
+    return () => { cancelado = true }
+  }, [])
+
+  return { instituciones, cargandoInstituciones, errorInstituciones }
+}
+
 function Header({ usuario, onLogout }) {
   return (
     <header className="site-header">
       <Link className="brand-title" to="/">Alquileres Formosa <span aria-hidden="true"></span></Link>
-      <nav className="main-nav" aria-label="Navegación principal"><Link to="/mapa">Mapa</Link></nav>
+      <nav className="main-nav" aria-label="Navegación principal"><Link to="/alquileres">Alquileres</Link></nav>
       <div className="header-actions">
         {usuario ? <><span className="greeting">Hola, {nombreDeUsuario(usuario)}</span><Link className="button button-primary" to={rolDeUsuario(usuario) === 'owner' ? '/panel-dueno' : '/panel-estudiante'}>{rolDeUsuario(usuario) === 'owner' ? '👤 Mi panel' : '🎓 Mi panel'}</Link><button className="button button-outline-danger" type="button" onClick={onLogout}>Cerrar sesión</button></> : <><Link className="button button-primary" to="/login">Iniciar sesión</Link><Link className="button button-accent" to="/registro">Crear cuenta</Link></>}
       </div>
@@ -73,9 +106,20 @@ function Filters({ filters, setFilters, mostrarFavoritos }) {
 
 function PropertyDetailsPage() {
   const { id } = useParams()
+  const { usuario } = useAuth()
   const [propiedad, setPropiedad] = useState(null)
+  const [favoritos, setFavoritos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (rolDeUsuario(usuario) !== 'student') {
+      setFavoritos([])
+      return
+    }
+    const almacenados = localStorage.getItem('alquileres-formosa-favorites')
+    setFavoritos(almacenados ? JSON.parse(almacenados).map(Number) : [])
+  }, [usuario])
 
   useEffect(() => {
     let cancelado = false
@@ -93,16 +137,32 @@ function PropertyDetailsPage() {
     return () => { cancelado = true }
   }, [id])
 
+  const alternarFavorito = () => {
+    const actualizados = favoritos.includes(Number(propiedad.id))
+      ? favoritos.filter((favorito) => favorito !== Number(propiedad.id))
+      : [...favoritos, Number(propiedad.id)]
+    setFavoritos(actualizados)
+    localStorage.setItem('alquileres-formosa-favorites', JSON.stringify(actualizados))
+  }
+
   if (cargando) return <InformativePage eyebrow="CARGANDO" title="Buscando la propiedad." description="Un momento, estamos consultando el servidor." />
 
   if (error || !propiedad) {
-    return <InformativePage eyebrow="PROPIEDAD NO DISPONIBLE" title="No pudimos encontrar este alquiler." description={error || 'Volvé al inicio para explorar las propiedades disponibles.'}><Link className="button button-primary" to="/">Ver alquileres</Link></InformativePage>
+    return <InformativePage eyebrow="PROPIEDAD NO DISPONIBLE" title="No pudimos encontrar este alquiler." description={error || 'Volvé al inicio para explorar las propiedades disponibles.'}><Link className="button button-primary" to="/alquileres">Ver alquileres</Link></InformativePage>
   }
 
-  return <PropertyDetails propiedad={propiedad} />
+  return (
+    <PropertyDetails
+      propiedad={propiedad}
+      esEstudiante={rolDeUsuario(usuario) === 'student'}
+      esFavorito={favoritos.includes(Number(propiedad.id))}
+      onToggleFavorite={alternarFavorito}
+    />
+  )
 }
 
-function HomePage({ usuario, onLogout }) {
+function HomePage({ usuario, onLogout, vista = 'inicio' }) {
+  const { instituciones, cargandoInstituciones, errorInstituciones } = useInstituciones()
   const [favoritos, setFavoritos] = useState([])
   const [propiedades, setPropiedades] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -110,6 +170,8 @@ function HomePage({ usuario, onLogout }) {
   const [pagina, setPagina] = useState(1)
   const [totalPaginas, setTotalPaginas] = useState(1)
   const [filters, setFilters] = useState({ barrio: 'Todos', ambientes: 'Todos', tipo: 'Todos', orden: 'Defecto', precioMaximo: '', soloConAire: false, soloFavoritos: false })
+  const mostrarVistaPrevia = vista === 'perfil-estudiante' && rolDeUsuario(usuario) === 'student'
+  const esPropietario = vista !== 'catalogo' && rolDeUsuario(usuario) === 'owner'
 
   useEffect(() => {
     let cancelado = false
@@ -117,13 +179,13 @@ function HomePage({ usuario, onLogout }) {
       setCargando(true)
       setError('')
       try {
-        const data = rolDeUsuario(usuario) === 'owner'
+        const data = esPropietario
           ? await listarMisPropiedades()
-          : await listarPropiedades({ page: pagina, limit: 9, status: 'available' })
+          : await listarPropiedades({ page: pagina, limit: mostrarVistaPrevia ? 3 : 9, status: 'available' })
         if (cancelado) return
         const items = (data.properties || []).map(normalizarPropiedad)
         setPropiedades(items)
-        setTotalPaginas(rolDeUsuario(usuario) === 'owner' ? 1 : data.pagination?.totalPages || 1)
+        setTotalPaginas(esPropietario || mostrarVistaPrevia ? 1 : data.pagination?.totalPages || 1)
       } catch (requestError) {
         if (!cancelado) setError(requestError.message || 'No pudimos cargar las propiedades. Revisá que el backend esté corriendo.')
       } finally {
@@ -132,11 +194,11 @@ function HomePage({ usuario, onLogout }) {
     }
     cargar()
     return () => { cancelado = true }
-  }, [usuario, pagina])
+  }, [usuario, pagina, esPropietario, mostrarVistaPrevia])
 
   useEffect(() => {
     setPagina(1)
-  }, [usuario])
+  }, [usuario, vista])
 
   useEffect(() => {
     if (rolDeUsuario(usuario) !== 'student') return
@@ -144,7 +206,6 @@ function HomePage({ usuario, onLogout }) {
     setFavoritos(storedFavorites ? JSON.parse(storedFavorites).map(Number) : [])
   }, [usuario])
 
-  const esPropietario = rolDeUsuario(usuario) === 'owner'
   const alquileres = esPropietario
     ? propiedades.filter((propiedad) => String(propiedad.owner?.id) === String(usuario.id))
     : propiedades.filter((propiedad) => propiedad.estado === 'available')
@@ -162,16 +223,85 @@ function HomePage({ usuario, onLogout }) {
     return [...resultado].sort((a, b) => filters.orden === 'MenorMayor' ? a.precio - b.precio : filters.orden === 'MayorMenor' ? b.precio - a.precio : 0)
   }, [alquileres, favoritos, filters])
 
-  const alternarFavorito = async (id) => {
-    const actualizados = favoritos.includes(Number(id))
-      ? favoritos.filter((favorito) => favorito !== Number(id))
-      : [...favoritos, Number(id)]
-    setFavoritos(actualizados)
-    localStorage.setItem('alquileres-formosa-favorites', JSON.stringify(actualizados))
+  const borrarPropiedad = async (id) => {
+    await eliminarPropiedad(id)
+    setPropiedades((actuales) => actuales.filter((propiedad) => Number(propiedad.id) !== Number(id)))
   }
 
   return (
-    <div className="app-shell"><Header usuario={usuario} onLogout={onLogout} />{usuario && <div className="welcome-bar">Hola, {nombreDeUsuario(usuario)}. <span>{esPropietario ? 'Administrá tus propiedades desde tu panel.' : 'Encontrá tu próximo hogar en Formosa.'}</span></div>}<main>{!esPropietario && <InstitutionCarousel instituciones={institucionesEducativas} propiedades={propiedades} />}<MapPreview propiedades={propiedades} instituciones={institucionesEducativas} /><div className="listings-toolbar"><div><span className="section-kicker">{esPropietario ? 'MIS PUBLICACIONES' : 'CATÁLOGO DISPONIBLE'}</span><h2>{esPropietario ? 'Mis alquileres' : 'Alquileres disponibles en Formosa'}</h2></div>{esPropietario && <Link className="button button-primary" to="/alquileres/nuevo">+ Agregar alquiler</Link>}</div>{!esPropietario && <Filters filters={filters} setFilters={(nextFilters) => { setFilters(nextFilters); setPagina(1) }} mostrarFavoritos={rolDeUsuario(usuario) === 'student'} />}<section className="listings-section">{cargando && <p className="muted">Cargando propiedades…</p>}{error && <p className="error-message">{error}</p>}{!cargando && !error && !alquileres.length && <p className="muted">No hay propiedades para mostrar.</p>}<div className="property-grid">{!cargando && alquileresFiltrados.map((alquiler) => <PropertyCard key={alquiler.id} propiedad={alquiler} usuario={usuario} favoritos={favoritos} onToggleFavorite={alternarFavorito} />)}</div>{!cargando && !!alquileres.length && !alquileresFiltrados.length && <p className="empty-message">No encontramos alquileres con esos filtros. 🔍</p>}{!esPropietario && totalPaginas > 1 && <nav className="pagination-controls" aria-label="Paginación de propiedades"><button type="button" disabled={pagina <= 1} onClick={() => setPagina((current) => current - 1)}>Anterior</button><span>Página {pagina} de {totalPaginas}</span><button type="button" disabled={pagina >= totalPaginas} onClick={() => setPagina((current) => current + 1)}>Siguiente</button></nav>}</section></main><footer className="site-footer"><p>© 2026 Alquileres Formosa</p><div><Link to="/mapa">🗺️ Ver mapa</Link></div></footer></div>
+    <div className="app-shell">
+      <Header usuario={usuario} onLogout={onLogout} />
+      {usuario && (
+        <div className="welcome-bar">
+          Hola, {nombreDeUsuario(usuario)}.
+          <span>{esPropietario ? 'Administrá tus propiedades desde tu panel.' : 'Encontrá tu próximo hogar en Formosa.'}</span>
+          {rolDeUsuario(usuario) === 'student' && (
+            <Link className="button button-accent" to="/instituciones">Ver instituciones</Link>
+          )}
+        </div>
+      )}
+      <main>
+        {errorInstituciones && <p className="error-message" role="alert">{errorInstituciones}</p>}
+        {!cargandoInstituciones && instituciones.length === 0 && !errorInstituciones && (
+          <p className="muted">Todavía no hay instituciones educativas cargadas.</p>
+        )}
+        {vista !== 'catalogo' && !esPropietario && instituciones.length > 0 && (
+          <InstitutionCarousel instituciones={instituciones} propiedades={propiedades} />
+        )}
+        <div className="listings-toolbar" id="alquileres">
+          <div>
+            <span className="section-kicker">{esPropietario ? 'MIS PUBLICACIONES' : 'CATÁLOGO DISPONIBLE'}</span>
+            <h2>{esPropietario ? 'Mis alquileres' : mostrarVistaPrevia ? 'Alquileres destacados' : 'Alquileres disponibles en Formosa'}</h2>
+          </div>
+          {esPropietario && (
+            <Link className="button button-primary" to="/alquileres/nuevo">+ Agregar alquiler</Link>
+          )}
+          {mostrarVistaPrevia && (
+            <Link className="button button-primary" to="/alquileres">Ver todos los alquileres</Link>
+          )}
+        </div>
+        {!esPropietario && !mostrarVistaPrevia && (
+          <Filters
+            filters={filters}
+            setFilters={(nextFilters) => { setFilters(nextFilters); setPagina(1) }}
+            mostrarFavoritos={rolDeUsuario(usuario) === 'student'}
+          />
+        )}
+        <section className="listings-section">
+          {cargando && <p className="muted">Cargando propiedades…</p>}
+          {error && <p className="error-message">{error}</p>}
+          {!cargando && !error && !alquileres.length && <p className="muted">No hay propiedades para mostrar.</p>}
+          <div className="property-grid">
+            {!cargando && alquileresFiltrados.map((alquiler) => (
+              <PropertyCard
+                key={alquiler.id}
+                propiedad={alquiler}
+                usuario={usuario}
+                favoritos={favoritos}
+                onDelete={borrarPropiedad}
+              />
+            ))}
+          </div>
+          {!cargando && !!alquileres.length && !alquileresFiltrados.length && (
+            <p className="empty-message">No encontramos alquileres con esos filtros. 🔍</p>
+          )}
+          {!esPropietario && !mostrarVistaPrevia && totalPaginas > 1 && (
+            <nav className="pagination-controls" aria-label="Paginación de propiedades">
+              <button type="button" disabled={pagina <= 1} onClick={() => setPagina((current) => current - 1)}>Anterior</button>
+              <span>Página {pagina} de {totalPaginas}</span>
+              <button type="button" disabled={pagina >= totalPaginas} onClick={() => setPagina((current) => current + 1)}>Siguiente</button>
+            </nav>
+          )}
+          {!mostrarVistaPrevia && !esPropietario && !cargandoInstituciones && instituciones.length > 0 && (
+            <MapPreview propiedades={propiedades} instituciones={instituciones} />
+          )}
+        </section>
+      </main>
+      <footer className="site-footer">
+        <p>© 2026 Alquileres Formosa</p>
+        <div><Link to="/alquileres">Ver alquileres</Link></div>
+      </footer>
+    </div>
   )
 }
 
@@ -254,6 +384,7 @@ function EditPropertyRoute({ usuario, onSave }) {
 }
 
 function PropertyMapRoute() {
+  const { instituciones, cargandoInstituciones, errorInstituciones } = useInstituciones()
   const [propiedades, setPropiedades] = useState([])
   const [error, setError] = useState('')
 
@@ -270,15 +401,28 @@ function PropertyMapRoute() {
   }, [])
 
   if (error) return <InformativePage eyebrow="ERROR DE CONEXIÓN" title="No pudimos cargar el mapa." description={error}><Link className="button button-primary" to="/">Volver al inicio</Link></InformativePage>
-  return <PropertyMapPage propiedades={propiedades} instituciones={institucionesEducativas} />
+  if (cargandoInstituciones) return <InformativePage eyebrow="CARGANDO" title="Cargando el mapa." description="Estamos buscando las instituciones educativas." />
+  if (errorInstituciones) return <InformativePage eyebrow="ERROR DE CONEXIÓN" title="No pudimos cargar el mapa." description={errorInstituciones}><Link className="button button-primary" to="/">Volver al inicio</Link></InformativePage>
+  if (instituciones.length === 0) return <InformativePage eyebrow="MAPA INTERACTIVO" title="Todavía no hay instituciones cargadas." description="Cuando haya instituciones disponibles, vas a poder explorarlas en el mapa."><Link className="button button-primary" to="/">Volver al inicio</Link></InformativePage>
+  return <PropertyMapPage propiedades={propiedades} instituciones={instituciones} />
 }
 
 function App() {
   const { usuario, login, registrar, logout, cargandoSesion } = useAuth()
 
   const guardarPropiedad = async (propiedad) => {
-    const { id, ...datos } = propiedad
-    return id ? actualizarPropiedad(id, datos) : crearPropiedad(datos)
+    const { id, imageUrl, existingImageUrl, existingImageIds, ...datos } = propiedad
+    const response = id
+      ? await actualizarPropiedad(id, datos)
+      : await crearPropiedad(datos)
+    const propertyId = id || response.property.id
+
+    if (imageUrl !== existingImageUrl) {
+      if (imageUrl) await agregarImagenes(propertyId, [imageUrl])
+      await Promise.all((existingImageIds || []).map((imageId) => eliminarImagen(propertyId, imageId)))
+    }
+
+    return response
   }
 
   if (cargandoSesion) return <InformativePage eyebrow="CARGANDO" title="Conectando con tu cuenta." description="Estamos verificando tu sesión." />
@@ -286,12 +430,14 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage usuario={usuario} onLogout={logout} />} />
+      <Route path="/alquileres" element={<HomePage usuario={usuario} onLogout={logout} vista="catalogo" />} />
       <Route path="/alquileres/:id" element={<PropertyDetailsPage />} />
       <Route path="/mapa" element={<PropertyMapRoute />} />
+      <Route path="/instituciones" element={<InstitutionsPage />} />
       <Route path="/login" element={<LoginPage onLogin={login} />} />
       <Route path="/registro" element={<RegisterPage onRegister={registrar} />} />
       <Route path="/panel-dueno" element={<HomePage usuario={usuario} onLogout={logout} />} />
-      <Route path="/panel-estudiante" element={<HomePage usuario={usuario} onLogout={logout} />} />
+      <Route path="/panel-estudiante" element={<HomePage usuario={usuario} onLogout={logout} vista="perfil-estudiante" />} />
       <Route path="/alquileres/nuevo" element={rolDeUsuario(usuario) === 'owner' ? <PropertyFormPage usuario={usuario} onSave={guardarPropiedad} /> : <LoginPage onLogin={login} />} />
       <Route path="/alquileres/:id/editar" element={<EditPropertyRoute usuario={usuario} onSave={guardarPropiedad} />} />
       <Route path="*" element={<InformativePage eyebrow="404" title="Esta pantalla todavía no existe." description="Volvé al inicio para seguir explorando los alquileres disponibles."><Link className="button button-primary" to="/">Volver al inicio</Link></InformativePage>} />
