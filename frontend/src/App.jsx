@@ -61,6 +61,10 @@ function useInstituciones() {
             nombre: institution.name,
             tipo: institution.type,
             coordenadas: [Number(institution.latitude), Number(institution.longitude)],
+            paradas: (institution.busStops || []).map((stop) => ({
+              ...stop,
+              coordenadas: [Number(stop.latitude), Number(stop.longitude)],
+            })),
           })))
         }
       })

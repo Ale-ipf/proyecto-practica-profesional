@@ -12,10 +12,18 @@ function distanceInKm(first, second) {
   return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
+function distanceToInstitution(coordenadas, institucion) {
+  const referencePoints = institucion.paradas?.length
+    ? institucion.paradas.map((parada) => parada.coordenadas)
+    : [institucion.coordenadas]
+
+  return Math.min(...referencePoints.map((point) => distanceInKm(point, coordenadas)))
+}
+
 function InstitutionCarousel({ instituciones, propiedades }) {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const institucion = instituciones[selectedIndex - 1]
-  const nearbyProperties = useMemo(() => institucion ? propiedades.filter((propiedad) => propiedad.estado === 'available' && propiedad.coordenadas).map((propiedad) => ({ ...propiedad, distancia: distanceInKm(institucion.coordenadas, propiedad.coordenadas) })).sort((first, second) => first.distancia - second.distancia).slice(0, 3) : [], [institucion, propiedades])
+  const nearbyProperties = useMemo(() => institucion ? propiedades.filter((propiedad) => propiedad.estado === 'available' && propiedad.coordenadas).map((propiedad) => ({ ...propiedad, distancia: distanceToInstitution(propiedad.coordenadas, institucion) })).sort((first, second) => first.distancia - second.distancia).slice(0, 3) : [], [institucion, propiedades])
   const totalSlides = instituciones.length + 1
   const changeSlide = (direction) => setSelectedIndex((current) => (current + direction + totalSlides) % totalSlides)
 
