@@ -31,9 +31,9 @@ const PORT = process.env.PORT || 3000;
 
 const startServer = async () => {
   await testConnection();
-  // Crea/actualiza las tablas en la base de datos según los modelos.
-  // alter: true ajusta las tablas existentes sin borrar los datos (ideal en desarrollo).
-  await sequelize.sync({ alter: true });
+  // Evitamos ALTER TABLE automático en desarrollo porque MySQL puede fallar con cambios de JSON
+  // sobre tablas ya creadas. sync() solo crea las tablas si faltan y no rompe la estructura existente.
+  await sequelize.sync();
   await seedInstitutions();
   console.log("✅ Modelos sincronizados con la base de datos.");
 

@@ -30,6 +30,11 @@ export const InstitutionModel = sequelize.define("Institution", {
     type: DataTypes.DECIMAL(10, 7),
     allowNull: false,
   },
+  busStops: {
+    type: DataTypes.JSON,
+    allowNull: false,
+    defaultValue: [],
+  },
 }, {
   timestamps: false,
 });
