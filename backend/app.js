@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import "./src/models/associations.js";
 import { sequelize, testConnection } from "./src/config/database.js";
 import { errorHandler, notFound } from "./src/middlewares/error.middleware.js";
+import { UPLOADS_DIR } from "./src/middlewares/upload.middleware.js";
 import router from "./src/routes/index.routes.js";
 import { seedInstitutions } from "./src/seeders/institution.seed.js";
 
@@ -13,6 +14,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/uploads", express.static(UPLOADS_DIR));
 
 app.get("/", (req, res) => {
   res.json({ message: "API funcionando 🚀" });

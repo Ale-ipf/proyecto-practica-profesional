@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { obtenerPropiedad } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
 import { formatearPrecio, textoAmbientes, textoEstado } from "../utils/formato.js";
+import { getAssetUrl } from "../api/client.js";
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
@@ -34,7 +35,7 @@ export default function PropertyDetailPage() {
     );
   }
 
-  const imagen = propiedad.images?.[0]?.url;
+  const imagen = getAssetUrl(propiedad.images?.[0]?.url);
 
   return (
     <div>

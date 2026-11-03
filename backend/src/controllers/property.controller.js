@@ -4,6 +4,8 @@ import { ApiError } from "../helpers/api-error.js";
 import { PropertyModel } from "../models/property.model.js";
 import { PropertyImageModel } from "../models/property-image.model.js";
 import { UserModel } from "../models/user.model.js";
+import { sequelize } from "../config/database.js";
+import { removeUploadedFile, saveUploadedFile } from "../middlewares/upload.middleware.js";
 
 const propertyIncludes = [
   { model: PropertyImageModel, as: "images" },
@@ -88,22 +90,47 @@ export const getMyProperties = asyncHandler(async (req, res) => {
 export const createProperty = asyncHandler(async (req, res) => {
   const { title, description, price, address, latitude, longitude, city, bedrooms, available_spots, is_furnished, status } = req.body;
 
-  const property = await PropertyModel.create({
-    title,
-    description,
-    price,
-    address,
-    latitude,
-    longitude,
-    city,
-    bedrooms,
-    available_spots,
-    is_furnished,
-    status,
-    userId: req.user.id,
-  });
+  let uploadedFile;
+  try {
+    if (req.file) uploadedFile = await saveUploadedFile(req.file);
 
-  res.status(201).json({ message: "Propiedad creada correctamente.", property });
+    const property = await sequelize.transaction(async (transaction) => {
+      const createdProperty = await PropertyModel.create({
+        title,
+        description,
+        price,
+        address,
+        latitude,
+        longitude,
+        city,
+        bedrooms,
+        available_spots,
+        is_furnished,
+        status,
+        userId: req.user.id,
+      }, { transaction });
+
+      if (uploadedFile) {
+        await PropertyImageModel.create({
+          url: uploadedFile.url,
+          propertyId: createdProperty.id,
+        }, { transaction });
+      }
+
+      return createdProperty;
+    });
+
+    res.status(201).json({ message: "Propiedad creada correctamente.", property });
+  } catch (error) {
+    if (uploadedFile) {
+      try {
+        await removeUploadedFile(uploadedFile.filePath);
+      } catch (cleanupError) {
+        if (cleanupError.code !== "ENOENT") console.error(cleanupError);
+      }
+    }
+    throw error;
+  }
 });
 
 // PUT /api/properties/:id (protegida, solo el owner dueño de la propiedad)

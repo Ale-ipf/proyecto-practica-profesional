@@ -9,6 +9,10 @@ export const addImagesValidator = [
   body("urls.*").isURL().withMessage("Cada url de imagen debe ser una URL válida."),
 ];
 
+export const imageUploadValidator = [
+  param("propertyId").isInt({ min: 1 }).withMessage("El id de la propiedad no es válido."),
+];
+
 export const imageIdParamValidator = [
   param("propertyId").isInt({ min: 1 }).withMessage("El id de la propiedad no es válido."),
   param("imageId").isInt({ min: 1 }).withMessage("El id de la imagen no es válido."),

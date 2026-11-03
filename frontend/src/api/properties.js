@@ -21,7 +21,11 @@ export const listarMisPropiedades = () =>
   apiRequest("/properties/mine/list", { auth: true });
 
 export const crearPropiedad = (datos) =>
-  apiRequest("/properties", { method: "POST", body: datos, auth: true });
+  apiRequest("/properties", {
+    method: "POST",
+    body: datos.imageFile ? crearFormulario(datos) : datos,
+    auth: true,
+  });
 
 export const actualizarPropiedad = (id, datos) =>
   apiRequest(`/properties/${id}`, { method: "PUT", body: datos, auth: true });
@@ -36,8 +40,28 @@ export const agregarImagenes = (propertyId, urls) =>
     auth: true,
   });
 
+export const subirImagenPropiedad = (propertyId, imageFile) => {
+  const body = new FormData();
+  body.append("image", imageFile);
+  return apiRequest(`/properties/${propertyId}/images/upload`, {
+    method: "POST",
+    body,
+    auth: true,
+  });
+};
+
 export const eliminarImagen = (propertyId, imageId) =>
   apiRequest(`/properties/${propertyId}/images/${imageId}`, {
     method: "DELETE",
     auth: true,
   });
+
+function crearFormulario(datos) {
+  const { imageFile, ...campos } = datos;
+  const body = new FormData();
+  Object.entries(campos).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) body.append(key, value);
+  });
+  body.append("image", imageFile);
+  return body;
+}

@@ -6,6 +6,11 @@ export const getToken = () => localStorage.getItem(TOKEN_KEY);
 export const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);
 export const clearToken = () => localStorage.removeItem(TOKEN_KEY);
 
+export const getAssetUrl = (url) => {
+  if (!url) return "";
+  return new URL(url, new URL(API_URL, window.location.origin).origin).href;
+};
+
 /**
  * Error normalizado para poder mostrar el mensaje del backend
  * (incluye los detalles de express-validator cuando existen).
@@ -24,7 +29,8 @@ export class ApiRequestError extends Error {
  * (middlewares/error.middleware.js y validate.middleware.js) a ApiRequestError.
  */
 export const apiRequest = async (path, { method = "GET", body, auth = false } = {}) => {
-  const headers = { "Content-Type": "application/json" };
+  const isFormData = body instanceof FormData;
+  const headers = isFormData ? {} : { "Content-Type": "application/json" };
 
   if (auth) {
     const token = getToken();
@@ -34,7 +40,7 @@ export const apiRequest = async (path, { method = "GET", body, auth = false } = 
   const response = await fetch(`${API_URL}${path}`, {
     method,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: body !== undefined ? (isFormData ? body : JSON.stringify(body)) : undefined,
   });
 
   const isJson = response.headers.get("content-type")?.includes("application/json");

@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import LocationPicker from './LocationPicker'
+import { getAssetUrl } from '../api/client'
 
 const initialForm = {
   title: '',
@@ -35,9 +36,23 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
   } : initialForm)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState('')
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreview('')
+      return undefined
+    }
+
+    const previewUrl = URL.createObjectURL(imageFile)
+    setImagePreview(previewUrl)
+    return () => URL.revokeObjectURL(previewUrl)
+  }, [imageFile])
 
   const update = (event) => {
     const { name, value, type, checked } = event.target
+    if (name === 'imageUrl') setImageFile(null)
     setForm({ ...form, [name]: type === 'checkbox' ? checked : value })
   }
 
@@ -68,6 +83,7 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
         longitude: Number(form.longitude),
         city: form.city,
         imageUrl: form.imageUrl.trim(),
+        imageFile,
         existingImageUrl: propiedad?.images?.[0]?.url || '',
         existingImageIds: propiedad?.images?.map((image) => image.id) || [],
         bedrooms: Number(form.bedrooms),
@@ -84,7 +100,7 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
   }
 
   return (
-    <div className="app-shell route-page-shell"><header className="site-header"><Link className="brand-title" to="/">Alquileres Formosa</Link><Link className="button button-accent" to="/panel-dueno">Volver al panel</Link></header><main className="route-page property-form-page"><span className="eyebrow">PANEL DE PROPIETARIO · {usuario.name}</span><h1>{propiedad ? 'Modificar alquiler' : 'Agregar un nuevo alquiler'}</h1><p className="route-description">{propiedad ? 'Actualizá la información visible de tu publicación.' : 'Publicá una propiedad y empezá a recibir consultas.'}</p><form className="property-form" onSubmit={submit}><div className="property-form-grid"><label>Título<input name="title" value={form.title} onChange={update} placeholder="Ej: Departamento luminoso" required /></label><label>Precio mensual<input type="number" min="0" name="price" value={form.price} onChange={update} required /></label><label>Dirección<input name="address" value={form.address} onChange={update} placeholder="Ej: Av. principal 123" required /></label><label>Ciudad<input name="city" value={form.city} onChange={update} placeholder="Formosa" required /></label><label>Ambientes<select name="bedrooms" value={form.bedrooms} onChange={update}><option value="1">Monoambiente</option><option value="2">2 ambientes</option><option value="3">3 ambientes</option></select></label><label>Cupos disponibles<input type="number" min="0" step="1" name="available_spots" value={form.available_spots} onChange={update} required /><small>Ingresá 0 si ya no hay espacios libres.</small></label><label>Estado<select name="status" value={form.status} onChange={update}><option value="available">Disponible</option><option value="rented">Alquilado</option></select></label></div><label>Ubicación en el mapa<span>Hacé clic sobre el mapa para marcar el alquiler.</span><LocationPicker latitude={form.latitude} longitude={form.longitude} onSelect={selectLocation} /></label><p className="selected-location" aria-live="polite">{form.latitude && form.longitude ? `Ubicación seleccionada: ${form.latitude}, ${form.longitude}` : 'Todavía no seleccionaste una ubicación.'}</p><label>URL de la imagen<input type="url" name="imageUrl" value={form.imageUrl} onChange={update} placeholder="https://ejemplo.com/imagen.jpg" /></label>{form.imageUrl && <img className="property-form-image-preview" src={form.imageUrl} alt="Vista previa de la imagen del alquiler" />}<label>Descripción<textarea name="description" value={form.description} onChange={update} placeholder="Contá qué hace especial a esta propiedad" rows="5" required /></label><div className="property-form-options"><label className="checkbox-label"><input type="checkbox" name="is_furnished" checked={form.is_furnished} onChange={update} /> Amoblado</label></div>{error && <p className="error-message" role="alert">{error}</p>}<button className="button button-primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : propiedad ? 'Guardar cambios' : 'Publicar alquiler'}</button></form></main></div>
+    <div className="app-shell route-page-shell"><header className="site-header"><Link className="brand-title" to="/">Alquileres Formosa</Link><Link className="button button-accent" to="/panel-dueno">Volver al panel</Link></header><main className="route-page property-form-page"><span className="eyebrow">PANEL DE PROPIETARIO · {usuario.name}</span><h1>{propiedad ? 'Modificar alquiler' : 'Agregar un nuevo alquiler'}</h1><p className="route-description">{propiedad ? 'Actualizá la información visible de tu publicación.' : 'Publicá una propiedad y empezá a recibir consultas.'}</p><form className="property-form" onSubmit={submit}><div className="property-form-grid"><label>Título<input name="title" value={form.title} onChange={update} placeholder="Ej: Departamento luminoso" required /></label><label>Precio mensual<input type="number" min="0" name="price" value={form.price} onChange={update} required /></label><label>Dirección<input name="address" value={form.address} onChange={update} placeholder="Ej: Av. principal 123" required /></label><label>Ciudad<input name="city" value={form.city} onChange={update} placeholder="Formosa" required /></label><label>Ambientes<select name="bedrooms" value={form.bedrooms} onChange={update}><option value="1">Monoambiente</option><option value="2">2 ambientes</option><option value="3">3 ambientes</option></select></label><label>Cupos disponibles<input type="number" min="0" step="1" name="available_spots" value={form.available_spots} onChange={update} required /><small>Ingresá 0 si ya no hay espacios libres.</small></label><label>Estado<select name="status" value={form.status} onChange={update}><option value="available">Disponible</option><option value="rented">Alquilado</option></select></label></div><label>Ubicación en el mapa<span>Hacé clic sobre el mapa para marcar el alquiler.</span><LocationPicker latitude={form.latitude} longitude={form.longitude} onSelect={selectLocation} /></label><p className="selected-location" aria-live="polite">{form.latitude && form.longitude ? `Ubicación seleccionada: ${form.latitude}, ${form.longitude}` : 'Todavía no seleccionaste una ubicación.'}</p><label>Imagen del alquiler<input type="file" accept="image/jpeg,image/png,image/webp" onChange={(event) => { setImageFile(event.target.files?.[0] || null); setForm((current) => ({ ...current, imageUrl: '' })) }} /><small>Elegí una imagen JPG, PNG o WebP de hasta 5 MB. Se guarda junto a la publicación.</small></label>{imagePreview && <img className="property-form-image-preview" src={imagePreview} alt="Vista previa de la imagen seleccionada" />}{!imageFile && form.imageUrl && <img className="property-form-image-preview" src={getAssetUrl(form.imageUrl)} alt="Vista previa de la imagen del alquiler" />}<label>O pegá una URL de imagen<input type="url" name="imageUrl" value={form.imageUrl} onChange={update} placeholder="https://ejemplo.com/imagen.jpg" /></label><label>Descripción<textarea name="description" value={form.description} onChange={update} placeholder="Contá qué hace especial a esta propiedad" rows="5" required /></label><div className="property-form-options"><label className="checkbox-label"><input type="checkbox" name="is_furnished" checked={form.is_furnished} onChange={update} /> Amoblado</label></div>{error && <p className="error-message" role="alert">{error}</p>}<button className="button button-primary" type="submit" disabled={saving}>{saving ? 'Guardando…' : propiedad ? 'Guardar cambios' : 'Publicar alquiler'}</button></form></main></div>
   )
 }
 

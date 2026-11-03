@@ -10,7 +10,8 @@ import InstitutionCarousel from './components/InstitutionCarousel'
 import MapPreview from './components/MapPreview'
 import InstitutionsPage from './pages/InstitutionsPage'
 import { useAuth } from './context/AuthContext'
-import { listarPropiedades, listarMisPropiedades, obtenerPropiedad, crearPropiedad, actualizarPropiedad, eliminarPropiedad, agregarImagenes, eliminarImagen } from './api/properties'
+import { listarPropiedades, listarMisPropiedades, obtenerPropiedad, crearPropiedad, actualizarPropiedad, eliminarPropiedad, agregarImagenes, subirImagenPropiedad, eliminarImagen } from './api/properties'
+import { getAssetUrl } from './api/client'
 import { listarInstituciones } from './api/institutions'
 
 const barrios = ['Centro', 'San Miguel', 'Guadalupe', 'UNaF']
@@ -32,7 +33,7 @@ function normalizarPropiedad(property) {
     tipoInmueble: 'Directo',
     tieneAire: /aire acondicionado/i.test(property.description || ''),
     amoblado: Boolean(property.is_furnished),
-    imagen: property.images?.[0]?.url || property.imageUrl || '',
+    imagen: getAssetUrl(property.images?.[0]?.url || property.imageUrl || ''),
     coordenadas: property.latitude != null && property.longitude != null
       ? [Number(property.latitude), Number(property.longitude)]
       : null,
@@ -418,13 +419,16 @@ function App() {
   const { usuario, login, registrar, logout, cargandoSesion } = useAuth()
 
   const guardarPropiedad = async (propiedad) => {
-    const { id, imageUrl, existingImageUrl, existingImageIds, ...datos } = propiedad
+    const { id, imageUrl, imageFile, existingImageUrl, existingImageIds, ...datos } = propiedad
     const response = id
       ? await actualizarPropiedad(id, datos)
-      : await crearPropiedad(datos)
+      : await crearPropiedad({ ...datos, imageFile })
     const propertyId = id || response.property.id
 
-    if (imageUrl !== existingImageUrl) {
+    if (id && imageFile) {
+      await subirImagenPropiedad(propertyId, imageFile)
+      await Promise.all((existingImageIds || []).map((imageId) => eliminarImagen(propertyId, imageId)))
+    } else if (imageUrl !== existingImageUrl) {
       if (imageUrl) await agregarImagenes(propertyId, [imageUrl])
       await Promise.all((existingImageIds || []).map((imageId) => eliminarImagen(propertyId, imageId)))
     }
