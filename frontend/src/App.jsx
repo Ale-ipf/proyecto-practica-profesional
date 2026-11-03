@@ -9,6 +9,7 @@ import PropertyMapPage from "./components/PropertyMapPage";
 import InstitutionCarousel from "./components/InstitutionCarousel";
 import MapPreview from "./components/MapPreview";
 import InstitutionsPage from "./pages/InstitutionsPage";
+import StudentDashboardPage from "./pages/StudentDashboardPage";
 import { useAuth } from "./context/AuthContext";
 import {
   listarPropiedades,
@@ -600,15 +601,9 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
               </button>
             </nav>
           )}
-          {!mostrarVistaPrevia &&
-            !esPropietario &&
-            !cargandoInstituciones &&
-            instituciones.length > 0 && (
-              <MapPreview
-                propiedades={propiedades}
-                instituciones={instituciones}
-              />
-            )}
+          {!mostrarVistaPrevia && !esPropietario && (
+            <MapPreview propiedades={propiedades} />
+          )}
         </section>
       </main>
       <footer className="site-footer">
@@ -850,9 +845,8 @@ function EditPropertyRoute({ usuario, onSave }) {
 }
 
 function PropertyMapRoute() {
-  const { instituciones, cargandoInstituciones, errorInstituciones } =
-    useInstituciones();
   const [propiedades, setPropiedades] = useState([]);
+  const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -868,6 +862,9 @@ function PropertyMapRoute() {
             requestError.message ||
               "No pudimos cargar las propiedades para el mapa.",
           );
+      })
+      .finally(() => {
+        if (!cancelado) setCargando(false);
       });
     return () => {
       cancelado = true;
@@ -886,41 +883,15 @@ function PropertyMapRoute() {
         </Link>
       </InformativePage>
     );
-  if (cargandoInstituciones)
+  if (cargando)
     return (
       <InformativePage
         eyebrow="CARGANDO"
-        title="Cargando el mapa."
-        description="Estamos buscando las instituciones educativas."
+        title="Cargando alquileres."
+        description="Estamos buscando alquileres disponibles para el mapa."
       />
     );
-  if (errorInstituciones)
-    return (
-      <InformativePage
-        eyebrow="ERROR DE CONEXIÓN"
-        title="No pudimos cargar el mapa."
-        description={errorInstituciones}
-      >
-        <Link className="button button-primary" to="/">
-          Volver al inicio
-        </Link>
-      </InformativePage>
-    );
-  if (instituciones.length === 0)
-    return (
-      <InformativePage
-        eyebrow="MAPA INTERACTIVO"
-        title="Todavía no hay instituciones cargadas."
-        description="Cuando haya instituciones disponibles, vas a poder explorarlas en el mapa."
-      >
-        <Link className="button button-primary" to="/">
-          Volver al inicio
-        </Link>
-      </InformativePage>
-    );
-  return (
-    <PropertyMapPage propiedades={propiedades} instituciones={instituciones} />
-  );
+  return <PropertyMapPage propiedades={propiedades} />;
 }
 
 function App() {
@@ -979,16 +950,7 @@ function App() {
         path="/panel-dueno"
         element={<HomePage usuario={usuario} onLogout={logout} />}
       />
-      <Route
-        path="/panel-estudiante"
-        element={
-          <HomePage
-            usuario={usuario}
-            onLogout={logout}
-            vista="perfil-estudiante"
-          />
-        }
-      />
+      <Route path="/panel-estudiante" element={<StudentDashboardPage />} />
       <Route
         path="/alquileres/nuevo"
         element={
