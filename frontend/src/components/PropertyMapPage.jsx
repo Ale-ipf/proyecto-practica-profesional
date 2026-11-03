@@ -1,34 +1,23 @@
 ﻿import { useEffect, useMemo, useState } from "react";
 import L from "leaflet";
-import { Link, useSearchParams } from "react-router-dom";
-import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
+import { Link } from "react-router-dom";
+import {
+  CircleMarker,
+  MapContainer,
+  Marker,
+  Popup,
+  TileLayer,
+  useMap,
+} from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { textoDisponibilidad } from "../utils/formato";
+import { useLocationSharing } from "../context/LocationContext.jsx";
 
-const MAX_RECOMMENDATION_DISTANCE_KM = 2;
+const SEARCH_RADII_KM = [0.5, 1, 1.5];
 
-function FitSelectedInstitution({ institucion, instituciones, hasSelection }) {
-  const map = useMap();
-
-  useEffect(() => {
-    const focusPoints = hasSelection
-      ? [
-          ...(institucion.coordenadas ? [institucion.coordenadas] : []),
-          ...normalizeParadas(institucion.paradas).map(
-            (parada) => parada.coordenadas,
-          ),
-        ]
-      : instituciones.map((item) => item.coordenadas).filter(Boolean);
-
-    if (focusPoints.length > 0) {
-      map.fitBounds(focusPoints, {
-        padding: [32, 32],
-        maxZoom: 14,
-      });
-    }
-  }, [institucion, instituciones, hasSelection, map]);
-
-  return null;
+function formatDistance(distanceKm) {
+  if (distanceKm === 0.5) return "500 m";
+  return `${String(distanceKm).replace(".", ",")} km`;
 }
 
 function distanceInKm(first, second) {
@@ -45,33 +34,6 @@ function distanceInKm(first, second) {
   return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-function normalizeParadas(paradas) {
-  if (Array.isArray(paradas)) return paradas;
-
-  if (typeof paradas === "string") {
-    try {
-      const parsed = JSON.parse(paradas);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }
-
-  return [];
-}
-
-function FocusSelectedStop({ stop }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (!stop?.coordenadas?.length) return;
-
-    map.flyTo(stop.coordenadas, 15, { duration: 1.2 });
-  }, [map, stop]);
-
-  return null;
-}
-
 function FocusSelectedProperty({ propiedad }) {
   const map = useMap();
 
@@ -84,55 +46,31 @@ function FocusSelectedProperty({ propiedad }) {
   return null;
 }
 
-function getStopKey(stop) {
-  if (stop?.isPrincipal) return "__principal__";
-  return `${stop?.name ?? "parada"}-${stop?.address ?? "sin-direccion"}`;
+function FocusUserLocation({ coordinates, active }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!active || !coordinates) return;
+
+    map.flyTo(coordinates, 15, { duration: 1.2 });
+  }, [active, coordinates, map]);
+
+  return null;
 }
 
-function createStopMarkerIcon(isSelected) {
-  return L.divIcon({
-    className: "custom-stop-marker-wrapper",
-    html: `<div class="custom-stop-pin ${isSelected ? "is-selected" : ""}"></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-    popupAnchor: [0, -12],
-  });
-}
-
-function PropertyMapPage({ propiedades, instituciones }) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [stopsOpen, setStopsOpen] = useState(true);
-  const [selectedStopId, setSelectedStopId] = useState(null);
+function PropertyMapPage({ propiedades }) {
+  const {
+    coordinates: userLocation,
+    isSharing: isSharingLocation,
+    error: locationError,
+    startSharing,
+    stopSharing,
+  } = useLocationSharing();
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
-  const [fartherOptionsStopId, setFartherOptionsStopId] = useState(null);
-  const selectedInstitutionId = searchParams.get("institucion");
-  const selectedInstitution =
-    instituciones.find((item) => String(item.id) === selectedInstitutionId) ||
-    instituciones[0] ||
-    {};
-  const hasSelection = Boolean(selectedInstitutionId);
-  const visibleInstitutions = hasSelection
-    ? [selectedInstitution]
-    : instituciones;
-  const paradas = normalizeParadas(selectedInstitution?.paradas);
-  const principalOption = selectedInstitution.coordenadas
-    ? {
-        name: "Sede principal",
-        address: selectedInstitution.nombre,
-        coordenadas: selectedInstitution.coordenadas,
-        isPrincipal: true,
-      }
-    : null;
-  const visibleStops = hasSelection
-    ? principalOption
-      ? [principalOption, ...paradas]
-      : paradas
-    : [];
-  const selectedStop = selectedStopId
-    ? visibleStops.find((stop) => getStopKey(stop) === selectedStopId) || null
-    : null;
-  const referenceCoordinates =
-    selectedStop?.coordenadas || selectedInstitution.coordenadas;
+  const [searchRadiusKm, setSearchRadiusKm] = useState(0.5);
+  const [showFartherOptions, setShowFartherOptions] = useState(false);
+  const [locationPromptOpen, setLocationPromptOpen] = useState(true);
+  const isUsingUserLocation = Boolean(userLocation);
   const availableProperties = useMemo(
     () =>
       propiedades
@@ -142,61 +80,50 @@ function PropertyMapPage({ propiedades, instituciones }) {
         )
         .map((propiedad) => ({
           ...propiedad,
-          distancia: distanceInKm(referenceCoordinates, propiedad.coordenadas),
+          distancia: userLocation
+            ? distanceInKm(userLocation, propiedad.coordenadas)
+            : null,
         }))
-        .sort((first, second) => first.distancia - second.distancia),
-    [propiedades, referenceCoordinates],
+        .sort((first, second) =>
+          userLocation ? first.distancia - second.distancia : 0,
+        ),
+    [propiedades, userLocation],
   );
-  const nearbyProperties = availableProperties.filter(
-    (propiedad) => propiedad.distancia <= MAX_RECOMMENDATION_DISTANCE_KM,
-  );
-  const fartherProperties = availableProperties.filter(
-    (propiedad) => propiedad.distancia > MAX_RECOMMENDATION_DISTANCE_KM,
-  );
-  const showFartherProperties = Boolean(
-    selectedStopId && fartherOptionsStopId === selectedStopId,
-  );
-  const displayedProperties = showFartherProperties
+  const nearbyProperties = isUsingUserLocation
+    ? availableProperties.filter(
+        (propiedad) => propiedad.distancia <= searchRadiusKm,
+      )
+    : availableProperties;
+  const fartherProperties = isUsingUserLocation
+    ? availableProperties.filter(
+        (propiedad) => propiedad.distancia > searchRadiusKm,
+      )
+    : [];
+  const displayedProperties = showFartherOptions
     ? availableProperties
     : nearbyProperties;
-  const mapCenter = hasSelection
-    ? visibleStops[0]?.coordenadas ||
-      selectedInstitution.coordenadas ||
-      instituciones[0]?.coordenadas || [-26.1922042, -58.2002557]
-    : instituciones[0]?.coordenadas || [-26.1922042, -58.2002557];
+  const mapCenter = userLocation ||
+    availableProperties[0]?.coordenadas || [-26.1922042, -58.2002557];
 
   const selectedProperty =
     availableProperties.find(
       (propiedad) => propiedad.id === selectedPropertyId,
     ) || null;
 
-  useEffect(() => {
-    if (!visibleStops.length) {
-      setSelectedStopId(null);
+  const handleUserLocationAction = () => {
+    if (isSharingLocation) {
+      stopSharing();
       return;
     }
 
-    setSelectedStopId((current) => {
-      if (!current) {
-        return getStopKey(visibleStops[0]);
-      }
-
-      return visibleStops.some((stop) => getStopKey(stop) === current)
-        ? current
-        : getStopKey(visibleStops[0]);
-    });
-  }, [visibleStops]);
-
-  const handleShowAllInstitutions = () => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.delete("institucion");
-    setSearchParams(nextParams);
+    setLocationPromptOpen(true);
   };
 
-  const handleSelectInstitution = (institutionId) => {
-    const nextParams = new URLSearchParams(searchParams);
-    nextParams.set("institucion", String(institutionId));
-    setSearchParams(nextParams);
+  const handleEnableLocation = () => {
+    if (startSharing()) {
+      setShowFartherOptions(false);
+      setLocationPromptOpen(false);
+    }
   };
 
   return (
@@ -205,321 +132,258 @@ function PropertyMapPage({ propiedades, instituciones }) {
         <Link className="brand-title" to="/">
           Alquileres Formosa
         </Link>
-        <nav className="main-nav">
-          <Link to="/alquileres">Alquileres</Link>
-          <Link to="/mapa">Mapa</Link>
-        </nav>
+        <div className="map-selected-institution is-overview">
+          <span>SECCIÓN ACTUAL</span>
+          <strong>Alquileres</strong>
+        </div>
         <Link className="button button-primary" to="/alquileres">
           Volver a los alquileres
         </Link>
       </header>
 
+      {locationPromptOpen && !isSharingLocation && (
+        <div className="location-consent-backdrop">
+          <section
+            className="location-consent-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="location-consent-title"
+            aria-describedby="location-consent-description"
+          >
+            <span className="section-kicker">TU UBICACIÓN</span>
+            <h2 id="location-consent-title">¿Querés activar tu ubicación?</h2>
+            <p id="location-consent-description">
+              Podemos marcar tu posición actual en el mapa. Solo pediremos
+              permiso al navegador si elegís activarla; no guardamos tu
+              ubicación.
+            </p>
+            {locationError && (
+              <p className="location-consent-error" role="alert">
+                {locationError}
+              </p>
+            )}
+            <div className="location-consent-actions">
+              <button
+                type="button"
+                className="location-consent-later"
+                onClick={() => setLocationPromptOpen(false)}
+              >
+                Ahora no
+              </button>
+              <button
+                type="button"
+                className="button button-primary"
+                onClick={handleEnableLocation}
+              >
+                Activar ubicación
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+
       <main className="map-page">
         <div className="map-page-heading">
           <div>
             <span className="section-kicker">MAPA INTERACTIVO</span>
-            <h1>Encontrá alquileres cerca de tu institución.</h1>
+            <h1>Encontrá alquileres cerca de vos.</h1>
             <p className="route-description">
-              Explorá las instituciones educativas y los alquileres disponibles
-              ordenados por cercanía.
+              Explorá los alquileres disponibles y, si compartís tu ubicación,
+              ordenalos por cercanía.
             </p>
           </div>
           <div className="map-header-actions">
-            <div
-              className={`map-selected-institution ${hasSelection ? "" : "is-overview"}`}
-            >
-              <span>
-                {hasSelection
-                  ? selectedInstitution.abreviatura
-                  : "INSTITUCIONES"}
-              </span>
-              <strong>
-                {hasSelection
-                  ? selectedInstitution.nombre
-                  : "Todas las instituciones"}
-              </strong>
-            </div>
-            {hasSelection && (
+            {!locationPromptOpen && (
               <button
                 type="button"
-                className="button button-accent map-toggle-button"
-                onClick={handleShowAllInstitutions}
+                className="map-distance-toggle"
+                onClick={handleUserLocationAction}
               >
-                Ver todas
+                {isSharingLocation
+                  ? "Desactivar ubicación"
+                  : "Activar ubicación"}
               </button>
             )}
           </div>
         </div>
 
+        {locationError && !locationPromptOpen && (
+          <p className="location-consent-error" role="alert">
+            {locationError}
+          </p>
+        )}
+        {isSharingLocation && !userLocation && !locationError && (
+          <p className="muted" role="status">
+            Buscando tu ubicación…
+          </p>
+        )}
+
         <div className="map-page-layout">
           <div className="leaflet-map-wrapper">
             <MapContainer
               center={mapCenter}
-              zoom={14}
+              zoom={userLocation ? 14 : 13}
               scrollWheelZoom
               className="leaflet-map"
             >
-              <FitSelectedInstitution
-                institucion={selectedInstitution}
-                instituciones={instituciones}
-                hasSelection={hasSelection}
-              />
-              <FocusSelectedStop stop={selectedStop} />
-              <FocusSelectedProperty
-                propiedad={hasSelection ? selectedProperty : null}
+              <FocusSelectedProperty propiedad={selectedProperty} />
+              <FocusUserLocation
+                coordinates={userLocation}
+                active={isUsingUserLocation}
               />
               <TileLayer
                 attribution="&copy; OpenStreetMap contributors"
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
 
-              {visibleInstitutions.map((institucion) => (
-                <Marker
-                  key={institucion.id}
-                  position={institucion.coordenadas}
-                  eventHandlers={{
-                    click: () => handleSelectInstitution(institucion.id),
+              {userLocation && (
+                <CircleMarker
+                  center={userLocation}
+                  pathOptions={{
+                    color: "#ffffff",
+                    fillColor: "#2476d2",
+                    fillOpacity: 1,
+                    weight: 3,
                   }}
+                  radius={9}
                 >
-                  <Popup>
-                    <strong>{institucion.nombre}</strong>
-                    <br />
-                    {institucion.tipo}
-                  </Popup>
-                </Marker>
-              ))}
+                  <Popup>Tu ubicación actual</Popup>
+                </CircleMarker>
+              )}
 
-              {visibleStops.map((parada) => {
-                const stopKey = getStopKey(parada);
-                const isSelected = selectedStopId === stopKey;
-
-                if (parada.isPrincipal) {
-                  return null;
-                }
+              {displayedProperties.map((propiedad) => {
+                const isSelected = selectedPropertyId === propiedad.id;
 
                 return (
                   <Marker
-                    key={`${selectedInstitution.id}-${stopKey}`}
-                    position={parada.coordenadas}
-                    icon={createStopMarkerIcon(isSelected)}
+                    key={propiedad.id}
+                    position={propiedad.coordenadas}
                     eventHandlers={{
                       click: () => {
-                        setSelectedPropertyId(null);
-                        setSelectedStopId(stopKey);
+                        setSelectedPropertyId(propiedad.id);
                       },
                     }}
+                    icon={L.divIcon({
+                      className: "custom-property-marker-wrapper",
+                      html: `<div class="custom-property-pin ${isSelected ? "is-selected" : ""}"></div>`,
+                      iconSize: [18, 18],
+                      iconAnchor: [9, 9],
+                      popupAnchor: [0, -12],
+                    })}
                   >
                     <Popup>
-                      <strong>Parada del colectivo: {parada.name}</strong>
+                      <strong>{propiedad.titulo}</strong>
                       <br />
-                      {parada.address}
+                      {propiedad.distancia == null
+                        ? "Alquiler disponible"
+                        : `${propiedad.distancia.toFixed(1)} km de tu ubicación`}
                       <br />
-                      Servicio hacia {selectedInstitution.abreviatura}
+                      {textoDisponibilidad(propiedad.estado)}
                     </Popup>
                   </Marker>
                 );
               })}
-
-              {hasSelection &&
-                displayedProperties.map((propiedad) => {
-                  const isSelected = selectedPropertyId === propiedad.id;
-
-                  return (
-                    <Marker
-                      key={propiedad.id}
-                      position={propiedad.coordenadas}
-                      eventHandlers={{
-                        click: () => {
-                          setSelectedPropertyId(propiedad.id);
-                        },
-                      }}
-                      icon={L.divIcon({
-                        className: "custom-property-marker-wrapper",
-                        html: `<div class="custom-property-pin ${isSelected ? "is-selected" : ""}"></div>`,
-                        iconSize: [18, 18],
-                        iconAnchor: [9, 9],
-                        popupAnchor: [0, -12],
-                      })}
-                    >
-                      <Popup>
-                        <strong>{propiedad.titulo}</strong>
-                        <br />
-                        {propiedad.distancia.toFixed(1)} km de{" "}
-                        {selectedStop?.name || selectedInstitution.abreviatura}
-                        <br />
-                        {textoDisponibilidad(propiedad.estado)}
-                      </Popup>
-                    </Marker>
-                  );
-                })}
             </MapContainer>
           </div>
 
           <aside className="map-results">
-            {!hasSelection ? (
-              <div className="map-nearby-block">
-                <span className="section-kicker">INSTITUCIONES</span>
-                <h2>{instituciones.length} instituciones</h2>
-                {instituciones.map((institucion) => (
-                  <button
-                    key={institucion.id}
-                    type="button"
-                    className="map-result-item"
-                    onClick={() => handleSelectInstitution(institucion.id)}
-                  >
-                    <span>{institucion.nombre}</span>
-                    <small>{institucion.tipo}</small>
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <>
-                {paradas.length > 0 && (
-                  <div className="map-bus-stops-block">
-                    <button
-                      type="button"
-                      className="bus-stops-toggle"
-                      onClick={() => setStopsOpen((current) => !current)}
-                      aria-expanded={stopsOpen}
+            <div className="map-nearby-block">
+              <span className="section-kicker">
+                {userLocation
+                  ? "ALQUILERES CERCANOS A TU UBICACIÓN"
+                  : "ALQUILERES DISPONIBLES"}
+              </span>
+              <h2>
+                {displayedProperties.length} alquileres
+                {userLocation ? " cercanos" : " disponibles"}
+              </h2>
+
+              {userLocation ? (
+                <>
+                  <div className="map-radius-control">
+                    <span className="section-kicker">RADIO DE BÚSQUEDA</span>
+                    <div
+                      className="map-radius-options"
+                      role="group"
+                      aria-label="Radio de búsqueda de alquileres"
                     >
-                      <span className="section-kicker">
-                        PARADAS DE COLECTIVO
-                      </span>
-                      <strong>{selectedInstitution.nombre}</strong>
-                      <span
-                        className={`toggle-icon ${stopsOpen ? "is-open" : ""}`}
-                      >
-                        ▾
-                      </span>
-                    </button>
-
-                    {stopsOpen && (
-                      <>
-                        <ul className="bus-stop-list">
-                          {visibleStops.map((parada) => {
-                            const stopKey = getStopKey(parada);
-                            const isSelected = selectedStopId === stopKey;
-
-                            if (parada.isPrincipal) {
-                              return (
-                                <li
-                                  key={`${selectedInstitution.id}-principal`}
-                                  className={`bus-stop-item is-principal ${isSelected ? "is-selected" : ""}`}
-                                  onClick={() => {
-                                    setSelectedPropertyId(null);
-                                    setSelectedStopId(stopKey);
-                                  }}
-                                  role="button"
-                                  tabIndex={0}
-                                  onKeyDown={(event) => {
-                                    if (
-                                      event.key === "Enter" ||
-                                      event.key === " "
-                                    ) {
-                                      event.preventDefault();
-                                      setSelectedPropertyId(null);
-                                      setSelectedStopId(stopKey);
-                                    }
-                                  }}
-                                >
-                                  <strong>{parada.name}</strong>
-                                  <span>{parada.address}</span>
-                                </li>
-                              );
-                            }
-
-                            return (
-                              <li
-                                key={`${selectedInstitution.id}-${stopKey}`}
-                                className={`bus-stop-item ${isSelected ? "is-selected" : ""}`}
-                                onClick={() => setSelectedStopId(stopKey)}
-                                role="button"
-                                tabIndex={0}
-                                onKeyDown={(event) => {
-                                  if (
-                                    event.key === "Enter" ||
-                                    event.key === " "
-                                  ) {
-                                    event.preventDefault();
-                                    setSelectedPropertyId(null);
-                                    setSelectedStopId(stopKey);
-                                  }
-                                }}
-                              >
-                                <strong>{parada.name}</strong>
-                                <span>{parada.address}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                <div className="map-nearby-block">
-                  <span className="section-kicker">
-                    {paradas.length
-                      ? `PROPIEDADES CERCANAS A ${selectedStop?.name || "LAS PARADAS"}`
-                      : "PROPIEDADES CERCANAS"}
-                  </span>
-                  <h2>{displayedProperties.length} opciones encontradas</h2>
-
-                  {nearbyProperties.length > 0 || showFartherProperties ? (
-                    displayedProperties.map((propiedad) => {
-                      const isSelected = selectedPropertyId === propiedad.id;
-
-                      return (
+                      {SEARCH_RADII_KM.map((radius) => (
                         <button
-                          key={propiedad.id}
+                          key={radius}
                           type="button"
-                          className={`map-result-item ${isSelected ? "is-selected" : ""}`}
+                          className={`map-radius-option ${searchRadiusKm === radius ? "is-selected" : ""}`}
+                          aria-pressed={searchRadiusKm === radius}
                           onClick={() => {
-                            setSelectedPropertyId(propiedad.id);
+                            setSearchRadiusKm(radius);
+                            setShowFartherOptions(false);
                           }}
                         >
-                          <span>{propiedad.titulo}</span>
-                          <strong>{propiedad.distancia.toFixed(1)} km</strong>
-                          <small>
-                            {propiedad.barrio} ·{" "}
-                            {propiedad.precio
-                              ? `$${Number(propiedad.precio).toLocaleString("es-AR")}`
-                              : "Precio a consultar"}
-                          </small>
+                          {formatDistance(radius)}
                         </button>
-                      );
-                    })
-                  ) : (
+                      ))}
+                    </div>
+                  </div>
+
+                  {!nearbyProperties.length && !showFartherOptions && (
                     <div className="map-empty-message">
-                      <p>
-                        No encontramos alquileres disponibles a menos de{" "}
-                        {MAX_RECOMMENDATION_DISTANCE_KM} km de{" "}
-                        {selectedStop?.name || selectedInstitution.abreviatura}.
-                      </p>
-                      {fartherProperties.length === 0 && (
-                        <p>No hay otras opciones disponibles por el momento.</p>
-                      )}
+                      No hay alquileres disponibles a menos de{" "}
+                      {formatDistance(searchRadiusKm)}.
                     </div>
                   )}
+                </>
+              ) : (
+                <p className="map-empty-message">
+                  Activá tu ubicación para encontrar primero los alquileres más
+                  cercanos.
+                </p>
+              )}
 
-                  {fartherProperties.length > 0 && (
+              {!displayedProperties.length ? (
+                <p className="map-empty-message">
+                  No hay alquileres disponibles para mostrar.
+                </p>
+              ) : (
+                displayedProperties.map((propiedad) => {
+                  const isSelected = selectedPropertyId === propiedad.id;
+
+                  return (
                     <button
+                      key={propiedad.id}
                       type="button"
-                      className="map-distance-toggle"
-                      onClick={() =>
-                        setFartherOptionsStopId(
-                          showFartherProperties ? null : selectedStopId,
-                        )
-                      }
+                      className={`map-result-item ${isSelected ? "is-selected" : ""}`}
+                      onClick={() => {
+                        setSelectedPropertyId(propiedad.id);
+                      }}
                     >
-                      {showFartherProperties
-                        ? `Mostrar solo hasta ${MAX_RECOMMENDATION_DISTANCE_KM} km`
-                        : `Ver opciones más lejanas (${fartherProperties.length})`}
+                      <span>{propiedad.titulo}</span>
+                      <strong>
+                        {propiedad.distancia == null
+                          ? "Activá ubicación"
+                          : `${propiedad.distancia.toFixed(1)} km`}
+                      </strong>
+                      <small>
+                        {propiedad.barrio} ·{" "}
+                        {propiedad.precio
+                          ? `$${Number(propiedad.precio).toLocaleString("es-AR")}`
+                          : "Precio a consultar"}
+                      </small>
                     </button>
-                  )}
-                </div>
-              </>
-            )}
+                  );
+                })
+              )}
+
+              {userLocation && fartherProperties.length > 0 && (
+                <button
+                  type="button"
+                  className="map-distance-toggle"
+                  onClick={() => setShowFartherOptions((current) => !current)}
+                >
+                  {showFartherOptions
+                    ? `Volver a ${formatDistance(searchRadiusKm)}`
+                    : `Ver más lejanos (${fartherProperties.length})`}
+                </button>
+              )}
+            </div>
           </aside>
         </div>
       </main>

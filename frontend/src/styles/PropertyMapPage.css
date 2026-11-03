@@ -254,6 +254,46 @@
     margin: 0 0 8px;
 }
 
+.map-radius-control {
+    display: grid;
+    gap: 8px;
+}
+
+.map-radius-control .section-kicker {
+    margin: 0;
+}
+
+.map-radius-options {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.map-radius-option {
+    background: var(--surface-soft);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: .75rem;
+    font-weight: 700;
+    min-width: 0;
+    padding: 9px 5px;
+}
+
+.map-radius-option.is-selected {
+    background: var(--green-dark);
+    border-color: var(--green-dark);
+    color: #fff;
+}
+
+.map-radius-option:focus-visible,
+.map-distance-toggle:focus-visible {
+    outline: 3px solid rgba(37, 94, 85, .3);
+    outline-offset: 2px;
+}
+
 .map-distance-toggle {
     align-self: flex-start;
     background: transparent;
@@ -269,6 +309,71 @@
 
 .map-distance-toggle:hover {
     background: rgba(101, 167, 90, .08);
+}
+
+.location-consent-backdrop {
+    align-items: center;
+    background: rgba(20, 28, 27, .48);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    padding: 20px;
+    position: fixed;
+    z-index: 2000;
+}
+
+.location-consent-dialog {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 18px 48px rgba(20, 28, 27, .24);
+    max-width: 440px;
+    padding: 24px;
+    width: 100%;
+}
+
+.location-consent-dialog h2 {
+    color: var(--ink);
+    font-family: Georgia, serif;
+    font-size: 1.5rem;
+    line-height: 1.2;
+    margin: 10px 0;
+}
+
+.location-consent-dialog > p {
+    color: var(--muted);
+    font-size: .9rem;
+    line-height: 1.55;
+    margin: 0;
+}
+
+.location-consent-dialog > .location-consent-error {
+    color: #a83232;
+    margin-top: 12px;
+}
+
+.location-consent-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 24px;
+}
+
+.location-consent-later {
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    color: var(--ink);
+    cursor: pointer;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 700;
+    padding: 10px 14px;
+}
+
+.location-consent-later:hover {
+    background: var(--surface-soft);
 }
 
 .custom-stop-marker-wrapper {
