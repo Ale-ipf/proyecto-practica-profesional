@@ -145,7 +145,7 @@ function InstitutionCarousel({ instituciones, propiedades }) {
           </div>
           <Link
             className="button button-accent"
-            to={`/instituciones?institucion=${encodeURIComponent(institucion.id)}#mapa-instituciones`}
+            to={`/mapa?capa=instituciones&institucion=${encodeURIComponent(institucion.id)}#mapa`}
           >
             Ver en el mapa
           </Link>

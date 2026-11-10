@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 
 import "./styles/App.css";
 import PropertyCard from "./components/PropertyCard";
@@ -9,7 +16,7 @@ import PropertyMapPage from "./components/PropertyMapPage";
 import CrimeMapPage from "./components/CrimeMapPage";
 import InstitutionCarousel from "./components/InstitutionCarousel";
 import MapPreview from "./components/MapPreview";
-import InstitutionsPage from "./pages/InstitutionsPage";
+import LoginAndRegistrationPage from "./pages/LoginAndRegistrationPage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import { useAuth } from "./context/AuthContext";
 import {
@@ -22,7 +29,10 @@ import {
   agregarImagenes,
   eliminarImagen,
 } from "./api/properties";
-import { listarInstituciones } from "./api/institutions";
+import {
+  listarInstituciones,
+  normalizarInstituciones,
+} from "./api/institutions";
 
 const barrios = ["Centro", "San Miguel", "Guadalupe", "UNaF"];
 
@@ -154,14 +164,9 @@ function Header({ usuario, onLogout }) {
             </button>
           </>
         ) : (
-          <>
-            <Link className="button button-primary" to="/login">
-              Iniciar sesión
-            </Link>
-            <Link className="button button-accent" to="/registro">
-              Crear cuenta
-            </Link>
-          </>
+          <Link className="button button-primary" to="/login-and-registration">
+            Acceder
+          </Link>
         )}
       </div>
     </header>
@@ -497,7 +502,10 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
               : "Encontrá tu próximo hogar en Formosa."}
           </span>
           {rolDeUsuario(usuario) === "student" && (
-            <Link className="button button-accent" to="/instituciones">
+            <Link
+              className="button button-accent"
+              to="/mapa?capa=instituciones#mapa"
+            >
               Ver instituciones
             </Link>
           )}
@@ -632,164 +640,6 @@ function InformativePage({ eyebrow, title, description, children }) {
   );
 }
 
-function LoginPage({ onLogin }) {
-  const navigate = useNavigate();
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [enviando, setEnviando] = useState(false);
-
-  const submit = async (event) => {
-    event.preventDefault();
-    setError("");
-    setEnviando(true);
-    try {
-      const usuario = await onLogin(credentials.email, credentials.password);
-      navigate(
-        rolDeUsuario(usuario) === "owner"
-          ? "/panel-dueno"
-          : "/panel-estudiante",
-      );
-    } catch (requestError) {
-      setError(requestError.message || "No pudimos iniciar sesión.");
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  return (
-    <InformativePage
-      eyebrow="TU CUENTA"
-      title="Iniciá sesión y seguí buscando."
-      description="Accedé a tus favoritos, publicaciones y preferencias de búsqueda."
-    >
-      <form className="route-form" onSubmit={submit}>
-        <label>
-          Email
-          <input
-            type="email"
-            value={credentials.email}
-            onChange={(event) =>
-              setCredentials({ ...credentials, email: event.target.value })
-            }
-            required
-          />
-        </label>
-        <label>
-          Contraseña
-          <input
-            type="password"
-            value={credentials.password}
-            onChange={(event) =>
-              setCredentials({ ...credentials, password: event.target.value })
-            }
-            required
-          />
-        </label>
-        {error && <p className="error-message">{error}</p>}
-        <button
-          className="button button-primary"
-          type="submit"
-          disabled={enviando}
-        >
-          {enviando ? "Ingresando…" : "Iniciar sesión"}
-        </button>
-        <p className="muted small-text">
-          ¿Todavía no tenés cuenta? <Link to="/registro">Crear cuenta</Link>
-        </p>
-      </form>
-    </InformativePage>
-  );
-}
-
-function RegisterPage({ onRegister }) {
-  const navigate = useNavigate();
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "student",
-  });
-  const [error, setError] = useState("");
-  const [enviando, setEnviando] = useState(false);
-
-  const submit = async (event) => {
-    event.preventDefault();
-    setError("");
-    setEnviando(true);
-    try {
-      const usuario = await onRegister(form);
-      navigate(
-        rolDeUsuario(usuario) === "owner"
-          ? "/panel-dueno"
-          : "/panel-estudiante",
-      );
-    } catch (requestError) {
-      setError(requestError.message || "No pudimos crear la cuenta.");
-    } finally {
-      setEnviando(false);
-    }
-  };
-
-  return (
-    <InformativePage
-      eyebrow="COMENZÁ HOY"
-      title="Creá tu cuenta en Formosa."
-      description="Guardá propiedades, contactá anunciantes y publicá tu próximo alquiler."
-    >
-      <form className="route-form" onSubmit={submit}>
-        <label>
-          Nombre
-          <input
-            value={form.name}
-            onChange={(event) => setForm({ ...form, name: event.target.value })}
-            required
-          />
-        </label>
-        <label>
-          Email
-          <input
-            type="email"
-            value={form.email}
-            onChange={(event) =>
-              setForm({ ...form, email: event.target.value })
-            }
-            required
-          />
-        </label>
-        <label>
-          Contraseña
-          <input
-            type="password"
-            value={form.password}
-            onChange={(event) =>
-              setForm({ ...form, password: event.target.value })
-            }
-            required
-          />
-        </label>
-        <label>
-          Tipo de cuenta
-          <select
-            value={form.role}
-            onChange={(event) => setForm({ ...form, role: event.target.value })}
-          >
-            <option value="student">Estoy buscando alquilar</option>
-            <option value="owner">Quiero publicar una propiedad</option>
-          </select>
-        </label>
-        {error && <p className="error-message">{error}</p>}
-        <button
-          className="button button-primary"
-          type="submit"
-          disabled={enviando}
-        >
-          {enviando ? "Creando cuenta…" : "Crear cuenta"}
-        </button>
-      </form>
-    </InformativePage>
-  );
-}
-
 function EditPropertyRoute({ usuario, onSave }) {
   const { id } = useParams();
   const [propiedad, setPropiedad] = useState(null);
@@ -848,6 +698,9 @@ function EditPropertyRoute({ usuario, onSave }) {
 
 function PropertyMapRoute() {
   const [propiedades, setPropiedades] = useState([]);
+  const [instituciones, setInstituciones] = useState([]);
+  const [errorInstituciones, setErrorInstituciones] = useState("");
+  const [cargandoInstituciones, setCargandoInstituciones] = useState(true);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
@@ -867,6 +720,20 @@ function PropertyMapRoute() {
       })
       .finally(() => {
         if (!cancelado) setCargando(false);
+      });
+    listarInstituciones()
+      .then((data) => {
+        if (!cancelado)
+          setInstituciones(normalizarInstituciones(data.institutions));
+      })
+      .catch((requestError) => {
+        if (!cancelado)
+          setErrorInstituciones(
+            requestError.message || "No pudimos cargar las instituciones.",
+          );
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoInstituciones(false);
       });
     return () => {
       cancelado = true;
@@ -893,11 +760,30 @@ function PropertyMapRoute() {
         description="Estamos buscando alquileres disponibles para el mapa."
       />
     );
-  return <PropertyMapPage propiedades={propiedades} />;
+  return (
+    <PropertyMapPage
+      propiedades={propiedades}
+      instituciones={instituciones}
+      errorInstituciones={errorInstituciones}
+      cargandoInstituciones={cargandoInstituciones}
+    />
+  );
+}
+
+function InstitutionsMapRedirect() {
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
+  searchParams.set("capa", "instituciones");
+  return (
+    <Navigate
+      to={`/mapa?${searchParams.toString()}#mapa`}
+      replace
+    />
+  );
 }
 
 function App() {
-  const { usuario, login, registrar, logout, cargandoSesion } = useAuth();
+  const { usuario, logout, cargandoSesion } = useAuth();
 
   const guardarPropiedad = async (propiedad) => {
     const { id, imageUrl, existingImageUrl, existingImageIds, ...datos } =
@@ -943,11 +829,30 @@ function App() {
       <Route path="/alquileres/:id" element={<PropertyDetailsPage />} />
       <Route path="/mapa" element={<PropertyMapRoute />} />
       <Route path="/mapa-del-delito" element={<CrimeMapPage />} />
-      <Route path="/instituciones" element={<InstitutionsPage />} />
-      <Route path="/login" element={<LoginPage onLogin={login} />} />
+      <Route
+        path="/instituciones"
+        element={<InstitutionsMapRedirect />}
+      />
+      <Route
+        path="/acceder"
+        element={<Navigate to="/login-and-registration" replace />}
+      />
+      <Route
+        path="/login"
+        element={<Navigate to="/login-and-registration" replace />}
+      />
       <Route
         path="/registro"
-        element={<RegisterPage onRegister={registrar} />}
+        element={
+          <Navigate
+            to="/login-and-registration?tab=register"
+            replace
+          />
+        }
+      />
+      <Route
+        path="/login-and-registration"
+        element={<LoginAndRegistrationPage />}
       />
       <Route
         path="/panel-dueno"
@@ -960,7 +865,7 @@ function App() {
           rolDeUsuario(usuario) === "owner" ? (
             <PropertyFormPage usuario={usuario} onSave={guardarPropiedad} />
           ) : (
-            <LoginPage onLogin={login} />
+            <LoginAndRegistrationPage />
           )
         }
       />
