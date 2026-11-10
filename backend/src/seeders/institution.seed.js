@@ -7,9 +7,6 @@ const initialInstitutions = [
     name: "Universidad Nacional de Formosa",
     type: "Universidad",
     description: "Institución universitaria de referencia en Formosa Capital.",
-    verified: true,
-    source:
-      "Fuente institucional oficial de la universidad y registros públicos disponibles.",
     latitude: -26.1922042,
     longitude: -58.2002557,
   },
@@ -19,9 +16,6 @@ const initialInstitutions = [
     name: "Universidad Católica de Salta",
     type: "Universidad",
     description: "Sede universitaria de la UCASAL en Formosa.",
-    verified: true,
-    source:
-      "Fuente institucional oficial de la universidad y datos de sede reconocidos.",
     latitude: -26.1838,
     longitude: -58.1742,
   },
@@ -31,9 +25,6 @@ const initialInstitutions = [
     name: "Universidad de la Cuenca del Plata - Sede Formosa",
     type: "Universidad",
     description: "Sede universitaria en Formosa con ubicación en Maipú 4625.",
-    verified: true,
-    source:
-      "Fuente institucional oficial de la universidad y datos de sede verificados.",
     latitude: -26.1934981,
     longitude: -58.2156561,
   },
@@ -81,9 +72,6 @@ const initialInstitutions = [
     type: "Instituto",
     description:
       "Instituto técnico y de formación profesional ubicado en la zona sur de Formosa, con acceso desde distintas paradas de colectivo.",
-    verified: true,
-    source:
-      "Fuente institucional oficial del instituto y datos de ubicación del establecimiento.",
     latitude: -26.0798894,
     longitude: -58.2771714,
     busStops: [
@@ -144,9 +132,6 @@ const initialInstitutions = [
     type: "Instituto",
     description:
       "Institución de formación docente ubicada en el centro de Formosa.",
-    verified: true,
-    source:
-      "Fuente institucional oficial del establecimiento y datos de la sede.",
     latitude: -26.189,
     longitude: -58.1796,
     busStops: [],

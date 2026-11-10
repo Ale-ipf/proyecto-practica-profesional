@@ -6,6 +6,7 @@ import PropertyCard from "./components/PropertyCard";
 import PropertyDetails from "./components/PropertyDetails";
 import PropertyFormPage from "./components/PropertyFromPage";
 import PropertyMapPage from "./components/PropertyMapPage";
+import CrimeMapPage from "./components/CrimeMapPage";
 import InstitutionCarousel from "./components/InstitutionCarousel";
 import MapPreview from "./components/MapPreview";
 import InstitutionsPage from "./pages/InstitutionsPage";
@@ -126,6 +127,7 @@ function Header({ usuario, onLogout }) {
       </Link>
       <nav className="main-nav" aria-label="Navegación principal">
         <Link to="/alquileres">Alquileres</Link>
+        <Link to="/mapa-del-delito">Mapa del delito</Link>
       </nav>
       <div className="header-actions">
         {usuario ? (
@@ -940,6 +942,7 @@ function App() {
       />
       <Route path="/alquileres/:id" element={<PropertyDetailsPage />} />
       <Route path="/mapa" element={<PropertyMapRoute />} />
+      <Route path="/mapa-del-delito" element={<CrimeMapPage />} />
       <Route path="/instituciones" element={<InstitutionsPage />} />
       <Route path="/login" element={<LoginPage onLogin={login} />} />
       <Route
