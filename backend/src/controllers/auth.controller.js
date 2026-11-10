@@ -59,7 +59,9 @@ export const login = asyncHandler(async (req, res) => {
 // GET /api/auth/me (protegida)
 export const me = asyncHandler(async (req, res) => {
   const user = await UserModel.findByPk(req.user.id, {
-    attributes: { exclude: ["password"] },
+    attributes: {
+      exclude: ["password", "pendingEmail", "pendingPhone"],
+    },
     include: [{ model: StudentModel, as: "studentProfile" }],
   });
 

@@ -2,6 +2,7 @@ import { PropertyImageModel } from "./property-image.model.js";
 import { PropertyModel } from "./property.model.js";
 import { StudentModel } from "./student.model.js";
 import { UserModel } from "./user.model.js";
+import "./email-verification.model.js";
 
 PropertyModel.belongsTo(UserModel, {
   as: "owner",

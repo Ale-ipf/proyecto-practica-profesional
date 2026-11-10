@@ -9,7 +9,12 @@ import { PropertyModel } from "../models/property.model.js";
 import { StudentModel } from "../models/student.model.js";
 import { UserModel } from "../models/user.model.js";
 
-const userProfileFields = ["university", "career", "origin_city"];
+const userProfileFields = [
+  "university",
+  "career",
+  "biography",
+  "origin_city",
+];
 const propertyFields = [
   "title",
   "description",

@@ -265,13 +265,193 @@ input[type='checkbox'] {
     color: var(--ink);
     font-size: .8rem;
 }
-.student-profile-form input {
+.student-profile-form input,
+.student-profile-form textarea {
     width: 100%;
+}
+.student-profile-form textarea {
+    min-height: 110px;
+    resize: vertical;
+}
+.student-profile-form label small {
+    color: var(--muted);
+    display: block;
+    font-size: .72rem;
+    line-height: 1.4;
+    margin-top: 6px;
 }
 .student-profile-form-actions {
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     justify-content: flex-end;
     margin-top: 4px;
+}
+.student-profile-summary {
+    display: grid;
+    gap: 0 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin: 0;
+    max-width: 760px;
+}
+.student-profile-summary > div {
+    border-bottom: 1px solid var(--line);
+    min-width: 0;
+    padding: 16px 8px 16px 0;
+}
+.student-profile-summary dt {
+    color: var(--muted);
+    font-size: .72rem;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+.student-profile-summary dd {
+    color: var(--ink);
+    font-size: .9rem;
+    line-height: 1.5;
+    margin: 0;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+.student-edit-modal-backdrop {
+    align-items: center;
+    background: rgba(20, 28, 27, .58);
+    display: flex;
+    inset: 0;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 24px;
+    position: fixed;
+    z-index: 2100;
+}
+.student-edit-modal {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    box-shadow: 0 22px 60px rgba(20, 28, 27, .28);
+    max-height: calc(100vh - 48px);
+    max-width: 620px;
+    overflow-y: auto;
+    padding: 26px;
+    width: 100%;
+}
+.student-edit-modal-heading {
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    gap: 16px;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+}
+.student-edit-modal-heading h2 {
+    color: var(--ink);
+    font-family: Georgia, serif;
+    font-size: 1.5rem;
+    margin: 7px 0 0;
+}
+.student-edit-modal-close {
+    align-items: center;
+    background: transparent;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    flex: 0 0 auto;
+    font: inherit;
+    font-size: 1.4rem;
+    height: 36px;
+    justify-content: center;
+    line-height: 1;
+    width: 36px;
+}
+.student-edit-modal-close:hover {
+    background: var(--surface-soft);
+    color: var(--ink);
+}
+.student-edit-modal-close:focus-visible {
+    outline: 3px solid rgba(37, 94, 85, .3);
+    outline-offset: 2px;
+}
+.student-verification-settings {
+    border-top: 1px solid var(--line);
+    display: grid;
+    gap: 18px;
+    margin-top: 30px;
+    max-width: 760px;
+    padding-top: 24px;
+}
+.student-verification-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 20px;
+}
+.student-verification-heading {
+    align-items: flex-start;
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+.student-verification-heading h3 {
+    color: var(--ink);
+    font-family: Georgia, serif;
+    font-size: 1.05rem;
+    margin: 0 0 5px;
+}
+.student-verification-heading p {
+    color: var(--muted);
+    font-size: .78rem;
+    line-height: 1.4;
+    margin: 0;
+}
+.student-verification-badge {
+    background: rgba(255, 138, 28, .1);
+    border-radius: 999px;
+    color: #9a4f0a;
+    flex: 0 0 auto;
+    font-size: .68rem;
+    font-weight: 800;
+    padding: 6px 9px;
+}
+.student-verification-badge.is-verified {
+    background: rgba(37, 94, 85, .1);
+    color: var(--green-dark);
+}
+.student-verification-form {
+    align-items: flex-end;
+    display: grid;
+    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) minmax(140px, auto);
+}
+.student-verification-form label {
+    color: var(--ink);
+    font-size: .78rem;
+    grid-column: 1 / -1;
+}
+.student-verification-form input {
+    width: 100%;
+}
+.student-verification-form button {
+    grid-column: 1 / -1;
+    justify-self: start;
+}
+.student-verification-form .student-verification-resend {
+    background: transparent;
+    border: 0;
+    color: var(--green-dark);
+    cursor: pointer;
+    font: inherit;
+    font-size: .76rem;
+    font-weight: 700;
+    padding: 2px 0;
+    text-decoration: underline;
+}
+.student-verification-resend:disabled {
+    cursor: wait;
+    opacity: .6;
 }
 .student-profile-status,
 .student-profile-message {
@@ -373,6 +553,17 @@ input[type='checkbox'] {
     }
     .student-personal-details {
         grid-template-columns: minmax(0, 1fr);
+    }
+    .student-profile-summary {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .student-edit-modal-backdrop {
+        align-items: flex-start;
+        padding: 12px;
+    }
+    .student-edit-modal {
+        max-height: calc(100vh - 24px);
+        padding: 20px;
     }
     .student-profile-header-actions > span {
         display: none;

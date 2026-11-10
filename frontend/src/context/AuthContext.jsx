@@ -41,6 +41,12 @@ export function AuthProvider({ children }) {
     setUsuario(null);
   }, []);
 
+  const actualizarUsuario = useCallback((datosActualizados) => {
+    setUsuario((actual) =>
+      actual ? { ...actual, ...datosActualizados } : actual,
+    );
+  }, []);
+
   const valor = {
     usuario,
     estaLogueado: Boolean(usuario),
@@ -48,6 +54,7 @@ export function AuthProvider({ children }) {
     login,
     registrar,
     logout,
+    actualizarUsuario,
   };
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

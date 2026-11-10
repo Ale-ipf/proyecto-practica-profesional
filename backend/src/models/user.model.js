@@ -11,13 +11,48 @@ export const UserModel = sequelize.define(
       primaryKey: true,
     },
     name: {
-      type: DataTypes.STRING(100),
+      type: DataTypes.STRING(201),
       allowNull: false,
+    },
+    firstName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    lastName: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    username: {
+      type: DataTypes.STRING(30),
+      allowNull: true,
+      unique: true,
     },
     email: {
       type: DataTypes.STRING(100),
       allowNull: false,
       unique: true,
+    },
+    emailVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    pendingEmail: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+    },
+    phone: {
+      type: DataTypes.STRING(16),
+      allowNull: true,
+    },
+    phoneVerified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    pendingPhone: {
+      type: DataTypes.STRING(16),
+      allowNull: true,
     },
     password: {
       type: DataTypes.STRING(255), // hash de bcrypt, no puede ser INTEGER
