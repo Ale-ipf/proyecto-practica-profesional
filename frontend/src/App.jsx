@@ -9,6 +9,7 @@ import PropertyMapPage from './components/PropertyMapPage'
 import InstitutionCarousel from './components/InstitutionCarousel'
 import MapPreview from './components/MapPreview'
 import InstitutionsPage from './pages/InstitutionsPage'
+import OwnerDashboardPage from './pages/OwnerDashboardPage'
 import { useAuth } from './context/AuthContext'
 import { listarPropiedades, listarMisPropiedades, obtenerPropiedad, crearPropiedad, actualizarPropiedad, eliminarPropiedad, agregarImagenes, eliminarImagen } from './api/properties'
 import { listarInstituciones } from './api/institutions'
@@ -37,7 +38,12 @@ function normalizarPropiedad(property) {
       ? [Number(property.latitude), Number(property.longitude)]
       : null,
     dueno: owner.name || 'Propietario',
-    propietario: { ...owner, id: owner.id, nombre: owner.name },
+    propietario: {
+      ...owner,
+      id: owner.id,
+      nombre: owner.name,
+      whatsappPhone: owner.whatsappPhone || '',
+    },
     estado: property.status,
   }
 }
@@ -244,7 +250,9 @@ function HomePage({ usuario, onLogout, vista = 'inicio' }) {
         </div>
       )}
       <main>
-        {errorInstituciones && <p className="error-message" role="alert">{errorInstituciones}</p>}
+        {errorInstituciones && !error && (
+          <p className="error-message" role="alert">{errorInstituciones}</p>
+        )}
         {!cargandoInstituciones && instituciones.length === 0 && !errorInstituciones && (
           <p className="muted">Todavía no hay instituciones educativas cargadas.</p>
         )}
@@ -334,7 +342,7 @@ function LoginPage({ onLogin }) {
     }
   }
 
-  return <InformativePage eyebrow="TU CUENTA" title="Iniciá sesión y seguí buscando." description="Accedé a tus favoritos, publicaciones y preferencias de búsqueda."><form className="route-form" onSubmit={submit}><label>Email<input type="email" value={credentials.email} onChange={(event) => setCredentials({ ...credentials, email: event.target.value })} required /></label><label>Contraseña<input type="password" value={credentials.password} onChange={(event) => setCredentials({ ...credentials, password: event.target.value })} required /></label>{error && <p className="error-message">{error}</p>}<button className="button button-primary" type="submit" disabled={enviando}>{enviando ? 'Ingresando…' : 'Iniciar sesión'}</button><p className="muted small-text">¿Todavía no tenés cuenta? <Link to="/registro">Crear cuenta</Link></p></form></InformativePage>
+  return <InformativePage eyebrow="TU CUENTA" title="Iniciá sesión y seguí buscando." description="Accedé a tus favoritos, publicaciones y preferencias de búsqueda."><form className="route-form" onSubmit={submit}><label>Email<input type="email" value={credentials.email} onChange={(event) => setCredentials({ ...credentials, email: event.target.value })} required /></label><label>Contraseña<input type="password" value={credentials.password} onChange={(event) => setCredentials({ ...credentials, password: event.target.value })} required /></label>{error && <p className="error-message" role="alert">{error}</p>}<button className="button button-primary" type="submit" disabled={enviando}>{enviando ? 'Ingresando…' : 'Iniciar sesión'}</button><p className="muted small-text">¿Todavía no tenés cuenta? <Link to="/registro">Crear cuenta</Link></p></form></InformativePage>
 }
 
 function RegisterPage({ onRegister }) {
@@ -357,7 +365,7 @@ function RegisterPage({ onRegister }) {
     }
   }
 
-  return <InformativePage eyebrow="COMENZÁ HOY" title="Creá tu cuenta en Formosa." description="Guardá propiedades, contactá anunciantes y publicá tu próximo alquiler."><form className="route-form" onSubmit={submit}><label>Nombre<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label><label>Email<input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} required /></label><label>Contraseña<input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required /></label><label>Tipo de cuenta<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}><option value="student">Estoy buscando alquilar</option><option value="owner">Quiero publicar una propiedad</option></select></label>{error && <p className="error-message">{error}</p>}<button className="button button-primary" type="submit" disabled={enviando}>{enviando ? 'Creando cuenta…' : 'Crear cuenta'}</button></form></InformativePage>
+  return <InformativePage eyebrow="COMENZÁ HOY" title="Creá tu cuenta en Formosa." description="Guardá propiedades, contactá anunciantes y publicá tu próximo alquiler."><form className="route-form" onSubmit={submit}><label>Nombre<input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required /></label><label>Email<input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} required /></label><label>Contraseña<input type="password" value={form.password} onChange={(event) => setForm({ ...form, password: event.target.value })} required /></label><label>Tipo de cuenta<select value={form.role} onChange={(event) => setForm({ ...form, role: event.target.value })}><option value="student">Estoy buscando alquilar</option><option value="owner">Quiero publicar una propiedad</option></select></label>{error && <p className="error-message" role="alert">{error}</p>}<button className="button button-primary" type="submit" disabled={enviando}>{enviando ? 'Creando cuenta…' : 'Crear cuenta'}</button></form></InformativePage>
 }
 
 function EditPropertyRoute({ usuario, onSave }) {
@@ -411,7 +419,7 @@ function PropertyMapRoute() {
 }
 
 function App() {
-  const { usuario, login, registrar, logout, cargandoSesion } = useAuth()
+  const { usuario, login, registrar, logout, cargandoSesion, errorSesion, reintentarSesion } = useAuth()
 
   const guardarPropiedad = async (propiedad) => {
     const { id, imageUrl, existingImageUrl, existingImageIds, ...datos } = propiedad
@@ -430,6 +438,21 @@ function App() {
 
   if (cargandoSesion) return <InformativePage eyebrow="CARGANDO" title="Conectando con tu cuenta." description="Estamos verificando tu sesión." />
 
+  if (errorSesion) {
+    return (
+      <InformativePage
+        eyebrow="ERROR DE CONEXIÓN"
+        title="No se pudo verificar tu sesión."
+        description="No cerramos tu sesión porque el servidor no respondió. Cuando vuelva a estar disponible, podés intentarlo otra vez."
+      >
+        <p className="error-message" role="alert">{errorSesion}</p>
+        <button className="button button-primary" type="button" onClick={reintentarSesion}>
+          Reintentar
+        </button>
+      </InformativePage>
+    )
+  }
+
   return (
     <Routes>
       <Route path="/" element={<HomePage usuario={usuario} onLogout={logout} />} />
@@ -439,7 +462,12 @@ function App() {
       <Route path="/instituciones" element={<InstitutionsPage />} />
       <Route path="/login" element={<LoginPage onLogin={login} />} />
       <Route path="/registro" element={<RegisterPage onRegister={registrar} />} />
-      <Route path="/panel-dueno" element={<HomePage usuario={usuario} onLogout={logout} />} />
+      <Route
+        path="/panel-dueno"
+        element={rolDeUsuario(usuario) === 'owner'
+          ? <OwnerDashboardPage usuario={usuario} onLogout={logout} />
+          : <InformativePage eyebrow="PANEL DEL PROPIETARIO" title="Iniciá sesión como propietario." description="Ingresá con una cuenta de propietario para administrar tus alquileres."><Link className="button button-primary" to="/login">Iniciar sesión</Link></InformativePage>}
+      />
       <Route path="/panel-estudiante" element={<HomePage usuario={usuario} onLogout={logout} vista="perfil-estudiante" />} />
       <Route path="/alquileres/nuevo" element={rolDeUsuario(usuario) === 'owner' ? <PropertyFormPage usuario={usuario} onSave={guardarPropiedad} /> : <LoginPage onLogin={login} />} />
       <Route path="/alquileres/:id/editar" element={<EditPropertyRoute usuario={usuario} onSave={guardarPropiedad} />} />

@@ -78,6 +78,16 @@
 	position: relative;
 }
 
+.property-details-image__empty {
+	align-items: center;
+	background: var(--surface-soft);
+	color: var(--muted);
+	display: flex;
+	height: 100%;
+	justify-content: center;
+	min-height: inherit;
+}
+
 .property-details-image img {
 	height: 100%;
 	object-fit: cover;
@@ -181,6 +191,15 @@
 
 .contact-owner-panel .button {
 	margin-top: 12px;
+}
+
+.whatsapp-contact-button {
+	align-items: center;
+	display: inline-flex;
+	justify-content: center;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	text-align: center;
 }
 
 .owner-public-details {

@@ -23,6 +23,10 @@ export const UserModel = sequelize.define(
       type: DataTypes.STRING(255), // hash de bcrypt, no puede ser INTEGER
       allowNull: false,
     },
+    whatsappPhone: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+    },
     role: {
       type: DataTypes.ENUM("student", "owner"),
       allowNull: false,

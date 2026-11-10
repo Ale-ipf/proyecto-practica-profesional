@@ -29,7 +29,13 @@ export const register = asyncHandler(async (req, res) => {
   res.status(201).json({
     message: "Usuario registrado correctamente.",
     token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      whatsappPhone: user.whatsappPhone,
+    },
   });
 });
 
@@ -52,7 +58,13 @@ export const login = asyncHandler(async (req, res) => {
   res.json({
     message: "Inicio de sesión exitoso.",
     token,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      whatsappPhone: user.whatsappPhone,
+    },
   });
 });
 
@@ -68,4 +80,32 @@ export const me = asyncHandler(async (req, res) => {
   }
 
   res.json({ user });
+});
+
+// PUT /api/auth/me (protegida, solo owner)
+export const updateMyWhatsAppPhone = asyncHandler(async (req, res) => {
+  if (req.user.role !== "owner") {
+    throw new ApiError(403, "Solo los propietarios pueden configurar un teléfono de contacto.");
+  }
+
+  const user = await UserModel.findByPk(req.user.id);
+  if (!user) {
+    throw new ApiError(404, "Usuario no encontrado.");
+  }
+
+  user.whatsappPhone = req.body.whatsappPhone
+    ? req.body.whatsappPhone.replace(/\D/g, "")
+    : null;
+  await user.save();
+
+  res.json({
+    message: "Número de WhatsApp actualizado correctamente.",
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      whatsappPhone: user.whatsappPhone,
+    },
+  });
 });

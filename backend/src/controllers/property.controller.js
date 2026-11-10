@@ -7,7 +7,7 @@ import { UserModel } from "../models/user.model.js";
 
 const propertyIncludes = [
   { model: PropertyImageModel, as: "images" },
-  { model: UserModel, as: "owner", attributes: ["id", "name", "email"] },
+  { model: UserModel, as: "owner", attributes: ["id", "name", "email", "whatsappPhone"] },
 ];
 
 // Busca una propiedad y valida que pertenezca al usuario autenticado.

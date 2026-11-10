@@ -20,6 +20,14 @@ export const testConnection = async () => {
     await sequelize.authenticate();
     console.log("✅ Conexión a la base de datos establecida correctamente.");
   } catch (error) {
-    console.error("❌ No se pudo conectar a la base de datos:", error.message);
+    const cause = error.original || error.parent || error;
+    if (cause.code === "ECONNREFUSED") {
+      throw new Error(
+        `No se puede conectar a MySQL en ${process.env.DB_HOST || "localhost"}:${process.env.DB_PORT || 3306}. Iniciá el servicio MySQL y volvé a ejecutar el backend.`,
+        { cause: error },
+      );
+    }
+
+    throw new Error(`No se pudo conectar a la base de datos: ${error.message}`, { cause: error });
   }
 };

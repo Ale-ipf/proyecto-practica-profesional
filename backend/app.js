@@ -42,4 +42,7 @@ const startServer = async () => {
   });
 };
 
-startServer();
+startServer().catch((error) => {
+  console.error(`❌ No se pudo iniciar el backend: ${error.message}`);
+  process.exitCode = 1;
+});

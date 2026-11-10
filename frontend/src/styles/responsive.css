@@ -1,3 +1,16 @@
+img,
+iframe,
+video {
+  max-width: 100%;
+}
+
+.error-message,
+.mensaje-alerta--error {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
 @media (max-width: 900px) {
   .site-header { 
     align-items: flex-start; 
@@ -37,6 +50,32 @@
   .property-grid { 
     grid-template-columns: repeat(2, 1fr); 
 }
+  .property-details-hero,
+  .property-details-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .property-details-image {
+    min-height: clamp(280px, 48vw, 430px);
+  }
+  .property-details-summary {
+    padding: clamp(24px, 5vw, 42px);
+  }
+  .detail-features {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .opinions-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .owner-public-details,
+  .map-location,
+  .map-heading > div {
+    min-width: 0;
+  }
+  .map-location {
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
 }
 
 @media (max-width: 600px) {
@@ -127,7 +166,9 @@
     padding: 19px; 
 }
   .filter-heading { 
-    gap: 15px; 
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
 }
   .clear-filters { 
     white-space: nowrap;
@@ -155,10 +196,14 @@
     padding: 20px; 
 }
   .map-heading { 
+    align-items: flex-start;
+    flex-direction: column;
     gap: 14px;
  }
   .map-location { 
-    white-space: nowrap; 
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
   .map-frame, .map-frame iframe { 
     min-height: 250px; 
@@ -176,4 +221,60 @@
   .opinion-form { 
     margin-top: 24px; 
 }
+  .property-details-page,
+  .property-details-hero,
+  .property-details-content,
+  .map-section,
+  .opinions-section,
+  .route-page {
+    min-width: 0;
+    width: 100%;
+  }
+  .property-details-content {
+    display: grid;
+  }
+  .detail-features {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .route-page h1,
+  .property-details-summary h1 {
+    overflow-wrap: anywhere;
+  }
+  .property-details-summary,
+  .detail-info-panel,
+  .contact-owner-panel,
+  .map-section,
+  .opinions-section {
+    padding: 20px;
+  }
+  .filter-heading h2 {
+    overflow-wrap: anywhere;
+  }
+  .error-message,
+  .mensaje-alerta--error {
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+  }
+}
+
+@media (max-width: 380px) {
+  .site-header,
+  main,
+  .site-footer {
+    width: calc(100% - 20px);
+  }
+  .brand-title {
+    font-size: 1.15rem;
+    white-space: normal;
+  }
+  .detail-features {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero-copy {
+    padding: 24px 18px;
+  }
+  .map-section,
+  .opinions-section {
+    padding: 16px;
+  }
 }

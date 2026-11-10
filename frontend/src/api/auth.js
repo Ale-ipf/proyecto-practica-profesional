@@ -7,3 +7,10 @@ export const iniciarSesion = (datos) =>
   apiRequest("/auth/login", { method: "POST", body: datos });
 
 export const obtenerPerfilPropio = () => apiRequest("/auth/me", { auth: true });
+
+export const actualizarWhatsAppPropio = (whatsappPhone) =>
+  apiRequest("/auth/me", {
+    method: "PUT",
+    body: { whatsappPhone },
+    auth: true,
+  });

@@ -18,7 +18,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: 'Trebuchet MS', Arial, sans-serif;
-  min-width: 320px;
+  min-width: 0;
 }
 
 body::before {
@@ -36,12 +36,14 @@ a {
     color: inherit; 
 }
 .app-shell { 
-    min-height: 100vh; 
+    min-height: 100vh;
+    min-width: 0;
 }
 .site-header, main, .site-footer { 
     margin: 0 auto; 
     width: min(1180px, 
     calc(100% - 48px)); 
+    min-width: 0;
 }
 .site-header { 
     align-items: center; 

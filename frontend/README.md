@@ -21,6 +21,12 @@ npm run dev
 
 La app queda disponible en `http://localhost:5173`.
 
+## Si aparece un error de conexión
+
+El frontend necesita que la API y su base de datos estén disponibles. Iniciá el backend en otra terminal con `cd backend` y `npm run dev`, y comprobá que `VITE_API_URL` en `frontend/.env` coincida con la dirección de la API (por defecto `http://localhost:3000/api`). Si cambiás esa URL, reiniciá Vite para que tome la configuración.
+
+La app ahora diferencia los errores de conexión de las respuestas HTTP y muestra el estado, el mensaje del servidor y todos los errores de validación que devuelva la API.
+
 ## Estructura
 
 ```
