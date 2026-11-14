@@ -18,6 +18,7 @@ import InstitutionCarousel from "./components/InstitutionCarousel";
 import MapPreview from "./components/MapPreview";
 import LoginAndRegistrationPage from "./pages/LoginAndRegistrationPage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
+import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
 import { useAuth } from "./context/AuthContext";
 import {
   listarPropiedades,
@@ -363,6 +364,10 @@ function PropertyDetailsPage() {
     <PropertyDetails
       propiedad={propiedad}
       esEstudiante={rolDeUsuario(usuario) === "student"}
+      esPropietario={
+        rolDeUsuario(usuario) === "owner" &&
+        String(propiedad.owner?.id) === String(usuario?.id)
+      }
       esFavorito={favoritos.includes(Number(propiedad.id))}
       onToggleFavorite={alternarFavorito}
     />
@@ -827,6 +832,10 @@ function App() {
         }
       />
       <Route path="/alquileres/:id" element={<PropertyDetailsPage />} />
+      <Route
+        path="/alquileres/:id/gestion"
+        element={<OwnerPropertyManagementPage usuario={usuario} />}
+      />
       <Route path="/mapa" element={<PropertyMapRoute />} />
       <Route path="/mapa-del-delito" element={<CrimeMapPage />} />
       <Route

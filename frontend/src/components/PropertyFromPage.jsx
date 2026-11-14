@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import LocationPicker from './LocationPicker'
 
 const initialForm = {
@@ -19,6 +19,7 @@ const initialForm = {
 
 function PropertyFormPage({ usuario, propiedad, onSave }) {
   const navigate = useNavigate()
+  const location = useLocation()
   const [form, setForm] = useState(propiedad ? {
     title: propiedad.title || '',
     description: propiedad.description || '',
@@ -75,7 +76,7 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
         is_furnished: Boolean(form.is_furnished),
         status: form.status,
       })
-      navigate('/panel-dueno')
+      navigate(location.state?.returnTo || '/panel-dueno')
     } catch (requestError) {
       setError(requestError.message || 'No pudimos guardar la propiedad.')
     } finally {
