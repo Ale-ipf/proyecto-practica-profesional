@@ -1,0 +1,186 @@
+.owner-management {
+  margin: 48px auto;
+  max-width: 1000px;
+  width: min(1000px, calc(100% - 48px));
+}
+
+.owner-management > h1 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 8px 0;
+}
+
+.owner-management__tabs {
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 8px;
+  margin-top: 28px;
+}
+
+.owner-management__tabs button {
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: 700 .9rem 'Trebuchet MS', sans-serif;
+  padding: 13px 16px;
+}
+
+.owner-management__tabs button.is-active {
+  border-bottom-color: var(--green);
+  color: var(--green-dark);
+}
+
+.owner-management__panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-top: 20px;
+  padding: 26px;
+}
+
+.owner-management__panel h2,
+.owner-management__panel h3 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  margin: 0 0 8px;
+}
+
+.owner-management__section-heading {
+  align-items: flex-start;
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.owner-management__period {
+  min-width: 180px;
+}
+
+.owner-management__add-form {
+  align-items: flex-end;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  margin: 22px 0;
+  padding-bottom: 22px;
+}
+
+.owner-management__add-form label {
+  flex: 1;
+}
+
+.owner-management__empty {
+  background: var(--surface-soft);
+  border-radius: 8px;
+  padding: 22px;
+}
+
+.owner-management__tenant-list {
+  display: grid;
+}
+
+.owner-management__list-heading,
+.owner-management__tenant {
+  align-items: center;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+}
+
+.owner-management__list-heading {
+  margin: 10px 0;
+}
+
+.owner-management__list-heading > span,
+.owner-management__tenant-info > span,
+.owner-management__tenant-payment small {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.owner-management__tenant {
+  border-top: 1px solid var(--line);
+  padding: 16px 0;
+}
+
+.owner-management__tenant-info,
+.owner-management__tenant-payment {
+  display: grid;
+  gap: 5px;
+}
+
+.owner-management__tenant-info {
+  flex: 1;
+  min-width: 140px;
+}
+
+.owner-management__tenant-payment {
+  align-items: start;
+  min-width: 190px;
+}
+
+.payment-status {
+  color: #a6543d;
+  font-size: .82rem;
+  font-weight: 800;
+}
+
+.payment-status--paid {
+  color: var(--green-dark);
+}
+
+.owner-management__property-info {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 26px 0 0;
+}
+
+.owner-management__property-info > div {
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.owner-management__property-info dt {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.owner-management__property-info dd {
+  line-height: 1.5;
+  margin: 6px 0 0;
+}
+
+.property-details-page > .button {
+  margin: 0 0 18px 12px;
+}
+
+@media (max-width: 600px) {
+  .owner-management__panel {
+    padding: 18px;
+  }
+
+  .owner-management__section-heading,
+  .owner-management__add-form {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .owner-management__tenant {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .owner-management__tenant-payment {
+    flex: 1;
+  }
+
+  .owner-management__property-info {
+    grid-template-columns: 1fr;
+  }
+}

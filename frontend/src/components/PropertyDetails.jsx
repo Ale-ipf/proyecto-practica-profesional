@@ -4,7 +4,7 @@ import { textoDisponibilidad } from '../utils/formato'
 
 const soloDigitos = (valor) => String(valor || '').replace(/\D/g, '')
 
-function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite }) {
+function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite, esPropietario = false }) {
   const textoAmbientes = propiedad.ambientes === 3 ? '3 ambientes' : propiedad.ambientes === 2 ? '2 ambientes' : 'Monoambiente'
   const sinDisponibilidad = propiedad.estado === 'rented' || propiedad.cuposDisponibles === 0
   const ubicacion = [propiedad.direccion, propiedad.ciudad || propiedad.propietario?.ciudad, 'Argentina']
@@ -29,6 +29,7 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
       </header>
       <main className="property-details-page">
         <Link className="back-link" to="/alquileres">← Volver a los alquileres</Link>
+        {esPropietario && <Link className="button button-primary" to={`/alquileres/${propiedad.id}/gestion`}>Administrar publicación</Link>}
         <section className="property-details-hero">
           <div className="property-details-image">
             {propiedad.imagen

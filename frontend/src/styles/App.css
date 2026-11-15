@@ -6,7 +6,9 @@
 @import './PropertyCard.css';
 @import './PropertyDetails.css';
 @import './PropertyMapPage.css';
+@import './CrimeMapPage.css';
 @import './InstitutionsPage.css';
 @import './OpinionsSection.css';
 @import './OwnerDashboard.css';
+@import './OwnerPropertyManagement.css';
 @import './responsive.css';

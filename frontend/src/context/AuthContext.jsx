@@ -75,6 +75,12 @@ export function AuthProvider({ children }) {
     setErrorSesion("");
   }, []);
 
+  const actualizarUsuario = useCallback((datosActualizados) => {
+    setUsuario((actual) =>
+      actual ? { ...actual, ...datosActualizados } : actual,
+    );
+  }, []);
+
   const valor = {
     usuario,
     estaLogueado: Boolean(usuario),
@@ -85,6 +91,7 @@ export function AuthProvider({ children }) {
     actualizarTelefonoWhatsApp,
     logout,
     reintentarSesion: cargarSesion,
+    actualizarUsuario,
   };
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;

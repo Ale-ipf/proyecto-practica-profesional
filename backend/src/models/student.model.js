@@ -9,11 +9,15 @@ export const StudentModel = sequelize.define(
     primaryKey: true,
   },
   university: {
-    type: DataTypes.STRING(150), // Ej: "Universidad Nacional"
+    type: DataTypes.STRING(150),
     allowNull: true,
   },
   career: {
-    type: DataTypes.STRING(150), // Ej: "Ingeniería en Sistemas"
+    type: DataTypes.STRING(150),
+    allowNull: true,
+  },
+  biography: {
+    type: DataTypes.STRING(500),
     allowNull: true,
   },
   origin_city: {

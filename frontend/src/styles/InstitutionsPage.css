@@ -1,5 +1,7 @@
 .institutions-page {
   display: block;
+  gap: 0;
+  grid-template-columns: none;
   max-width: 1180px;
 }
 
@@ -17,6 +19,75 @@
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
+.institutions-map-section {
+  margin: 28px 0 42px;
+  scroll-margin-top: 20px;
+}
+
+.institutions-map-heading {
+  align-items: flex-end;
+  display: flex;
+  gap: 18px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.institutions-map-heading h2 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 1.4rem;
+  margin: 6px 0;
+}
+
+.institutions-map-heading p {
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.institutions-map-frame {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.institutions-map {
+  height: 440px;
+  width: 100%;
+}
+
+.institutions-map-legend {
+  align-items: center;
+  color: var(--muted);
+  display: flex;
+  flex-wrap: wrap;
+  font-size: .76rem;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.institutions-map-legend span {
+  align-items: center;
+  display: inline-flex;
+  gap: 7px;
+}
+
+.institution-map-dot {
+  background: var(--coral);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px var(--coral);
+  height: 12px;
+  width: 12px;
+}
+
+.institution-map-dot.is-stop {
+  background: var(--green);
+  box-shadow: 0 0 0 1px var(--green);
+}
+
 .institution-card {
   align-items: flex-start;
   background: var(--surface);
@@ -26,6 +97,11 @@
   display: flex;
   flex-direction: column;
   padding: 22px;
+}
+
+.institution-card.is-selected {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px rgba(37, 94, 85, .12), var(--shadow);
 }
 
 .institution-card__abbreviation {
@@ -69,4 +145,54 @@
 .institution-card .button {
   text-align: center;
   width: 100%;
+}
+
+.institution-stops {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+  padding-top: 14px;
+  width: 100%;
+}
+
+.institution-stops .section-kicker {
+  margin-bottom: 4px;
+}
+
+.institution-stop-button {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.institution-stop-button.is-selected {
+  background: var(--surface-soft);
+  border-color: var(--green);
+}
+
+.institution-stop-button strong {
+  font-size: .75rem;
+}
+
+.institution-stop-button small {
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+@media (max-width: 600px) {
+  .institutions-map-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .institutions-map {
+    height: 360px;
+  }
 }

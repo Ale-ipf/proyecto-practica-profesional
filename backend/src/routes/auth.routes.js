@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { register, login, me, updateMyWhatsAppPhone } from "../controllers/auth.controller.js";
-import { registerValidator, loginValidator, whatsappPhoneValidator } from "../validators/auth.validator.js";
+import {
+  registerValidator,
+  loginValidator,
+} from "../middlewares/validators/auth.validator.js";
+import { whatsappPhoneValidator } from "../middlewares/validators/auth.validator.js";
 import { validate } from "../middlewares/validate.middleware.js";
 import { authenticate } from "../middlewares/auth.middleware.js";
 
