@@ -1,0 +1,343 @@
+.guided-guide-page {
+  margin: 0 auto;
+  max-width: 1120px;
+  padding: 22px 24px 64px;
+}
+
+.guided-guide-header,
+.guided-guide-results__heading,
+.guided-modal__header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+.guided-guide-intro {
+  margin: 42px 0 24px;
+  max-width: 760px;
+}
+
+.guided-guide-intro h1 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: clamp(2.2rem, 5vw, 3.5rem);
+  letter-spacing: -.05em;
+  line-height: 1.05;
+  margin: 12px 0;
+}
+
+.guided-guide-intro p,
+.guided-guide-question > p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.guided-guide-card,
+.guided-guide-results {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: clamp(20px, 4vw, 38px);
+}
+
+.guided-guide-progress__labels {
+  color: var(--muted);
+  display: flex;
+  font-size: .82rem;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.guided-guide-progress__track {
+  background: var(--surface-soft);
+  border-radius: 10px;
+  height: 8px;
+  overflow: hidden;
+}
+
+.guided-guide-progress__track span {
+  background: var(--green);
+  display: block;
+  height: 100%;
+  transition: width .2s ease;
+}
+
+.guided-guide-question {
+  margin: 36px 0;
+  max-width: 720px;
+}
+
+.guided-guide-question h2,
+.guided-guide-results h2 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  margin: 0;
+}
+
+.guided-guide-question > label {
+  display: grid;
+  gap: 8px;
+  margin-top: 24px;
+  max-width: 480px;
+}
+
+.guided-guide-question select,
+.guided-guide-question input[type="number"] {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  padding: 12px;
+}
+
+.guided-guide-choice-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin-top: 24px;
+}
+
+.guided-guide-choice {
+  align-items: center;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  gap: 11px;
+  min-height: 56px;
+  padding: 12px;
+}
+
+.guided-guide-choice:has(input:checked) {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 18%, transparent);
+}
+
+.guided-guide-choice input {
+  accent-color: var(--green);
+}
+
+.guided-guide-skip {
+  background: none;
+  border: 0;
+  color: var(--green);
+  cursor: pointer;
+  font-weight: 700;
+  margin-top: 18px;
+  padding: 8px 0;
+  text-decoration: underline;
+}
+
+.guided-guide-actions {
+  border-top: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 20px;
+}
+
+.guided-guide-error {
+  color: #a33a2b;
+  font-size: .9rem;
+  margin: 14px 0;
+}
+
+.guided-guide-results__heading {
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.guided-result-card {
+  align-items: flex-start;
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 18px;
+  text-align: left;
+  width: 100%;
+}
+
+.guided-result-card:hover,
+.guided-result-card:focus-visible {
+  border-color: var(--green);
+}
+
+.guided-result-card__rank {
+  color: var(--green);
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.guided-result-card > strong {
+  font-size: 1.1rem;
+}
+
+.guided-guide-empty {
+  background: var(--surface-soft);
+  border-radius: 12px;
+  margin-top: 20px;
+  padding: 20px;
+}
+
+.guided-modal-backdrop {
+  align-items: center;
+  background: rgb(20 30 26 / 65%);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 20px;
+  position: fixed;
+  z-index: 1000;
+}
+
+.guided-modal {
+  background: var(--surface);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgb(0 0 0 / 28%);
+  max-height: min(90vh, 900px);
+  max-width: 1100px;
+  overflow: auto;
+  padding: 26px;
+  width: 100%;
+}
+
+.guided-modal__header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+
+.guided-modal__header h2 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  margin: 7px 0 0;
+}
+
+.guided-modal__close {
+  background: var(--surface-soft);
+  border: 0;
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 1.7rem;
+  height: 42px;
+  line-height: 1;
+  width: 42px;
+}
+
+.guided-modal__content {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(230px, .75fr) 1.5fr;
+  padding-top: 20px;
+}
+
+.guided-modal-options {
+  align-content: start;
+  display: grid;
+  gap: 10px;
+}
+
+.guided-modal-option {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+  text-align: left;
+}
+
+.guided-modal-option.is-selected {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--green) 18%, transparent);
+}
+
+.guided-modal-option span {
+  color: var(--muted);
+  font-size: .75rem;
+}
+
+.guided-modal-detail {
+  min-width: 0;
+}
+
+.guided-modal-detail h3 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: 1.7rem;
+  margin: 8px 0;
+}
+
+.guided-modal-detail h4 {
+  color: var(--ink);
+  margin: 20px 0 8px;
+}
+
+.guided-modal-detail p {
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.guided-modal-detail__price {
+  color: var(--green);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.guided-modal-detail__distance-note {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.guided-modal-pros-cons {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.guided-modal-pros-cons ul {
+  display: grid;
+  gap: 8px;
+  line-height: 1.45;
+  padding-left: 20px;
+}
+
+.guided-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 720px) {
+  .guided-guide-page {
+    padding-inline: 16px;
+  }
+
+  .guided-guide-header,
+  .guided-guide-results__heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .guided-modal {
+    padding: 18px;
+  }
+
+  .guided-modal__content,
+  .guided-modal-pros-cons {
+    grid-template-columns: 1fr;
+  }
+}

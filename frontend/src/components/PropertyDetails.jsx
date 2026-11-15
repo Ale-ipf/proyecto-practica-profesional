@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import OpinionsSection from './OpinionSection'
+import OwnerProfileSummary from './OwnerProfileSummary'
 import { textoDisponibilidad } from '../utils/formato'
 
 function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite, esPropietario = false }) {
@@ -17,6 +17,7 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
         <nav className="main-nav" aria-label="Navegación principal">
           <Link to="/alquileres">Alquileres</Link>
           <Link to="/mapa">Mapa</Link>
+          {esEstudiante && <Link to="/guia-asistida">Guía asistida</Link>}
         </nav>
         <Link className="button button-primary" to="/alquileres">Volver al listado</Link>
       </header>
@@ -29,10 +30,22 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
         </section>
         <section className="property-details-content">
           <div className="detail-info-panel"><span className="section-kicker">CARACTERÍSTICAS</span><h2>Todo lo que necesitás saber</h2><div className="detail-features"><span><strong>{textoAmbientes}</strong>Ambientes</span><span><strong>{propiedad.amoblado ? 'Sí' : 'No'}</strong>Amoblado</span><span><strong>{propiedad.tieneAire ? 'Sí' : 'No'}</strong>Aire acondicionado</span><span><strong>{propiedad.barrio}</strong>Zona</span><span><strong>{Number(propiedad.cuposDisponibles ?? 1)}</strong>Espacios libres</span></div></div>
-          <aside className="contact-owner-panel"><span className="section-kicker">PUBLICADO POR</span><h2>{propiedad.propietario?.nombre || propiedad.dueno}</h2><p className="muted small-text">{propiedad.propietario?.presentacion || 'Propietario verificado de Alquileres Formosa.'}</p><div className="owner-public-details"><span>☎ {propiedad.propietario?.telefono || 'Teléfono disponible al consultar'}</span><span>⌖ {propiedad.propietario?.ciudad || 'Formosa Capital'}</span></div></aside>
+          {esEstudiante ? (
+            <OwnerProfileSummary propertyId={propiedad.id} />
+          ) : (
+            <aside className="contact-owner-panel">
+              <span className="section-kicker">PUBLICADO POR</span>
+              <h2>{propiedad.propietario?.nombre || propiedad.dueno}</h2>
+              <p className="muted small-text">
+                Iniciá sesión como estudiante para ver el perfil resumido y sus valoraciones.
+              </p>
+              <Link className="button button-accent" to="/login-and-registration">
+                Iniciar sesión
+              </Link>
+            </aside>
+          )}
         </section>
         <section className="map-section"><div className="map-heading"><div><span className="section-kicker">UBICACIÓN DE REFERENCIA</span><h2>Conocé la zona</h2><p className="muted small-text">Mapa orientativo de la ubicación publicada. La ubicación exacta se confirma al coordinar la visita.</p></div><span className="map-location">⌖ {ubicacion}</span></div><div className="map-frame"><iframe title={`Mapa de ${propiedad.titulo}`} src={mapaUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe></div></section>
-        <OpinionsSection propiedad={propiedad} />
       </main>
     </div>
   )

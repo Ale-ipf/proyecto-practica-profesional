@@ -18,6 +18,14 @@ import {
   setPropertyTenantPayment,
 } from "../controllers/property-tenant.controller.js";
 import {
+  getOwnerProfileSummary,
+} from "../controllers/owner.controller.js";
+import {
+  listPropertyReviews,
+  saveMyPropertyReview,
+} from "../controllers/property-review.controller.js";
+import { propertyReviewValidator } from "../middlewares/validators/property-review.validator.js";
+import {
   createPropertyValidator,
   updatePropertyValidator,
   propertyIdParamValidator,
@@ -46,6 +54,32 @@ router.get("/", listPropertiesQueryValidator, validate, listProperties);
 // --- Rutas protegidas (solo owner) ---
 // Va antes de "/:id" para que "mine/list" no matchee como un id.
 router.get("/mine/list", authenticate, authorize("owner"), getMyProperties);
+
+router.get(
+  "/:id/owner-profile",
+  authenticate,
+  authorize("student"),
+  propertyIdParamValidator,
+  validate,
+  getOwnerProfileSummary,
+);
+router.get(
+  "/:id/reviews",
+  authenticate,
+  authorize("student"),
+  propertyIdParamValidator,
+  validate,
+  listPropertyReviews,
+);
+router.put(
+  "/:id/reviews/me",
+  authenticate,
+  authorize("student"),
+  propertyIdParamValidator,
+  propertyReviewValidator,
+  validate,
+  saveMyPropertyReview,
+);
 
 router.get(
   "/:id/tenants",

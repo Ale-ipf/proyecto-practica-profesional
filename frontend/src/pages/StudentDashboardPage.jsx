@@ -253,6 +253,7 @@ export default function StudentDashboardPage() {
         <nav className="main-nav" aria-label="Navegación principal">
           <Link to="/alquileres">Alquileres</Link>
           <Link to="/mapa">Mapa</Link>
+          <Link to="/guia-asistida">Guía asistida</Link>
         </nav>
         <div className="header-actions student-profile-header-actions">
           <span>Hola, {usuarioPerfil.name}</span>

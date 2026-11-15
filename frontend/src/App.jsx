@@ -17,6 +17,8 @@ import CrimeMapPage from "./components/CrimeMapPage";
 import InstitutionCarousel from "./components/InstitutionCarousel";
 import MapPreview from "./components/MapPreview";
 import LoginAndRegistrationPage from "./pages/LoginAndRegistrationPage.jsx";
+import OwnerProfilePage from "./pages/OwnerProfilePage.jsx";
+import GuidedRentalGuidePage from "./pages/GuidedRentalGuidePage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
 import { useAuth } from "./context/AuthContext";
@@ -156,6 +158,16 @@ function Header({ usuario, onLogout }) {
                 ? "👤 Mi panel"
                 : "🎓 Mi panel"}
             </Link>
+            {rolDeUsuario(usuario) === "owner" && (
+                <Link className="button button-accent" to="/perfil-dueno">
+                  Mi perfil
+                </Link>
+            )}
+            {rolDeUsuario(usuario) === "student" && (
+              <Link className="button button-accent" to="/guia-asistida">
+                Guía asistida
+              </Link>
+            )}
             <button
               className="button button-outline-danger"
               type="button"
@@ -838,6 +850,7 @@ function App() {
       />
       <Route path="/mapa" element={<PropertyMapRoute />} />
       <Route path="/mapa-del-delito" element={<CrimeMapPage />} />
+      <Route path="/guia-asistida" element={<GuidedRentalGuidePage />} />
       <Route
         path="/instituciones"
         element={<InstitutionsMapRedirect />}
@@ -867,6 +880,7 @@ function App() {
         path="/panel-dueno"
         element={<HomePage usuario={usuario} onLogout={logout} />}
       />
+      <Route path="/perfil-dueno" element={<OwnerProfilePage />} />
       <Route path="/panel-estudiante" element={<StudentDashboardPage />} />
       <Route
         path="/alquileres/nuevo"

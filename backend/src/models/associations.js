@@ -1,5 +1,6 @@
 import { PropertyImageModel } from "./property-image.model.js";
 import { PropertyModel } from "./property.model.js";
+import { PropertyReviewModel } from "./property-review.model.js";
 import { PropertyTenantModel } from "./property-tenant.model.js";
 import { RentPaymentModel } from "./rent-payment.model.js";
 import { StudentModel } from "./student.model.js";
@@ -9,6 +10,30 @@ import "./email-verification.model.js";
 PropertyModel.belongsTo(UserModel, {
   as: "owner",
   foreignKey: "userId",
+});
+
+PropertyModel.hasMany(PropertyReviewModel, {
+  as: "reviews",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+
+PropertyReviewModel.belongsTo(PropertyModel, {
+  as: "property",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+
+PropertyReviewModel.belongsTo(UserModel, {
+  as: "student",
+  foreignKey: "studentId",
+  onDelete: "CASCADE",
+});
+
+UserModel.hasMany(PropertyReviewModel, {
+  as: "propertyReviews",
+  foreignKey: "studentId",
+  onDelete: "CASCADE",
 });
 
 UserModel.hasMany(PropertyModel, {

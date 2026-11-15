@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import OwnerProfileSummary from "../components/OwnerProfileSummary.jsx";
 import { obtenerPropiedad } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
+import { useAuth } from "../context/AuthContext.jsx";
 import { formatearPrecio, textoAmbientes, textoEstado } from "../utils/formato.js";
 
 export default function PropertyDetailPage() {
   const { id } = useParams();
+  const { usuario } = useAuth();
   const [propiedad, setPropiedad] = useState(null);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -79,11 +82,12 @@ export default function PropertyDetailPage() {
 
           <p style={{ marginTop: 20, fontSize: "0.9rem" }}>
             Publicado por <strong>{propiedad.owner?.name}</strong>
-            <br />
-            <a href={`mailto:${propiedad.owner?.email}`}>{propiedad.owner?.email}</a>
           </p>
         </aside>
       </div>
+      {usuario?.role === "student" && (
+        <OwnerProfileSummary propertyId={propiedad.id} />
+      )}
     </div>
   );
 }

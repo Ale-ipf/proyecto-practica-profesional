@@ -22,6 +22,11 @@ export const UserModel = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: true,
     },
+    dni: {
+      type: DataTypes.STRING(8),
+      allowNull: true,
+      unique: true,
+    },
     username: {
       type: DataTypes.STRING(30),
       allowNull: true,
