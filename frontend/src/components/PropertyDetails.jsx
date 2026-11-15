@@ -11,9 +11,10 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
     .filter(Boolean)
     .join(', ')
   const mapaUrl = `https://www.google.com/maps?q=${encodeURIComponent(ubicacion)}&output=embed`
+  const nombrePropietario = propiedad.propietario?.nombre || propiedad.dueno || 'propietario'
   const telefonoWhatsApp = soloDigitos(propiedad.propietario?.whatsappPhone)
   const enlaceWhatsApp = telefonoWhatsApp
-    ? `https://wa.me/${telefonoWhatsApp}?text=${encodeURIComponent(`Hola, vi tu publicación "${propiedad.titulo}" en Alquileres Formosa y quisiera hacerte una consulta.`)}`
+    ? `https://wa.me/${telefonoWhatsApp}?text=${encodeURIComponent(`Hola ${nombrePropietario}, vi tu publicación en Alquileres Formosa y quisiera hacerte una consulta.`)}`
     : ''
 
   return (
@@ -43,7 +44,7 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
           <div className="detail-info-panel"><span className="section-kicker">CARACTERÍSTICAS</span><h2>Todo lo que necesitás saber</h2><div className="detail-features"><span><strong>{textoAmbientes}</strong>Ambientes</span><span><strong>{propiedad.amoblado ? 'Sí' : 'No'}</strong>Amoblado</span><span><strong>{propiedad.tieneAire ? 'Sí' : 'No'}</strong>Aire acondicionado</span><span><strong>{propiedad.barrio}</strong>Zona</span><span><strong>{Number(propiedad.cuposDisponibles ?? 1)}</strong>Espacios libres</span></div></div>
           <aside className="contact-owner-panel">
             <span className="section-kicker">PUBLICADO POR</span>
-            <h2>{propiedad.propietario?.nombre || propiedad.dueno}</h2>
+            <h2>{nombrePropietario}</h2>
             <p className="muted small-text">
               {propiedad.propietario?.presentacion || 'Propietario verificado de Alquileres Formosa.'}
             </p>
@@ -60,7 +61,7 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Contactar por WhatsApp
+                WhatsApp +{telefonoWhatsApp}
               </a>
             )}
             {esEstudiante && !telefonoWhatsApp && (
