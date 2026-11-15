@@ -262,6 +262,13 @@
 	gap: 10px;
 }
 
+.owner-profile-summary__verification {
+	align-items: center;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 14px;
+}
+
 .owner-profile-summary__heading h2 {
 	margin-bottom: 0;
 }

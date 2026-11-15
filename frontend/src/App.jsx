@@ -19,6 +19,7 @@ import MapPreview from "./components/MapPreview";
 import LoginAndRegistrationPage from "./pages/LoginAndRegistrationPage.jsx";
 import OwnerProfilePage from "./pages/OwnerProfilePage.jsx";
 import GuidedRentalGuidePage from "./pages/GuidedRentalGuidePage.jsx";
+import SafetyTipsPage from "./pages/SafetyTipsPage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
 import { useAuth } from "./context/AuthContext";
@@ -637,6 +638,7 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
         <p>© 2026 Alquileres Formosa</p>
         <div>
           <Link to="/alquileres">Ver alquileres</Link>
+          <Link to="/consejos-seguridad">Consejos de seguridad</Link>
         </div>
       </footer>
     </div>
@@ -851,6 +853,7 @@ function App() {
       <Route path="/mapa" element={<PropertyMapRoute />} />
       <Route path="/mapa-del-delito" element={<CrimeMapPage />} />
       <Route path="/guia-asistida" element={<GuidedRentalGuidePage />} />
+      <Route path="/consejos-seguridad" element={<SafetyTipsPage />} />
       <Route
         path="/instituciones"
         element={<InstitutionsMapRedirect />}

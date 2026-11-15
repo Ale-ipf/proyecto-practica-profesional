@@ -42,6 +42,9 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
               <Link className="button button-accent" to="/login-and-registration">
                 Iniciar sesión
               </Link>
+              <Link className="safety-help-link" to="/consejos-seguridad">
+                ¿Cómo sé si es seguro?
+              </Link>
             </aside>
           )}
         </section>

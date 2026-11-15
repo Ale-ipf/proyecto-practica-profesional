@@ -102,9 +102,14 @@ export default function OwnerProfileSummary({ propertyId }) {
       <span className="section-kicker">PERFIL DEL PROPIETARIO</span>
       <div className="owner-profile-summary__heading">
         <h2>{owner.name}</h2>
-        <span className={`owner-profile-summary__badge ${owner.verified ? "is-verified" : ""}`}>
-          {owner.verified ? "✓ Perfil verificado" : "Perfil pendiente de verificación"}
-        </span>
+        <div className="owner-profile-summary__verification">
+          <span className={`owner-profile-summary__badge ${owner.verified ? "is-verified" : ""}`}>
+            {owner.verified ? "✓ Perfil verificado" : "Perfil pendiente de verificación"}
+          </span>
+          <Link className="safety-help-link" to="/consejos-seguridad">
+            ¿Cómo sé si es seguro?
+          </Link>
+        </div>
       </div>
 
       <dl className="owner-profile-summary__details">
