@@ -1,4 +1,5 @@
 import { PropertyImageModel } from "./property-image.model.js";
+import { PropertyForumMessageModel } from "./property-forum-message.model.js";
 import { PropertyModel } from "./property.model.js";
 import { PropertyReviewModel } from "./property-review.model.js";
 import { PropertyTenantModel } from "./property-tenant.model.js";
@@ -33,6 +34,30 @@ PropertyReviewModel.belongsTo(UserModel, {
 UserModel.hasMany(PropertyReviewModel, {
   as: "propertyReviews",
   foreignKey: "studentId",
+  onDelete: "CASCADE",
+});
+
+PropertyModel.hasMany(PropertyForumMessageModel, {
+  as: "forumMessages",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+
+PropertyForumMessageModel.belongsTo(PropertyModel, {
+  as: "property",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+
+PropertyForumMessageModel.belongsTo(UserModel, {
+  as: "author",
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+});
+
+UserModel.hasMany(PropertyForumMessageModel, {
+  as: "propertyForumMessages",
+  foreignKey: "userId",
   onDelete: "CASCADE",
 });
 

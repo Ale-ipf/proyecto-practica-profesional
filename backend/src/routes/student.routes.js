@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getMyStudentProfile,
+  listMyStudentRentals,
   updateMyStudentProfile,
   getStudentById,
   requestEmailVerification,
@@ -23,6 +24,12 @@ import { authorize } from "../middlewares/role.middleware.js";
 const router = Router();
 
 router.get("/me", authenticate, authorize("student"), getMyStudentProfile);
+router.get(
+  "/me/rentals",
+  authenticate,
+  authorize("student"),
+  listMyStudentRentals,
+);
 router.put(
   "/me",
   authenticate,

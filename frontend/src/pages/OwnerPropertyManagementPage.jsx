@@ -104,9 +104,9 @@ export default function OwnerPropertyManagementPage({ usuario }) {
     setTenantsError("");
     setMessage("");
     try {
-      await agregarPersonaAlAlquiler(id, email.trim());
+      const data = await agregarPersonaAlAlquiler(id, email.trim());
       setEmail("");
-      setMessage("La persona se agregó al alquiler.");
+      setMessage(data.message);
       await loadTenants();
     } catch (error) {
       setTenantsError(error.message || "No pudimos agregar a esta persona.");
@@ -165,7 +165,10 @@ export default function OwnerPropertyManagementPage({ usuario }) {
     <div className="app-shell route-page-shell">
       <header className="site-header">
         <Link className="brand-title" to="/">Alquileres Formosa</Link>
-        <Link className="button button-accent" to="/panel-dueno">Volver a mis alquileres</Link>
+        <div className="header-actions">
+          <Link className="button button-primary" to={`/alquileres/${id}/foro`}>Abrir foro</Link>
+          <Link className="button button-accent" to="/panel-dueno">Volver a mis alquileres</Link>
+        </div>
       </header>
       <main className="owner-management">
         <span className="section-kicker">GESTIÓN DEL ALQUILER</span>

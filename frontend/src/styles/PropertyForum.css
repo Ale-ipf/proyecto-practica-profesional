@@ -1,0 +1,203 @@
+.student-rentals-list,
+.property-forum-messages {
+  display: grid;
+  gap: 14px;
+}
+
+.student-rentals-empty {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+}
+
+.student-rentals-empty h3,
+.student-rental-card h3,
+.property-forum-composer h2,
+.property-forum-feed h2 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  margin: 0 0 8px;
+}
+
+.student-rentals-empty p,
+.student-rental-card p,
+.property-forum-composer > p,
+.property-forum-feed-heading p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 14px;
+}
+
+.student-rental-card {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.student-rental-card h3 {
+  font-size: 1.2rem;
+  margin-top: 6px;
+}
+
+.student-rental-card small,
+.property-forum-feed-heading > span {
+  color: var(--muted);
+  font-size: .82rem;
+}
+
+.student-rentals-refresh {
+  background: none;
+  border: 0;
+  color: var(--green-dark);
+  cursor: pointer;
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.student-rentals-refresh:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+.property-forum {
+  margin: 44px auto 72px;
+  max-width: 900px;
+  width: min(900px, calc(100% - 40px));
+}
+
+.property-forum > h1 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin: 8px 0;
+}
+
+.property-forum-composer,
+.property-forum-feed {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  margin-top: 24px;
+  padding: 24px;
+}
+
+.property-forum-composer form {
+  display: grid;
+  gap: 14px;
+}
+
+.property-forum-composer label {
+  color: var(--ink);
+  display: grid;
+  font-size: .85rem;
+  font-weight: 700;
+  gap: 7px;
+}
+
+.property-forum-composer textarea,
+.property-forum-composer select {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font: inherit;
+  padding: 11px 12px;
+  width: 100%;
+}
+
+.property-forum-composer textarea {
+  resize: vertical;
+}
+
+.property-forum-composer-actions,
+.property-forum-feed-heading,
+.property-forum-message-heading {
+  align-items: center;
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.property-forum-composer-actions small,
+.property-forum-message time,
+.property-forum-message > small {
+  color: var(--muted);
+  font-size: .78rem;
+}
+
+.property-forum-feed-heading {
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.property-forum-feed-heading h2 {
+  margin-bottom: 4px;
+}
+
+.property-forum-message {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.property-forum-message > p {
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 14px 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.property-forum-category {
+  background: var(--surface-soft);
+  border-radius: 999px;
+  color: var(--green-dark);
+  font-size: .75rem;
+  font-weight: 800;
+  padding: 5px 10px;
+}
+
+.property-forum-category--issue {
+  background: #fae7e2;
+  color: #983d2c;
+}
+
+.property-forum-category--announcement {
+  background: #e8eefc;
+  color: #36518a;
+}
+
+.property-forum-category--notice {
+  background: #f7edcf;
+  color: #785b11;
+}
+
+@media (max-width: 600px) {
+  .student-rental-card,
+  .property-forum-composer-actions,
+  .property-forum-feed-heading,
+  .property-forum-message-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .student-rental-card .button,
+  .property-forum-composer-actions .button {
+    width: 100%;
+  }
+
+  .property-forum-composer,
+  .property-forum-feed {
+    padding: 18px;
+  }
+}

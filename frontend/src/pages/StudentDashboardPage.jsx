@@ -3,6 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import {
   obtenerMiPerfilEstudiante,
+  listarMisAlquileres,
   actualizarMiPerfilEstudiante,
   solicitarVerificacionEmail,
   confirmarVerificacionEmail,
@@ -14,6 +15,7 @@ import { useLocationSharing } from "../context/LocationContext.jsx";
 
 const SECCIONES = [
   { id: "profile", label: "Ajustes del perfil" },
+  { id: "rentals", label: "Mis alquileres" },
   { id: "personal", label: "Datos personales" },
   { id: "app", label: "Ajustes de la app" },
   { id: "privacy", label: "Privacidad" },
@@ -49,6 +51,10 @@ export default function StudentDashboardPage() {
   const [verificandoEmail, setVerificandoEmail] = useState(false);
   const [verificandoTelefono, setVerificandoTelefono] = useState(false);
   const [mensajeExito, setMensajeExito] = useState("");
+  const [alquileres, setAlquileres] = useState([]);
+  const [cargandoAlquileres, setCargandoAlquileres] = useState(false);
+  const [errorAlquileres, setErrorAlquileres] = useState("");
+  const [actualizacionAlquileres, setActualizacionAlquileres] = useState(0);
 
   const actualizarUsuarioLocal = useCallback(
     (datos) => {
@@ -93,6 +99,33 @@ export default function StudentDashboardPage() {
   useEffect(() => {
     cargarPerfil();
   }, [cargarPerfil]);
+
+  useEffect(() => {
+    if (seccionActiva !== "rentals") return;
+
+    let cancelado = false;
+    setCargandoAlquileres(true);
+    setErrorAlquileres("");
+    listarMisAlquileres()
+      .then((data) => {
+        if (cancelado) return;
+        setAlquileres(data.rentals || []);
+      })
+      .catch((requestError) => {
+        if (!cancelado) {
+          setErrorAlquileres(
+            requestError.message || "No pudimos cargar tus alquileres.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoAlquileres(false);
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [actualizacionAlquileres, seccionActiva]);
 
   const actualizarCampo = (campo) => (event) =>
     setForm((current) => ({ ...current, [campo]: event.target.value }));
@@ -304,6 +337,19 @@ export default function StudentDashboardPage() {
               {seccionActiva === "profile" && (
                 <p>Consultá y administrá los datos de tu perfil.</p>
               )}
+              {seccionActiva === "rentals" && (
+                <p>
+                  Entrá al espacio compartido de los alquileres donde te agregaron.{" "}
+                  <button
+                    className="student-rentals-refresh"
+                    type="button"
+                    disabled={cargandoAlquileres}
+                    onClick={() => setActualizacionAlquileres((actual) => actual + 1)}
+                  >
+                    {cargandoAlquileres ? "Actualizando…" : "Actualizar lista"}
+                  </button>
+                </p>
+              )}
               {seccionActiva === "personal" && (
                 <p>Información asociada a tu cuenta de estudiante.</p>
               )}
@@ -314,6 +360,51 @@ export default function StudentDashboardPage() {
                 <p>Información clara sobre los datos que usa la aplicación.</p>
               )}
             </header>
+
+            {seccionActiva === "rentals" && (
+              <section className="student-rentals" aria-label="Alquileres compartidos">
+                {cargandoAlquileres && (
+                  <p className="student-profile-status">Buscando tus alquileres…</p>
+                )}
+                {errorAlquileres && (
+                  <p className="student-profile-message is-error" role="alert">
+                    {errorAlquileres}
+                  </p>
+                )}
+                {!cargandoAlquileres && !errorAlquileres && alquileres.length === 0 && (
+                  <div className="student-rentals-empty">
+                    <h3>Todavía no tenés alquileres compartidos</h3>
+                    <p>
+                      Cuando el propietario te agregue a una publicación, aparecerá acá
+                      y vas a poder consultar avisos e intercambiar mensajes.
+                    </p>
+                    <Link className="button button-primary" to="/alquileres">
+                      Explorar alquileres
+                    </Link>
+                  </div>
+                )}
+                {!cargandoAlquileres && alquileres.length > 0 && (
+                  <div className="student-rentals-list">
+                    {alquileres.map((alquiler) => (
+                      <article className="student-rental-card" key={alquiler.id}>
+                        <div>
+                          <span className="section-kicker">PUBLICACIÓN COMPARTIDA</span>
+                          <h3>{alquiler.title}</h3>
+                          <p>{alquiler.address}, {alquiler.city}</p>
+                          <small>Propietario: {alquiler.owner?.name || "No informado"}</small>
+                        </div>
+                        <Link
+                          className="button button-primary"
+                          to={`/alquileres/${alquiler.id}/foro`}
+                        >
+                          Abrir foro
+                        </Link>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
 
             {seccionActiva === "profile" && (
               <>

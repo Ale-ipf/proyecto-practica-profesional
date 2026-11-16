@@ -22,6 +22,7 @@ import GuidedRentalGuidePage from "./pages/GuidedRentalGuidePage.jsx";
 import SafetyTipsPage from "./pages/SafetyTipsPage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
+import PropertyForumPage from "./pages/PropertyForumPage.jsx";
 import { useAuth } from "./context/AuthContext";
 import {
   listarPropiedades,
@@ -846,6 +847,7 @@ function App() {
         }
       />
       <Route path="/alquileres/:id" element={<PropertyDetailsPage />} />
+      <Route path="/alquileres/:id/foro" element={<PropertyForumPage />} />
       <Route
         path="/alquileres/:id/gestion"
         element={<OwnerPropertyManagementPage usuario={usuario} />}

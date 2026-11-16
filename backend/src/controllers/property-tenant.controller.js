@@ -88,7 +88,7 @@ export const addPropertyTenant = asyncHandler(async (req, res) => {
   }
 
   res.status(201).json({
-    message: "Persona agregada correctamente.",
+    message: "Persona agregada correctamente. Ya puede acceder al foro desde su perfil, en «Mis alquileres».",
     tenant: { id: tenant.id, user },
   });
 });

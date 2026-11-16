@@ -5,6 +5,8 @@ import { ApiError } from "../helpers/api-error.js";
 import { sequelize } from "../config/database.js";
 import { EmailVerificationModel } from "../models/email-verification.model.js";
 import { StudentModel } from "../models/student.model.js";
+import { PropertyTenantModel } from "../models/property-tenant.model.js";
+import { PropertyModel } from "../models/property.model.js";
 import { UserModel } from "../models/user.model.js";
 import {
   checkPhoneVerification,
@@ -57,6 +59,30 @@ export const getMyStudentProfile = asyncHandler(async (req, res) => {
   }
 
   res.json({ student: profile });
+});
+
+// GET /api/students/me/rentals
+export const listMyStudentRentals = asyncHandler(async (req, res) => {
+  const memberships = await PropertyTenantModel.findAll({
+    where: { userId: req.user.id },
+    include: [
+      {
+        model: PropertyModel,
+        as: "property",
+        attributes: ["id", "title", "address", "city", "price", "status"],
+        include: [
+          {
+            model: UserModel,
+            as: "owner",
+            attributes: ["id", "name"],
+          },
+        ],
+      },
+    ],
+    order: [["id", "DESC"]],
+  });
+
+  res.json({ rentals: memberships.map(({ property }) => property) });
 });
 
 // PUT /api/students/me (protegida, solo student)

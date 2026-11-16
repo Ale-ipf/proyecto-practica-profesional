@@ -18,6 +18,10 @@ import {
   setPropertyTenantPayment,
 } from "../controllers/property-tenant.controller.js";
 import {
+  createPropertyForumMessage,
+  listPropertyForumMessages,
+} from "../controllers/property-forum.controller.js";
+import {
   getOwnerProfileSummary,
 } from "../controllers/owner.controller.js";
 import {
@@ -25,6 +29,7 @@ import {
   saveMyPropertyReview,
 } from "../controllers/property-review.controller.js";
 import { propertyReviewValidator } from "../middlewares/validators/property-review.validator.js";
+import { createPropertyForumMessageValidator } from "../middlewares/validators/property-forum.validator.js";
 import {
   createPropertyValidator,
   updatePropertyValidator,
@@ -79,6 +84,24 @@ router.put(
   propertyReviewValidator,
   validate,
   saveMyPropertyReview,
+);
+
+router.get(
+  "/:id/forum",
+  authenticate,
+  authorize("student", "owner"),
+  propertyIdParamValidator,
+  validate,
+  listPropertyForumMessages,
+);
+router.post(
+  "/:id/forum",
+  authenticate,
+  authorize("student", "owner"),
+  propertyIdParamValidator,
+  createPropertyForumMessageValidator,
+  validate,
+  createPropertyForumMessage,
 );
 
 router.get(
