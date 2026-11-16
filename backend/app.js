@@ -69,7 +69,10 @@ startServer().catch(async (error) => {
   try {
     await sequelize.close();
   } catch (closeError) {
-    console.error("❌ No se pudo cerrar la conexión a la base de datos:", closeError);
+    console.error(
+      "❌ No se pudo cerrar la conexión a la base de datos:",
+      closeError,
+    );
   }
   process.exitCode = 1;
 });
