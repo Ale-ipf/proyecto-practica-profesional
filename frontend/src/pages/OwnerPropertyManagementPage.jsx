@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, Navigate, useParams } from "react-router-dom";
+import DashboardLayout from "../components/DashboardLayout.jsx";
+import { OWNER_NAVIGATION } from "../components/dashboardNavigation.js";
+import { useAuth } from "../context/AuthContext.jsx";
 import { obtenerPropiedad } from "../api/properties.js";
 import {
   actualizarPagoDelAlquiler,
@@ -32,6 +35,7 @@ const formatPeriod = (period) =>
   });
 
 export default function OwnerPropertyManagementPage({ usuario }) {
+  const { logout } = useAuth();
   const { id } = useParams();
   const [property, setProperty] = useState(null);
   const [propertyError, setPropertyError] = useState("");
@@ -68,6 +72,10 @@ export default function OwnerPropertyManagementPage({ usuario }) {
   }, [id, period]);
 
   useEffect(() => {
+    if (usuario?.role !== "owner") {
+      setLoadingProperty(false);
+      return undefined;
+    }
     let cancelled = false;
     obtenerPropiedad(id)
       .then(({ property: result }) => {
@@ -147,33 +155,56 @@ export default function OwnerPropertyManagementPage({ usuario }) {
     }
   };
 
+  if (!usuario) return <Navigate to="/login-and-registration" replace />;
+  if (usuario.role !== "owner") return <Navigate to="/panel-estudiante" replace />;
+
   if (loadingProperty) {
-    return <main className="owner-management"><p className="muted">Cargando alquiler…</p></main>;
+    return (
+      <DashboardLayout
+        user={usuario}
+        roleLabel="Cuenta de propietario"
+        navigation={OWNER_NAVIGATION}
+        activeKey="management"
+        onLogout={logout}
+      >
+        <main className="owner-management"><p className="muted">Cargando alquiler…</p></main>
+      </DashboardLayout>
+    );
   }
   if (propertyError || !property || !isOwner) {
     return (
-      <main className="owner-management">
-        <p className="error-message" role="alert">
-          {propertyError || "No pudimos cargar el alquiler."}
-        </p>
-        <Link className="button button-primary" to="/panel-dueno">Volver a mis alquileres</Link>
-      </main>
+      <DashboardLayout
+        user={usuario}
+        roleLabel="Cuenta de propietario"
+        navigation={OWNER_NAVIGATION}
+        activeKey="management"
+        onLogout={logout}
+      >
+        <main className="owner-management">
+          <p className="error-message" role="alert">
+            {propertyError || "No pudimos cargar el alquiler."}
+          </p>
+          <Link className="button button-primary" to="/panel-dueno">Volver a mis alquileres</Link>
+        </main>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="app-shell route-page-shell">
-      <header className="site-header">
-        <Link className="brand-title" to="/">Alquileres Formosa</Link>
-        <div className="header-actions">
-          <Link className="button button-primary" to={`/alquileres/${id}/foro`}>Abrir foro</Link>
-          <Link className="button button-accent" to="/panel-dueno">Volver a mis alquileres</Link>
-        </div>
-      </header>
+    <DashboardLayout
+      user={usuario}
+      roleLabel="Cuenta de propietario"
+      navigation={OWNER_NAVIGATION}
+      activeKey="management"
+      onLogout={logout}
+    >
       <main className="owner-management">
         <span className="section-kicker">GESTIÓN DEL ALQUILER</span>
         <h1>{property.title}</h1>
         <p className="muted">{property.address}, {property.city}</p>
+        <Link className="button button-primary" to={`/alquileres/${id}/foro`}>
+          Abrir foro del alquiler
+        </Link>
 
         <div className="owner-management__tabs" role="tablist" aria-label="Apartados del alquiler">
           <button
@@ -232,7 +263,7 @@ export default function OwnerPropertyManagementPage({ usuario }) {
                 <input
                   type="month"
                   value={period}
-                      required
+                  required
                   onChange={(event) => {
                     setPeriod(event.target.value);
                     setMessage("");
@@ -311,6 +342,6 @@ export default function OwnerPropertyManagementPage({ usuario }) {
           </section>
         )}
       </main>
-    </div>
+    </DashboardLayout>
   );
 }

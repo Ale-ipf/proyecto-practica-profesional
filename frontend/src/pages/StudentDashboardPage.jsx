@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
+import DashboardLayout, {
+  DashboardPropertyCard,
+  DashboardSection,
+  QuickAccessCard,
+  UserProfileCard,
+} from "../components/DashboardLayout.jsx";
+import { STUDENT_NAVIGATION } from "../components/dashboardNavigation.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { listarPropiedades } from "../api/properties.js";
+import { imagenHero } from "../data/appData.js";
 import {
   obtenerMiPerfilEstudiante,
   listarMisAlquileres,
@@ -14,6 +23,7 @@ import { ApiRequestError } from "../api/client.js";
 import { useLocationSharing } from "../context/LocationContext.jsx";
 
 const SECCIONES = [
+  { id: "dashboard", label: "Mi panel" },
   { id: "profile", label: "Ajustes del perfil" },
   { id: "rentals", label: "Mis alquileres" },
   { id: "personal", label: "Datos personales" },
@@ -23,14 +33,17 @@ const SECCIONES = [
 
 export default function StudentDashboardPage() {
   const { usuario, logout, actualizarUsuario } = useAuth();
+  const [searchParams] = useSearchParams();
   const {
     isSharing: compartirUbicacion,
     error: errorUbicacion,
     startSharing,
     stopSharing,
   } = useLocationSharing();
-  const [seccionActiva, setSeccionActiva] = useState("profile");
   const [perfil, setPerfil] = useState(null);
+  const [propiedades, setPropiedades] = useState([]);
+  const [errorPropiedades, setErrorPropiedades] = useState("");
+  const [cargandoPropiedades, setCargandoPropiedades] = useState(true);
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -97,8 +110,34 @@ export default function StudentDashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (usuario?.role !== "student") return undefined;
     cargarPerfil();
-  }, [cargarPerfil]);
+    return undefined;
+  }, [cargarPerfil, usuario?.role]);
+
+  useEffect(() => {
+    let cancelado = false;
+    listarPropiedades({ status: "available", page: 1, limit: 3 })
+      .then((data) => {
+        if (!cancelado) setPropiedades(data.properties);
+      })
+      .catch((requestError) => {
+        if (!cancelado) {
+          setErrorPropiedades(
+            requestError instanceof ApiRequestError
+              ? requestError.message
+              : "No pudimos cargar los alquileres disponibles.",
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelado) setCargandoPropiedades(false);
+      });
+
+    return () => {
+      cancelado = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (seccionActiva !== "rentals") return;
@@ -274,60 +313,136 @@ export default function StudentDashboardPage() {
   if (!usuario) return <Navigate to="/login" replace />;
   if (usuario.role !== "student") return <Navigate to="/panel-dueno" replace />;
 
+  const requestedSection = searchParams.get("section");
+  const seccionActiva = SECCIONES.some((item) => item.id === requestedSection)
+    ? requestedSection
+    : "dashboard";
   const seccion = SECCIONES.find((item) => item.id === seccionActiva);
   const usuarioPerfil = perfil?.user || usuario;
 
   return (
-    <div className="app-shell route-page-shell">
-      <header className="site-header">
-        <Link className="brand-title" to="/">
-          Alquileres Formosa
-        </Link>
-        <nav className="main-nav" aria-label="Navegación principal">
-          <Link to="/alquileres">Alquileres</Link>
-          <Link to="/mapa">Mapa</Link>
-          <Link to="/guia-asistida">Guía asistida</Link>
-        </nav>
-        <div className="header-actions student-profile-header-actions">
-          <span>Hola, {usuarioPerfil.name}</span>
-          <button
-            className="button button-outline-danger"
-            type="button"
-            onClick={logout}
-          >
-            Cerrar sesión
-          </button>
-        </div>
-      </header>
+    <DashboardLayout
+      user={usuarioPerfil}
+      roleLabel="Cuenta de estudiante"
+      navigation={STUDENT_NAVIGATION}
+      activeKey={seccionActiva === "dashboard" ? "dashboard" : seccionActiva}
+      onLogout={logout}
+    >
+      {seccionActiva === "dashboard" ? (
+        <>
+          <section className="dashboard-welcome">
+            <img src={imagenHero} alt="" aria-hidden="true" />
+            <div className="dashboard-welcome__content">
+              <span className="dashboard-eyebrow">PANEL DEL ESTUDIANTE</span>
+              <h1>¡Hola, {usuario.name || "estudiante"}!</h1>
+              <p>Encontrá tu próximo hogar en Formosa y organizá tu búsqueda desde un solo lugar.</p>
+            </div>
+          </section>
 
-      <main className="student-profile-page">
+          <DashboardSection eyebrow="EXPLORÁ LA PLATAFORMA" title="Accesos rápidos">
+            <div className="dashboard-quick-grid">
+              <QuickAccessCard
+                to="/alquileres"
+                icon="search"
+                title="Buscar alquileres"
+                description="Explorá publicaciones disponibles y sus detalles."
+              />
+              <QuickAccessCard
+                to="/alquileres?favoritos=true"
+                icon="star"
+                title="Mis favoritos"
+                description="Volvé a las propiedades que guardaste en este dispositivo."
+              />
+              <QuickAccessCard
+                to="/mapa-del-delito"
+                icon="map"
+                title="Mapa del delito"
+                description="Consultá la información disponible en el mapa."
+              />
+              <QuickAccessCard
+                to="/mapa?capa=instituciones#mapa"
+                icon="school"
+                title="Instituciones educativas"
+                description="Ubicá instituciones y consultá sus datos."
+              />
+              <QuickAccessCard
+                to="/guia-asistida"
+                icon="guide"
+                title="Guía asistida"
+                description="Encontrá opciones según tus necesidades de estudio."
+              />
+              <QuickAccessCard
+                to="/consejos-seguridad"
+                icon="shield"
+                title="Consejos de seguridad"
+                description="Revisá recomendaciones para una búsqueda segura."
+              />
+            </div>
+          </DashboardSection>
+
+          <DashboardSection
+            eyebrow="PUBLICACIONES RECIENTES"
+            title="Alquileres disponibles"
+            description="Propiedades publicadas en la plataforma."
+            action={
+              <Link className="dashboard-button dashboard-button--secondary" to="/alquileres">
+                Ver todos
+              </Link>
+            }
+          >
+            {cargandoPropiedades && (
+              <p className="dashboard-message">Cargando alquileres disponibles…</p>
+            )}
+            {!cargandoPropiedades && errorPropiedades && (
+              <p className="dashboard-message is-error" role="alert">
+                {errorPropiedades}
+              </p>
+            )}
+            {!cargandoPropiedades && !errorPropiedades && propiedades.length === 0 && (
+              <p className="dashboard-message">
+                Todavía no hay alquileres disponibles para mostrar.
+              </p>
+            )}
+            {!cargandoPropiedades && !errorPropiedades && propiedades.length > 0 && (
+              <div className="dashboard-property-grid">
+                {propiedades.map((propiedad) => (
+                  <DashboardPropertyCard key={propiedad.id} property={propiedad} />
+                ))}
+              </div>
+            )}
+          </DashboardSection>
+
+          <DashboardSection eyebrow="TU CUENTA" title="Perfil del estudiante">
+            <div className="dashboard-profile-overview">
+              <UserProfileCard user={usuarioPerfil} roleLabel="Estudiante" />
+              <Link
+                className="dashboard-button dashboard-button--primary"
+                to="/panel-estudiante?section=profile"
+              >
+                Editar perfil
+              </Link>
+            </div>
+          </DashboardSection>
+
+          <DashboardSection eyebrow="RECOMENDACIONES" title="Antes de elegir">
+            <div className="dashboard-info-card">
+              <strong>Conocé la zona y verificá la información</strong>
+              <p>
+                Consultá la ubicación en el mapa, revisá los datos de la publicación
+                y usá los consejos de seguridad antes de coordinar una visita.
+              </p>
+            </div>
+          </DashboardSection>
+        </>
+      ) : (
+      <div className="student-profile-page">
         <div className="student-profile-heading">
           <span className="section-kicker">CUENTA DE ESTUDIANTE</span>
-          <h1>Mi perfil</h1>
+          <h1>{seccionActiva === "profile" ? "Mi perfil" : seccion.label}</h1>
           <p>Administrá tus datos, preferencias y privacidad.</p>
         </div>
 
         <div className="student-profile-layout">
-          <nav
-            className="student-profile-navigation"
-            aria-label="Secciones del perfil"
-          >
-            {SECCIONES.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className={`student-profile-navigation-item ${seccionActiva === item.id ? "is-active" : ""}`}
-                aria-current={seccionActiva === item.id ? "page" : undefined}
-                onClick={() => {
-                  setSeccionActiva(item.id);
-                  setModalEdicionAbierto(false);
-                }}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
           <section
             className="student-profile-panel"
             aria-labelledby="student-profile-section-title"
@@ -863,7 +978,8 @@ export default function StudentDashboardPage() {
             )}
           </section>
         </div>
-      </main>
-    </div>
+      </div>
+      )}
+    </DashboardLayout>
   );
 }

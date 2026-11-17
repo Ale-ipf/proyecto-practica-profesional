@@ -1,106 +1,175 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link, Navigate, useLocation } from "react-router-dom";
+import DashboardLayout, {
+  DashboardPropertyCard,
+  DashboardSection,
+  QuickAccessCard,
+} from "../components/DashboardLayout.jsx";
+import { OWNER_NAVIGATION } from "../components/dashboardNavigation.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { listarMisPropiedades, crearPropiedad } from "../api/properties.js";
+import { eliminarPropiedad, listarMisPropiedades } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
-
-const PESTAÑAS = [
-  { id: "propiedades", etiqueta: "Mis propiedades" },
-  { id: "nueva", etiqueta: "Publicar nueva" },
-  { id: "perfil", etiqueta: "Mi cuenta" },
-];
+import { imagenHero } from "../data/appData.js";
 
 export default function OwnerDashboardPage() {
-  const { usuario } = useAuth();
-  const [pestañaActiva, setPestañaActiva] = useState("propiedades");
+  const { usuario, logout } = useAuth();
+  const { hash } = useLocation();
   const [propiedades, setPropiedades] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
-  const [mensajeExito, setMensajeExito] = useState("");
 
-  const cargarPropiedades = useCallback(() => {
+  const cargarPropiedades = useCallback(async () => {
     setCargando(true);
-    listarMisPropiedades()
-      .then((data) => setPropiedades(data.properties))
-      .catch((err) =>
-        setError(err instanceof ApiRequestError ? err.message : "No pudimos cargar tus propiedades."),
-      )
-      .finally(() => setCargando(false));
+    setError("");
+    try {
+      const data = await listarMisPropiedades();
+      setPropiedades(data.properties);
+    } catch (requestError) {
+      setError(
+        requestError instanceof ApiRequestError
+          ? requestError.message
+          : "No pudimos cargar tus propiedades.",
+      );
+    } finally {
+      setCargando(false);
+    }
   }, []);
 
   useEffect(() => {
+    if (usuario?.role !== "owner") return;
     cargarPropiedades();
-  }, [cargarPropiedades]);
+  }, [cargarPropiedades, usuario?.role]);
 
-  const publicarPropiedad = async (datos) => {
+  const eliminarPublicacion = async (id) => {
     try {
-      await crearPropiedad(datos);
-      setMensajeExito("¡Propiedad publicada correctamente!");
-      setPestañaActiva("propiedades");
-      cargarPropiedades();
-    } catch (err) {
-      throw err instanceof ApiRequestError ? err : new Error("No pudimos publicar la propiedad.");
+      await eliminarPropiedad(id);
+      setPropiedades((actuales) =>
+        actuales.filter((propiedad) => String(propiedad.id) !== String(id)),
+      );
+    } catch (requestError) {
+      throw new Error(
+        requestError instanceof ApiRequestError
+          ? requestError.message
+          : "No pudimos eliminar la propiedad.",
+        { cause: requestError },
+      );
     }
   };
 
+  if (!usuario) return <Navigate to="/login-and-registration" replace />;
+  if (usuario.role !== "owner") return <Navigate to="/panel-estudiante" replace />;
+
+  const disponibles = propiedades.filter(
+    (propiedad) => propiedad.status === "available",
+  ).length;
+  const alquiladas = propiedades.filter(
+    (propiedad) => propiedad.status === "rented",
+  ).length;
   return (
-    <div>
-      <div className="panel-bienvenida">
-        <div>
-          <h2>Hola de nuevo, {usuario.name}</h2>
-          <p>Gestioná tus propiedades publicadas y sumá nuevos alquileres para la comunidad.</p>
+    <DashboardLayout
+      user={usuario}
+      roleLabel="Cuenta de propietario"
+      navigation={OWNER_NAVIGATION}
+      activeKey={hash === "#propiedades" ? "properties" : "dashboard"}
+      onLogout={logout}
+    >
+      <section className="dashboard-welcome">
+        <img src={imagenHero} alt="" aria-hidden="true" />
+        <div className="dashboard-welcome__content">
+          <span className="dashboard-eyebrow">PANEL DEL PROPIETARIO</span>
+          <h1>¡Hola de nuevo, {usuario.name || "propietario"}!</h1>
+          <p>
+            Administrá tus propiedades y gestioná tus alquileres desde un solo lugar.
+          </p>
         </div>
-        <span className="panel-bienvenida__rol">Cuenta de propietario</span>
-      </div>
+      </section>
 
-      <Tabs pestañas={PESTAÑAS} activa={pestañaActiva} onCambiar={setPestañaActiva} />
+      <DashboardSection eyebrow="RESUMEN" title="Tu actividad">
+        <div className="dashboard-stats-grid">
+          <article className="dashboard-stat">
+            <span>Propiedades publicadas</span>
+            <strong>{cargando || error ? "—" : propiedades.length}</strong>
+          </article>
+          <article className="dashboard-stat">
+            <span>Disponibles</span>
+            <strong>{cargando || error ? "—" : disponibles}</strong>
+          </article>
+          <article className="dashboard-stat">
+            <span>Alquiladas</span>
+            <strong>{cargando || error ? "—" : alquiladas}</strong>
+          </article>
+        </div>
+      </DashboardSection>
 
-      {mensajeExito && pestañaActiva === "propiedades" && (
-        <div className="mensaje-alerta mensaje-alerta--exito">{mensajeExito}</div>
-      )}
+      <DashboardSection eyebrow="ACCESOS DIRECTOS" title="¿Qué necesitás hacer?">
+        <div className="dashboard-quick-grid">
+          <QuickAccessCard
+            to="/panel-dueno#propiedades"
+            icon="building"
+            title="Mis propiedades"
+            description="Consultá el estado de tus publicaciones."
+          />
+          <QuickAccessCard
+            to="/alquileres/nuevo"
+            icon="plus"
+            title="Publicar propiedad"
+            description="Sumá un nuevo inmueble a la plataforma."
+          />
+          <QuickAccessCard
+            to="#propiedades"
+            icon="settings"
+            title="Administrar alquileres"
+            description="Gestioná estudiantes y pagos de tus alquileres."
+          />
+          <QuickAccessCard
+            to="/perfil-dueno"
+            icon="user"
+            title="Mi perfil"
+            description="Actualizá tus datos y verificaciones."
+          />
+        </div>
+      </DashboardSection>
 
-      {pestañaActiva === "propiedades" && (
-        <>
-          {cargando && <p className="estado-carga">Cargando tus propiedades…</p>}
-          {!cargando && error && <div className="mensaje-alerta mensaje-alerta--error">{error}</div>}
+      <DashboardSection
+        eyebrow="TUS PUBLICACIONES"
+        title="Mis propiedades"
+        description="Revisá disponibilidad, información y gestión de cada publicación."
+        action={
+          <Link className="dashboard-button dashboard-button--primary" to="/alquileres/nuevo">
+            <span aria-hidden="true">+</span> Publicar propiedad
+          </Link>
+        }
+      >
+        <div id="propiedades">
+          {cargando && <p className="dashboard-message">Cargando tus propiedades…</p>}
+          {!cargando && error && (
+            <p className="dashboard-message is-error" role="alert">
+              {error}
+            </p>
+          )}
           {!cargando && !error && propiedades.length === 0 && (
-            <div className="estado-vacio">
+            <div className="dashboard-empty">
               <h3>Todavía no publicaste propiedades</h3>
-              <p>Usá la pestaña "Publicar nueva" para cargar tu primer alquiler.</p>
+              <p>Cuando publiques un alquiler, aparecerá acá para que puedas administrarlo.</p>
+              <Link className="dashboard-button dashboard-button--primary" to="/alquileres/nuevo">
+                Publicar mi primera propiedad
+              </Link>
             </div>
           )}
           {!cargando && !error && propiedades.length > 0 && (
-            <div className="grilla-propiedades">
+            <div className="dashboard-property-grid">
               {propiedades.map((propiedad) => (
-                <TarjetaPropiedadDueno key={propiedad.id} propiedad={propiedad} onCambio={cargarPropiedades} />
+                <DashboardPropertyCard
+                  key={propiedad.id}
+                  property={propiedad}
+                  owner
+                  onDelete={eliminarPublicacion}
+                />
               ))}
             </div>
           )}
-        </>
-      )}
-
-      {pestañaActiva === "nueva" && (
-        <div className="formulario-tarjeta formulario-tarjeta--ancha">
-          <h3>Publicar una nueva propiedad</h3>
-          <FormularioPropiedad onGuardar={publicarPropiedad} textoBoton="Publicar propiedad" />
         </div>
-      )}
-
-      {pestañaActiva === "perfil" && (
-        <div className="grilla-info">
-          <div className="tarjeta-info">
-            <span className="tarjeta-info__etiqueta">Correo electrónico</span>
-            <span className="tarjeta-info__valor">{usuario.email}</span>
-          </div>
-          <div className="tarjeta-info">
-            <span className="tarjeta-info__etiqueta">Tipo de cuenta</span>
-            <span className="tarjeta-info__valor">Dueño / Propietario</span>
-          </div>
-          <div className="tarjeta-info">
-            <span className="tarjeta-info__etiqueta">Propiedades publicadas</span>
-            <span className="tarjeta-info__valor">{propiedades.length}</span>
-          </div>
-        </div>
-      )}
-    </div>
+      </DashboardSection>
+    </DashboardLayout>
   );
 }

@@ -21,6 +21,7 @@ import OwnerProfilePage from "./pages/OwnerProfilePage.jsx";
 import GuidedRentalGuidePage from "./pages/GuidedRentalGuidePage.jsx";
 import SafetyTipsPage from "./pages/SafetyTipsPage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
+import OwnerDashboardPage from "./pages/OwnerDashboardPage.jsx";
 import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
 import PropertyForumPage from "./pages/PropertyForumPage.jsx";
 import { useAuth } from "./context/AuthContext";
@@ -389,6 +390,7 @@ function PropertyDetailsPage() {
 }
 
 function HomePage({ usuario, onLogout, vista = "inicio" }) {
+  const { search: locationSearch } = useLocation();
   const { instituciones, cargandoInstituciones, errorInstituciones } =
     useInstituciones();
   const [favoritos, setFavoritos] = useState([]);
@@ -397,14 +399,17 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
   const [error, setError] = useState("");
   const [pagina, setPagina] = useState(1);
   const [totalPaginas, setTotalPaginas] = useState(1);
-  const [filters, setFilters] = useState({
-    barrio: "Todos",
-    ambientes: "Todos",
-    tipo: "Todos",
-    orden: "Defecto",
-    precioMaximo: "",
-    soloConAire: false,
-    soloFavoritos: false,
+  const [filters, setFilters] = useState(() => {
+    const params = new URLSearchParams(locationSearch);
+    return {
+      barrio: "Todos",
+      ambientes: "Todos",
+      tipo: "Todos",
+      orden: "Defecto",
+      precioMaximo: "",
+      soloConAire: false,
+      soloFavoritos: params.get("favoritos") === "true",
+    };
   });
   const mostrarVistaPrevia =
     vista === "perfil-estudiante" && rolDeUsuario(usuario) === "student";
@@ -883,7 +888,7 @@ function App() {
       />
       <Route
         path="/panel-dueno"
-        element={<HomePage usuario={usuario} onLogout={logout} />}
+        element={<OwnerDashboardPage />}
       />
       <Route path="/perfil-dueno" element={<OwnerProfilePage />} />
       <Route path="/panel-estudiante" element={<StudentDashboardPage />} />

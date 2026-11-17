@@ -1,0 +1,298 @@
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background-color: var(--paper);
+}
+
+body {
+  color: var(--ink);
+}
+
+button,
+input,
+select,
+textarea {
+  color-scheme: dark;
+}
+
+a {
+  color: inherit;
+}
+
+.site-header {
+  background: var(--deep);
+  border-color: var(--line);
+}
+
+.brand-title {
+  color: #fff;
+  font-family: inherit;
+  letter-spacing: -.025em;
+}
+
+.brand-title span {
+  align-items: center;
+  background: var(--red);
+  border-radius: 6px;
+  display: inline-flex;
+  height: 24px;
+  justify-content: center;
+  order: -1;
+  position: relative;
+  width: 24px;
+}
+
+.brand-title span::after {
+  border-color: #fff;
+  border-style: solid;
+  border-width: 2px 2px 0 0;
+  content: "";
+  height: 7px;
+  position: absolute;
+  top: 7px;
+  transform: rotate(-45deg);
+  width: 7px;
+}
+
+.main-nav a,
+.site-footer a {
+  color: var(--muted);
+}
+
+.button-primary {
+  background: var(--red);
+}
+
+.button-primary:hover {
+  background: var(--red-dark);
+}
+
+.button-accent {
+  border-color: #5b252b;
+  color: #ff6976;
+}
+
+.button-accent:hover {
+  background: rgb(240 0 22 / 10%);
+}
+
+.button-outline-danger,
+.button-danger {
+  border-color: #6d272e;
+  color: #ff7b86;
+}
+
+.button-warning {
+  border-color: #5c4545;
+  color: #ff9a9a;
+}
+
+.site-footer {
+  border-color: var(--line);
+}
+
+.welcome-bar {
+  background: var(--surface);
+  border-block: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.welcome-bar span {
+  color: var(--muted);
+}
+
+.hero-ui {
+  background: linear-gradient(115deg, #1b1b1b 0%, #171717 70%, #251316 100%);
+  box-shadow: var(--shadow);
+}
+
+.hero-copy h1 {
+  font-family: inherit;
+}
+
+.hero-image-wrap::after {
+  background:
+    linear-gradient(90deg, #1b1b1b, transparent 48%),
+    linear-gradient(0deg, rgb(8 8 8 / 45%), transparent 58%);
+}
+
+.image-label {
+  background: #1b1b1b;
+  color: #fff;
+}
+
+.institution-carousel {
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.carousel-copy {
+  background:
+    radial-gradient(ellipse at 100% 0%, rgb(240 0 22 / 9%), transparent 58%),
+    #171717;
+}
+
+.carousel-copy .section-kicker {
+  color: #ff6573;
+}
+
+.carousel-copy h2 {
+  font-family: inherit;
+}
+
+.carousel-copy p {
+  color: var(--muted);
+}
+
+.panel,
+.property-card,
+.property-details-page,
+.owner-profile-section,
+.owner-management__panel,
+.student-profile-panel,
+.institution-card,
+.map-preview,
+.opinions-section,
+.safety-tip-card,
+.guided-guide-card,
+.route-page {
+  background-color: var(--surface);
+  border-color: var(--line);
+  box-shadow: var(--shadow);
+  color: var(--ink);
+}
+
+.property-card footer {
+  background: var(--deep);
+  border-color: var(--line);
+  color: var(--muted);
+}
+
+.property-card:hover {
+  border-color: rgb(240 0 22 / 45%);
+}
+
+.property-image-placeholder {
+  align-items: center;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgb(240 0 22 / 10%), transparent 55%),
+    #202020;
+  color: #777;
+  display: flex;
+  height: 208px;
+  justify-content: center;
+  width: 100%;
+}
+
+.badges span:first-child {
+  background: #252525;
+  color: #ddd;
+}
+
+.favorite-button,
+.favorite-indicator {
+  background: #171717;
+  color: #ff6573;
+}
+
+.property-title-link,
+.property-card h3,
+.property-details-summary h1,
+.listings-toolbar h2,
+.listings-section h1,
+.panel h2,
+.student-profile-heading h1,
+.student-profile-panel-heading h2,
+.owner-profile-page__header h1,
+.owner-profile-section h2,
+.route-page h1,
+.owner-management h1 {
+  color: #fff;
+  font-family: inherit;
+}
+
+.property-body,
+.property-details-content,
+.property-details-summary {
+  color: var(--ink);
+}
+
+.property-card .property-description,
+.property-address,
+.route-description,
+.muted {
+  color: var(--muted);
+}
+
+.error-message,
+.empty-message {
+  background: rgb(240 0 22 / 10%);
+  border-color: rgb(240 0 22 / 32%);
+  color: #ff8a94;
+}
+
+.student-verification-badge,
+.owner-profile-verification {
+  background: rgb(240 0 22 / 12%);
+  color: #ff7b86;
+}
+
+.student-verification-badge.is-verified,
+.owner-profile-verification.is-verified {
+  background: rgb(66 189 125 / 14%);
+  color: #62d494;
+}
+
+.student-profile-message.is-success,
+.owner-profile-success {
+  color: #62d494;
+}
+
+.property-form input,
+.property-form select,
+.property-form textarea,
+.owner-profile-form input,
+.owner-profile-verification-form input,
+.student-profile-form input,
+.student-profile-form textarea,
+.student-verification-form input,
+.filter-grid input,
+.filter-grid select {
+  background: #121212;
+  border-color: #414141;
+  color: var(--ink);
+}
+
+.leaflet-container {
+  background: #181818;
+}
+
+.dashboard-content > .owner-profile-page {
+  margin: 0 auto;
+  max-width: 960px;
+  padding: 0 0 35px;
+}
+
+.dashboard-content > .owner-profile-page .owner-profile-page__header {
+  align-items: flex-start;
+}
+
+.owner-profile-section {
+  scroll-margin-top: 90px;
+}
+
+.dashboard-content > .owner-management,
+.dashboard-content > .owner-profile-page,
+.dashboard-content > .student-profile-page {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .dashboard-content > .owner-profile-page .owner-profile-page__header {
+    flex-direction: column;
+  }
+}

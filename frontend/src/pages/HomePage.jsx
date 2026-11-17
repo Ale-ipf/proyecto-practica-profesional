@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
+import { DashboardPropertyCard } from "../components/DashboardLayout.jsx";
 import { listarPropiedades } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
 
@@ -7,9 +8,72 @@ const FILTROS_INICIALES = {
   city: "",
   bedrooms: "",
   maxPrice: "",
-  status: "",
-  is_furnished: false,
+  status: "available",
+  is_furnished: "",
 };
+
+function BarraFiltros({ filtros, onCambiar }) {
+  const actualizar = (event) => {
+    onCambiar({ ...filtros, [event.target.name]: event.target.value });
+  };
+
+  return (
+    <section className="panel filters-panel" aria-label="Filtros de alquileres">
+      <div className="filter-heading">
+        <div>
+          <span className="section-kicker">ENCONTRÁ TU LUGAR</span>
+          <h2>Filtrá las propiedades</h2>
+        </div>
+        <button
+          className="clear-filters"
+          type="button"
+          onClick={() => onCambiar(FILTROS_INICIALES)}
+        >
+          Limpiar filtros
+        </button>
+      </div>
+      <div className="form-grid filter-grid">
+        <label>
+          Ciudad
+          <input name="city" value={filtros.city} onChange={actualizar} placeholder="Formosa" />
+        </label>
+        <label>
+          Ambientes
+          <select name="bedrooms" value={filtros.bedrooms} onChange={actualizar}>
+            <option value="">Cualquier cantidad</option>
+            <option value="1">Monoambiente</option>
+            <option value="2">2 ambientes</option>
+            <option value="3">3 ambientes</option>
+          </select>
+        </label>
+        <label>
+          Precio máximo
+          <input type="number" min="0" name="maxPrice" value={filtros.maxPrice} onChange={actualizar} placeholder="Sin límite" />
+        </label>
+        <label>
+          Estado
+          <select name="status" value={filtros.status} onChange={actualizar}>
+            <option value="">Todos</option>
+            <option value="available">Disponible</option>
+            <option value="rented">Alquilada</option>
+          </select>
+        </label>
+        <label>
+          Amoblamiento
+          <select name="is_furnished" value={filtros.is_furnished} onChange={actualizar}>
+            <option value="">Cualquiera</option>
+            <option value="true">Amoblada</option>
+            <option value="false">Sin amoblar</option>
+          </select>
+        </label>
+      </div>
+    </section>
+  );
+}
+
+function TarjetaPropiedad({ propiedad }) {
+  return <DashboardPropertyCard property={propiedad} />;
+}
 
 export default function HomePage() {
   const [parametrosUrl] = useSearchParams();
@@ -21,7 +85,7 @@ export default function HomePage() {
     bedrooms: parametrosUrl.get("bedrooms") || "",
     maxPrice: parametrosUrl.get("maxPrice") || "",
     status: parametrosUrl.get("status") || "",
-    is_furnished: parametrosUrl.get("is_furnished") === "true",
+    is_furnished: parametrosUrl.get("is_furnished") || "",
   }));
   const [pagina, setPagina] = useState(1);
   const [propiedades, setPropiedades] = useState([]);

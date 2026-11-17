@@ -73,19 +73,6 @@ function InstitutionCarousel({ instituciones, propiedades }) {
             ? "Explorá propiedades verificadas, compará precios y elegí tu próximo hogar de forma simple."
             : "Seleccioná una institución educativa y descubrí los alquileres disponibles más cercanos."}
         </p>
-        {selectedIndex === 0 && (
-          <div className="hero-stats">
-            <span>
-              <strong>+120</strong> propiedades
-            </span>
-            <span>
-              <strong>4</strong> barrios
-            </span>
-            <span>
-              <strong>100%</strong> local
-            </span>
-          </div>
-        )}
         <div className="carousel-controls">
           <button
             type="button"
