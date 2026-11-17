@@ -807,6 +807,25 @@ function InstitutionsMapRedirect() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      requestAnimationFrame(() => {
+        document
+          .querySelector(hash)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      return;
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname, hash]);
+
+  return null;
+}
+
 function App() {
   const { usuario, logout, cargandoSesion } = useAuth();
 
@@ -840,7 +859,9 @@ function App() {
     );
 
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route
         path="/"
         element={<HomePage usuario={usuario} onLogout={logout} />}
@@ -922,7 +943,8 @@ function App() {
           </InformativePage>
         }
       />
-    </Routes>
+      </Routes>
+    </>
   );
 }
 

@@ -30,9 +30,9 @@ export default function Access({
         </header>
 
         <div className="access-content">
-          <h1 className="access-page-title">
+          <p className="access-page-title">
             Accede para comenzar a ver alquileres
-          </h1>
+          </p>
           <div className="access-card">
             <nav
               className="access-tabs"

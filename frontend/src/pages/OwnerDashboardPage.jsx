@@ -116,7 +116,7 @@ export default function OwnerDashboardPage() {
             description="Sumá un nuevo inmueble a la plataforma."
           />
           <QuickAccessCard
-            to="#propiedades"
+            to="/panel-dueno#propiedades"
             icon="settings"
             title="Administrar alquileres"
             description="Gestioná estudiantes y pagos de tus alquileres."
