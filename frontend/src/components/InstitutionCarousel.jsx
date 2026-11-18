@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { imagenHero } from "../data/appData";
 
 function distanceInKm(first, second) {
   const [lat1, lon1] = first;
@@ -28,7 +27,7 @@ function distanceToInstitution(coordenadas, institucion) {
 
 function InstitutionCarousel({ instituciones, propiedades }) {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const institucion = instituciones[selectedIndex - 1];
+  const institucion = instituciones[selectedIndex];
   const nearbyProperties = useMemo(
     () =>
       institucion
@@ -49,7 +48,7 @@ function InstitutionCarousel({ instituciones, propiedades }) {
         : [],
     [institucion, propiedades],
   );
-  const totalSlides = instituciones.length + 1;
+  const totalSlides = instituciones.length;
   const changeSlide = (direction) =>
     setSelectedIndex(
       (current) => (current + direction + totalSlides) % totalSlides,
@@ -58,20 +57,11 @@ function InstitutionCarousel({ instituciones, propiedades }) {
   return (
     <section className="institution-carousel">
       <div className="carousel-copy">
-        <span className="section-kicker">
-          {selectedIndex === 0
-            ? "ALQUILERES EN FORMOSA"
-            : "ALQUILERES CERCA DE INSTITUCIONES"}
-        </span>
-        <h2>
-          {selectedIndex === 0
-            ? "Encontrá un lugar que se sienta como tuyo."
-            : "Elegí dónde estudiar, nosotros te acercamos tu próximo hogar."}
-        </h2>
+        <span className="section-kicker">INSTITUCIONES EDUCATIVAS</span>
+        <h2>Conocé las instituciones de Formosa</h2>
         <p>
-          {selectedIndex === 0
-            ? "Explorá propiedades verificadas, compará precios y elegí tu próximo hogar de forma simple."
-            : "Seleccioná una institución educativa y descubrí los alquileres disponibles más cercanos."}
+          Explorá la información de cada institución y conocé los alquileres
+          disponibles en sus alrededores.
         </p>
         <div className="carousel-controls">
           <button
@@ -88,7 +78,8 @@ function InstitutionCarousel({ instituciones, propiedades }) {
                 className={index === selectedIndex ? "active" : ""}
                 type="button"
                 onClick={() => setSelectedIndex(index)}
-                aria-label={`Ver elemento ${index + 1}`}
+                aria-label={`Ver institución ${index + 1}`}
+                aria-current={index === selectedIndex ? "true" : undefined}
               />
             ))}
           </div>
@@ -101,25 +92,17 @@ function InstitutionCarousel({ instituciones, propiedades }) {
           </button>
         </div>
       </div>
-      {selectedIndex === 0 ? (
-        <div className="hero-image-wrap">
-          <img
-            src={imagenHero}
-            alt="Monoambiente luminoso disponible para alquilar"
-          />
-          <span className="image-label">Espacios listos para habitar</span>
+      <div className="institution-slide" aria-live="polite">
+        <div className="institution-badge">{institucion.abreviatura}</div>
+        <div>
+          <span className="institution-type">{institucion.tipo}</span>
+          <h3>{institucion.nombre}</h3>
+          <p>{institucion.descripcion}</p>
         </div>
-      ) : (
-        <div className="institution-slide">
-          <div className="institution-badge">{institucion.abreviatura}</div>
-          <div>
-            <span className="institution-type">{institucion.tipo}</span>
-            <h3>{institucion.nombre}</h3>
-            <p>{institucion.descripcion}</p>
-          </div>
-          <div className="nearby-properties">
-            <span className="nearby-label">Más cercanos</span>
-            {nearbyProperties.map((propiedad) => (
+        <div className="nearby-properties">
+          <span className="nearby-label">Alquileres cercanos</span>
+          {nearbyProperties.length > 0 ? (
+            nearbyProperties.map((propiedad) => (
               <Link
                 className="nearby-property"
                 key={propiedad.id}
@@ -128,16 +111,20 @@ function InstitutionCarousel({ instituciones, propiedades }) {
                 <span>{propiedad.titulo}</span>
                 <strong>{propiedad.distancia.toFixed(1)} km</strong>
               </Link>
-            ))}
-          </div>
-          <Link
-            className="button button-accent"
-            to={`/mapa?capa=instituciones&institucion=${encodeURIComponent(institucion.id)}#mapa`}
-          >
-            Ver en el mapa
-          </Link>
+            ))
+          ) : (
+            <span className="nearby-empty">
+              No hay alquileres cercanos publicados por ahora.
+            </span>
+          )}
         </div>
-      )}
+        <Link
+          className="button button-accent"
+          to={`/mapa?capa=instituciones&institucion=${encodeURIComponent(institucion.id)}#mapa`}
+        >
+          Ver en el mapa
+        </Link>
+      </div>
     </section>
   );
 }

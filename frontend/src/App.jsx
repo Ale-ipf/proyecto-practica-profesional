@@ -15,6 +15,7 @@ import PropertyFormPage from "./components/PropertyFromPage";
 import PropertyMapPage from "./components/PropertyMapPage";
 import CrimeMapPage from "./components/CrimeMapPage";
 import InstitutionCarousel from "./components/InstitutionCarousel";
+import FeatureCarousel from "./components/FeatureCarousel";
 import MapPreview from "./components/MapPreview";
 import LoginAndRegistrationPage from "./pages/LoginAndRegistrationPage.jsx";
 import OwnerProfilePage from "./pages/OwnerProfilePage.jsx";
@@ -137,14 +138,16 @@ function useInstituciones() {
 
 function Header({ usuario, onLogout }) {
   return (
-    <header className="site-header">
+    <header className={`site-header${usuario ? " is-authenticated" : ""}`}>
       <Link className="brand-title" to="/">
         Alquileres Formosa <span aria-hidden="true"></span>
       </Link>
-      <nav className="main-nav" aria-label="Navegación principal">
-        <Link to="/alquileres">Alquileres</Link>
-        <Link to="/mapa-del-delito">Mapa del delito</Link>
-      </nav>
+      {!usuario && (
+        <nav className="main-nav" aria-label="Navegación principal">
+          <Link to="/alquileres">Alquileres</Link>
+          <Link to="/mapa-del-delito">Mapa del delito</Link>
+        </nav>
+      )}
       <div className="header-actions">
         {usuario ? (
           <>
@@ -165,11 +168,6 @@ function Header({ usuario, onLogout }) {
                 <Link className="button button-accent" to="/perfil-dueno">
                   Mi perfil
                 </Link>
-            )}
-            {rolDeUsuario(usuario) === "student" && (
-              <Link className="button button-accent" to="/guia-asistida">
-                Guía asistida
-              </Link>
             )}
             <button
               className="button button-outline-danger"
@@ -525,14 +523,6 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
               ? "Administrá tus propiedades desde tu panel."
               : "Encontrá tu próximo hogar en Formosa."}
           </span>
-          {rolDeUsuario(usuario) === "student" && (
-            <Link
-              className="button button-accent"
-              to="/mapa?capa=instituciones#mapa"
-            >
-              Ver instituciones
-            </Link>
-          )}
         </div>
       )}
       <main>
@@ -548,97 +538,112 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
               Todavía no hay instituciones educativas cargadas.
             </p>
           )}
+        {vista !== "catalogo" && (
+          <>
+            <FeatureCarousel />
+            <section className="guided-guide-prompt">
+              <h2>¿No sabés por dónde comenzar? Probá la Guía Asistida</h2>
+              <Link className="button button-primary" to="/guia-asistida">
+                Ir ahora
+              </Link>
+            </section>
+          </>
+        )}
         {vista !== "catalogo" && !esPropietario && instituciones.length > 0 && (
           <InstitutionCarousel
             instituciones={instituciones}
             propiedades={propiedades}
           />
         )}
-        <div className="listings-toolbar" id="alquileres">
-          <div>
-            <span className="section-kicker">
-              {esPropietario ? "MIS PUBLICACIONES" : "CATÁLOGO DISPONIBLE"}
-            </span>
-            <h2>
-              {esPropietario
-                ? "Mis alquileres"
-                : mostrarVistaPrevia
-                  ? "Alquileres destacados"
-                  : "Alquileres disponibles en Formosa"}
-            </h2>
-          </div>
-          {esPropietario && (
-            <Link className="button button-primary" to="/alquileres/nuevo">
-              + Agregar alquiler
-            </Link>
-          )}
-          {mostrarVistaPrevia && (
-            <Link className="button button-primary" to="/alquileres">
-              Ver todos los alquileres
-            </Link>
-          )}
-        </div>
-        {!esPropietario && !mostrarVistaPrevia && (
-          <Filters
-            filters={filters}
-            setFilters={(nextFilters) => {
-              setFilters(nextFilters);
-              setPagina(1);
-            }}
-            mostrarFavoritos={rolDeUsuario(usuario) === "student"}
-          />
+        {vista === "catalogo" && (
+          <>
+            <div className="listings-toolbar" id="alquileres">
+              <div>
+                <span className="section-kicker">
+                  {esPropietario ? "MIS PUBLICACIONES" : "CATÁLOGO DISPONIBLE"}
+                </span>
+                <h2>
+                  {esPropietario
+                    ? "Mis alquileres"
+                    : mostrarVistaPrevia
+                      ? "Alquileres destacados"
+                      : "Alquileres disponibles en Formosa"}
+                </h2>
+              </div>
+              {esPropietario && (
+                <Link className="button button-primary" to="/alquileres/nuevo">
+                  + Agregar alquiler
+                </Link>
+              )}
+              {mostrarVistaPrevia && (
+                <Link className="button button-primary" to="/alquileres">
+                  Ver todos los alquileres
+                </Link>
+              )}
+            </div>
+            {!esPropietario && !mostrarVistaPrevia && (
+              <Filters
+                filters={filters}
+                setFilters={(nextFilters) => {
+                  setFilters(nextFilters);
+                  setPagina(1);
+                }}
+                mostrarFavoritos={rolDeUsuario(usuario) === "student"}
+              />
+            )}
+            <section className="listings-section">
+              {cargando && <p className="muted">Cargando propiedades…</p>}
+              {error && <p className="error-message">{error}</p>}
+              {!cargando && !error && !alquileres.length && (
+                <p className="muted">No hay propiedades para mostrar.</p>
+              )}
+              <div className="property-grid">
+                {!cargando &&
+                  alquileresFiltrados.map((alquiler) => (
+                    <PropertyCard
+                      key={alquiler.id}
+                      propiedad={alquiler}
+                      usuario={usuario}
+                      favoritos={favoritos}
+                      onDelete={borrarPropiedad}
+                    />
+                  ))}
+              </div>
+              {!cargando && !!alquileres.length && !alquileresFiltrados.length && (
+                <p className="empty-message">
+                  No encontramos alquileres con esos filtros. 🔍
+                </p>
+              )}
+              {!esPropietario && !mostrarVistaPrevia && totalPaginas > 1 && (
+                <nav
+                  className="pagination-controls"
+                  aria-label="Paginación de propiedades"
+                >
+                  <button
+                    type="button"
+                    disabled={pagina <= 1}
+                    onClick={() => setPagina((current) => current - 1)}
+                  >
+                    Anterior
+                  </button>
+                  <span>
+                    Página {pagina} de {totalPaginas}
+                  </span>
+                  <button
+                    type="button"
+                    disabled={pagina >= totalPaginas}
+                    onClick={() => setPagina((current) => current + 1)}
+                  >
+                    Siguiente
+                  </button>
+                </nav>
+              )}
+              {!mostrarVistaPrevia && !esPropietario && (
+                <MapPreview propiedades={propiedades} />
+              )}
+            </section>
+          </>
         )}
-        <section className="listings-section">
-          {cargando && <p className="muted">Cargando propiedades…</p>}
-          {error && <p className="error-message">{error}</p>}
-          {!cargando && !error && !alquileres.length && (
-            <p className="muted">No hay propiedades para mostrar.</p>
-          )}
-          <div className="property-grid">
-            {!cargando &&
-              alquileresFiltrados.map((alquiler) => (
-                <PropertyCard
-                  key={alquiler.id}
-                  propiedad={alquiler}
-                  usuario={usuario}
-                  favoritos={favoritos}
-                  onDelete={borrarPropiedad}
-                />
-              ))}
-          </div>
-          {!cargando && !!alquileres.length && !alquileresFiltrados.length && (
-            <p className="empty-message">
-              No encontramos alquileres con esos filtros. 🔍
-            </p>
-          )}
-          {!esPropietario && !mostrarVistaPrevia && totalPaginas > 1 && (
-            <nav
-              className="pagination-controls"
-              aria-label="Paginación de propiedades"
-            >
-              <button
-                type="button"
-                disabled={pagina <= 1}
-                onClick={() => setPagina((current) => current - 1)}
-              >
-                Anterior
-              </button>
-              <span>
-                Página {pagina} de {totalPaginas}
-              </span>
-              <button
-                type="button"
-                disabled={pagina >= totalPaginas}
-                onClick={() => setPagina((current) => current + 1)}
-              >
-                Siguiente
-              </button>
-            </nav>
-          )}
-          {!mostrarVistaPrevia && !esPropietario && (
-            <MapPreview propiedades={propiedades} />
-          )}
-        </section>
       </main>
       <footer className="site-footer">
         <p>© 2026 Alquileres Formosa</p>

@@ -240,8 +240,42 @@ export default function DashboardLayout({
   const profileTarget = user?.role === "owner"
     ? "/perfil-dueno"
     : "/panel-estudiante?section=profile";
+  const groupedNavigation = ["explore", "account"]
+    .map((id) => ({
+      id,
+      label: id === "explore" ? "Explorar" : "Mi cuenta",
+      icon: id === "explore" ? "search" : "user",
+      items: navigation.filter((item) => item.group === id),
+    }))
+    .filter((group) => group.items.length > 0);
+  const mainNavigation = navigation.filter((item) => !item.group);
+  const dashboardNavigation = mainNavigation.filter((item) => item.key === "dashboard");
+  const secondaryNavigation = mainNavigation.filter((item) => item.key !== "dashboard");
+  const [openGroups, setOpenGroups] = useState(() =>
+    Object.fromEntries(
+      groupedNavigation.map((group) => [
+        group.id,
+        group.items.some((item) => item.key === activeKey),
+      ]),
+    ),
+  );
 
   const closeMenu = () => setMenuOpen(false);
+  const renderNavigationLink = (item) => {
+    const active = item.key === activeKey;
+    return (
+      <Link
+        key={`${item.key}-${item.to}`}
+        className={`dashboard-navigation__link${active ? " is-active" : ""}`}
+        to={item.to}
+        aria-current={active ? "page" : undefined}
+        onClick={closeMenu}
+      >
+        <DashboardIcon name={item.icon} size={19} />
+        <span>{item.label}</span>
+      </Link>
+    );
+  };
 
   return (
     <div className="dashboard-shell">
@@ -268,21 +302,40 @@ export default function DashboardLayout({
 
         <nav className="dashboard-navigation" aria-label="Navegación del panel">
           <span className="dashboard-navigation__label">MENÚ PRINCIPAL</span>
-          {navigation.map((item) => {
-            const active = item.key === activeKey;
+          {dashboardNavigation.map(renderNavigationLink)}
+          {groupedNavigation.map((group) => {
+            const groupOpen = openGroups[group.id];
+            const groupActive = group.items.some(
+              (item) => item.key === activeKey,
+            );
+            const groupId = `dashboard-${group.id}-links`;
             return (
-              <Link
-                key={`${item.key}-${item.to}`}
-                className={`dashboard-navigation__link${active ? " is-active" : ""}`}
-                to={item.to}
-                aria-current={active ? "page" : undefined}
-                onClick={closeMenu}
-              >
-                <DashboardIcon name={item.icon} size={19} />
-                <span>{item.label}</span>
-              </Link>
+              <div className="dashboard-navigation__group" key={group.id}>
+                <button
+                  className={`dashboard-navigation__link dashboard-navigation__group-toggle${groupActive ? " is-active" : ""}`}
+                  type="button"
+                  aria-expanded={Boolean(groupOpen)}
+                  aria-controls={groupId}
+                  onClick={() =>
+                    setOpenGroups((current) => ({
+                      ...current,
+                      [group.id]: !current[group.id],
+                    }))
+                  }
+                >
+                  <DashboardIcon name={group.icon} size={19} />
+                  <span>{group.label}</span>
+                  <span className={`dashboard-navigation__chevron${groupOpen ? " is-open" : ""}`} aria-hidden="true">⌄</span>
+                </button>
+                {groupOpen && (
+                  <div className="dashboard-navigation__submenu" id={groupId}>
+                    {group.items.map(renderNavigationLink)}
+                  </div>
+                )}
+              </div>
             );
           })}
+          {secondaryNavigation.map(renderNavigationLink)}
         </nav>
 
         <button

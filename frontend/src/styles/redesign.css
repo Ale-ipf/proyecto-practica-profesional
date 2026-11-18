@@ -27,6 +27,10 @@ a {
   border-color: var(--line);
 }
 
+.site-header.is-authenticated .header-actions {
+  margin-left: auto;
+}
+
 .brand-title {
   color: #fff;
   font-family: inherit;
@@ -77,6 +81,16 @@ a {
 
 .button-accent:hover {
   background: rgb(240 0 22 / 10%);
+}
+
+@media (max-width: 600px) {
+  .site-header.is-authenticated .header-actions {
+    width: auto;
+  }
+
+  .site-header.is-authenticated .header-actions .button {
+    flex: 0 0 auto;
+  }
 }
 
 .button-outline-danger,

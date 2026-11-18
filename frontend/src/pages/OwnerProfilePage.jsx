@@ -15,6 +15,7 @@ import {
   solicitarVerificacionTelefonoDuenio,
 } from "../api/owners.js";
 import { useAuth } from "../context/useAuth.js";
+import { useLocationSharing } from "../context/useLocationSharing.js";
 
 function PerfilEstadoVerificacion({ verificado, etiqueta }) {
   return (
@@ -27,6 +28,12 @@ function PerfilEstadoVerificacion({ verificado, etiqueta }) {
 export default function OwnerProfilePage() {
   const { usuario, logout, actualizarUsuario } = useAuth();
   const { hash } = useLocation();
+  const {
+    isSharing: compartirUbicacion,
+    error: errorUbicacion,
+    startSharing,
+    stopSharing,
+  } = useLocationSharing();
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({ firstName: "", lastName: "", dni: "" });
   const [email, setEmail] = useState("");
@@ -76,8 +83,8 @@ export default function OwnerProfilePage() {
   }, [usuario?.role]);
 
   useEffect(() => {
-    if (hash === "#datos-personales" && profile) {
-      document.getElementById("datos-personales")?.scrollIntoView({
+    if (hash && profile) {
+      document.getElementById(hash.slice(1))?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
@@ -221,7 +228,15 @@ export default function OwnerProfilePage() {
       user={usuarioPerfil}
       roleLabel="Cuenta de propietario"
       navigation={OWNER_NAVIGATION}
-      activeKey={hash === "#datos-personales" ? "personal" : "profile"}
+      activeKey={
+        hash === "#datos-personales"
+          ? "personal"
+          : hash === "#ajustes-app"
+            ? "app"
+            : hash === "#privacidad"
+              ? "privacy"
+              : "profile"
+      }
       onLogout={logout}
     >
       <div className="owner-profile-page">
@@ -345,6 +360,47 @@ export default function OwnerProfilePage() {
             </section>
           </>
         )}
+
+        <section className="owner-profile-section" id="ajustes-app">
+          <h2>Ajustes de la app</h2>
+          <label className="student-setting-row" htmlFor="owner-share-location">
+            <span>
+              <strong>Compartir mi ubicación durante esta sesión</strong>
+              <small>
+                Permite mantener el mapa actualizado mientras navegás. La
+                ubicación no se guarda.
+              </small>
+            </span>
+            <input
+              id="owner-share-location"
+              type="checkbox"
+              checked={compartirUbicacion}
+              onChange={(event) =>
+                event.target.checked ? startSharing() : stopSharing()
+              }
+            />
+          </label>
+          {errorUbicacion && (
+            <p className="student-profile-message is-error" role="alert">
+              {errorUbicacion}
+            </p>
+          )}
+        </section>
+
+        <section className="owner-profile-section" id="privacidad">
+          <h2>Privacidad</h2>
+          <ul className="student-privacy-list">
+            <li>
+              Tu ubicación solo se sigue durante la sesión si la activás y
+              aceptás el permiso del navegador.
+            </li>
+            <li>
+              La aplicación no guarda tu ubicación actual y deja de seguirla
+              al desactivarla o cerrar sesión.
+            </li>
+            <li>Los datos de tu perfil se usan para identificar y personalizar tu cuenta.</li>
+          </ul>
+        </section>
       </div>
     </DashboardLayout>
   );

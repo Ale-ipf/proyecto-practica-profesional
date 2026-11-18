@@ -1,0 +1,209 @@
+.feature-carousel {
+  align-items: stretch;
+  background:
+    radial-gradient(ellipse at 8% 0%, rgb(240 0 22 / 9%), transparent 48%),
+    var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: clamp(24px, 5vw, 64px);
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.25fr) minmax(230px, .75fr);
+  margin: 28px auto;
+  min-height: 290px;
+  overflow: hidden;
+  padding: clamp(26px, 5vw, 52px);
+  width: min(1180px, calc(100% - 48px));
+}
+
+.feature-carousel__copy {
+  align-content: center;
+  display: grid;
+}
+
+.feature-carousel__slide,
+.feature-carousel__details {
+  animation: feature-slide-in-left .5s ease-out both;
+}
+
+@keyframes feature-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.feature-carousel__counter {
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 750;
+  letter-spacing: .12em;
+  margin-top: 20px;
+}
+
+.feature-carousel__copy h1 {
+  color: var(--ink);
+  font-size: clamp(1.7rem, 3.2vw, 2.65rem);
+  letter-spacing: -.045em;
+  line-height: 1.08;
+  margin: 8px 0 12px;
+  max-width: 650px;
+}
+
+.feature-carousel__copy > p {
+  color: var(--muted);
+  font-size: .94rem;
+  line-height: 1.65;
+  margin: 0;
+  max-width: 620px;
+}
+
+.feature-carousel__controls {
+  align-items: center;
+  display: flex;
+  gap: 13px;
+  margin-top: 24px;
+}
+
+.feature-carousel__controls > button {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 1rem;
+  height: 36px;
+  width: 36px;
+}
+
+.feature-carousel__controls > button:hover {
+  background: var(--surface-soft);
+}
+
+.feature-carousel__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.feature-carousel__dots button {
+  background: var(--muted);
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  height: 7px;
+  opacity: .55;
+  padding: 0;
+  width: 7px;
+}
+
+.feature-carousel__dots button.is-active {
+  background: var(--red);
+  opacity: 1;
+  transform: scale(1.4);
+}
+
+.feature-carousel__details {
+  align-content: center;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgb(240 0 22 / 12%), transparent 58%),
+    var(--deep);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  display: grid;
+  gap: 20px;
+  padding: clamp(22px, 4vw, 34px);
+}
+
+.feature-carousel__label {
+  color: #ff6573;
+  font-size: .72rem;
+  font-weight: 850;
+  letter-spacing: .16em;
+}
+
+.feature-carousel__details ul {
+  display: grid;
+  gap: 15px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.feature-carousel__details li {
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-size: .86rem;
+  padding-bottom: 13px;
+}
+
+.feature-carousel__details li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.guided-guide-prompt {
+  align-items: center;
+  background:
+    radial-gradient(ellipse at 0% 50%, rgb(240 0 22 / 10%), transparent 58%),
+    var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  gap: 20px;
+  grid-column: 1 / -1;
+  justify-content: space-between;
+  margin: 0 auto;
+  padding: 22px clamp(22px, 4vw, 36px);
+  width: min(1180px, calc(100% - 48px));
+}
+
+.guided-guide-prompt h2 {
+  color: var(--ink);
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  letter-spacing: -.025em;
+  margin: 0;
+}
+
+.guided-guide-prompt .button {
+  flex: 0 0 auto;
+}
+
+.nearby-empty {
+  color: var(--muted);
+  font-size: .74rem;
+  padding: 5px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-carousel__slide,
+  .feature-carousel__details {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .feature-carousel {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .feature-carousel {
+    margin: 20px auto;
+    padding: 25px 22px;
+    width: calc(100% - 24px);
+  }
+
+  .guided-guide-prompt {
+    align-items: flex-start;
+    flex-direction: column;
+    width: calc(100% - 24px);
+  }
+}

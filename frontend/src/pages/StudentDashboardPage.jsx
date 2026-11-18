@@ -144,7 +144,7 @@ export default function StudentDashboardPage() {
   }, []);
 
   useEffect(() => {
-    if (seccionActiva !== "rentals") return;
+    if (seccionActiva !== "rentals" && seccionActiva !== "dashboard") return;
 
     let cancelado = false;
     setCargandoAlquileres(true);
@@ -342,29 +342,19 @@ export default function StudentDashboardPage() {
           <DashboardSection eyebrow="EXPLORÁ LA PLATAFORMA" title="Accesos rápidos">
             <div className="dashboard-quick-grid">
               <QuickAccessCard
-                to="/alquileres"
-                icon="search"
-                title="Buscar alquileres"
-                description="Explorá publicaciones disponibles y sus detalles."
-              />
-              <QuickAccessCard
                 to="/alquileres?favoritos=true"
                 icon="star"
                 title="Mis favoritos"
                 description="Volvé a las propiedades que guardaste en este dispositivo."
               />
-              <QuickAccessCard
-                to="/mapa-del-delito"
-                icon="map"
-                title="Mapa del delito"
-                description="Consultá la información disponible en el mapa."
-              />
-              <QuickAccessCard
-                to="/mapa?capa=instituciones#mapa"
-                icon="school"
-                title="Instituciones educativas"
-                description="Ubicá instituciones y consultá sus datos."
-              />
+              {alquileres.length > 0 && (
+                <QuickAccessCard
+                  to="/panel-estudiante?section=rentals"
+                  icon="building"
+                  title="Mi alquiler"
+                  description="Consultá el alquiler compartido y su espacio de comunicación."
+                />
+              )}
               <QuickAccessCard
                 to="/guia-asistida"
                 icon="guide"
@@ -378,6 +368,11 @@ export default function StudentDashboardPage() {
                 description="Revisá recomendaciones para una búsqueda segura."
               />
             </div>
+            {errorAlquileres && !cargandoAlquileres && (
+              <p className="dashboard-message is-error" role="alert">
+                {errorAlquileres}
+              </p>
+            )}
           </DashboardSection>
 
           <DashboardSection
