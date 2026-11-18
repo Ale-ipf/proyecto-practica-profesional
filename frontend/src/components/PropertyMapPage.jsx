@@ -11,7 +11,7 @@ import {
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { textoDisponibilidad } from "../utils/formato";
-import { useLocationSharing } from "../context/LocationContext.jsx";
+import { useLocationSharing } from "../context/useLocationSharing.js";
 
 const SEARCH_RADII_KM = [0.5, 1, 1.5];
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout.jsx";
 import { OWNER_NAVIGATION } from "../components/dashboardNavigation.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 import { obtenerPropiedad } from "../api/properties.js";
 import {
   actualizarPagoDelAlquiler,

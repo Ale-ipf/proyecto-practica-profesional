@@ -14,7 +14,7 @@ import {
   solicitarVerificacionEmailDuenio,
   solicitarVerificacionTelefonoDuenio,
 } from "../api/owners.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 
 function PerfilEstadoVerificacion({ verificado, etiqueta }) {
   return (

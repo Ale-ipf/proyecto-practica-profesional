@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useParams } from "react-router-dom";
 import { listarMensajesDelForo, publicarMensajeEnForo } from "../api/property-forum.js";
 import { obtenerPropiedad } from "../api/properties.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 
 const CATEGORIAS = [
   { value: "notice", label: "Aviso" },

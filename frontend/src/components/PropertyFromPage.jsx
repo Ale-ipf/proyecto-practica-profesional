@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import LocationPicker from './LocationPicker'
 import DashboardLayout from './DashboardLayout.jsx'
 import { OWNER_NAVIGATION } from './dashboardNavigation.js'
-import { useAuth } from '../context/AuthContext.jsx'
+import { useAuth } from '../context/useAuth.js'
 
 const initialForm = {
   title: '',

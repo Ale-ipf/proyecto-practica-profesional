@@ -3,7 +3,7 @@ import { Link, Navigate } from "react-router-dom";
 import { listarInstituciones, normalizarInstituciones } from "../api/institutions.js";
 import { listarPropiedades } from "../api/properties.js";
 import { obtenerResumenDuenio } from "../api/property-reviews.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 
 const TRANSPORTS = [
   { id: "walk", label: "A pie", idealDistanceKm: 1.5, maxDistanceKm: 3 },

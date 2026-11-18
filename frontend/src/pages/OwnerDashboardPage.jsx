@@ -6,7 +6,7 @@ import DashboardLayout, {
   QuickAccessCard,
 } from "../components/DashboardLayout.jsx";
 import { OWNER_NAVIGATION } from "../components/dashboardNavigation.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 import { eliminarPropiedad, listarMisPropiedades } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
 import { imagenHero } from "../data/appData.js";

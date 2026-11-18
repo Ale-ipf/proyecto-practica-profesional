@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { ApiRequestError } from "../api/client.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 import Access from "./Access.jsx";
 
 export default function LoginAndRegistrationPage() {

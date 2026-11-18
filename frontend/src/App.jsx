@@ -24,7 +24,7 @@ import StudentDashboardPage from "./pages/StudentDashboardPage";
 import OwnerDashboardPage from "./pages/OwnerDashboardPage.jsx";
 import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
 import PropertyForumPage from "./pages/PropertyForumPage.jsx";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/useAuth.js";
 import {
   listarPropiedades,
   listarMisPropiedades,

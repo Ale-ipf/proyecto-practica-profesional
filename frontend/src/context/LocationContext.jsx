@@ -1,14 +1,11 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { useAuth } from "./AuthContext.jsx";
-
-const LocationContext = createContext(null);
+import { useAuth } from "./useAuth.js";
+import { LocationContext } from "./location-context.js";
 
 export function LocationProvider({ children }) {
   const { usuario, cargandoSesion } = useAuth();
@@ -98,14 +95,4 @@ export function LocationProvider({ children }) {
       {children}
     </LocationContext.Provider>
   );
-}
-
-export function useLocationSharing() {
-  const context = useContext(LocationContext);
-  if (!context) {
-    throw new Error(
-      "useLocationSharing debe usarse dentro de LocationProvider.",
-    );
-  }
-  return context;
 }

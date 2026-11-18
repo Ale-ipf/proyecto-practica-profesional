@@ -1,8 +1,7 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { iniciarSesion, registrarUsuario, obtenerPerfilPropio } from "../api/auth.js";
 import { getToken, setToken, clearToken } from "../api/client.js";
-
-const AuthContext = createContext(null);
+import { AuthContext } from "./auth-context.js";
 
 export function AuthProvider({ children }) {
   const [usuario, setUsuario] = useState(null);
@@ -59,11 +58,3 @@ export function AuthProvider({ children }) {
 
   return <AuthContext.Provider value={valor}>{children}</AuthContext.Provider>;
 }
-
-export const useAuth = () => {
-  const contexto = useContext(AuthContext);
-  if (!contexto) {
-    throw new Error("useAuth debe usarse dentro de <AuthProvider>.");
-  }
-  return contexto;
-};

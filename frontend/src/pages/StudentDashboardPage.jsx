@@ -7,7 +7,7 @@ import DashboardLayout, {
   UserProfileCard,
 } from "../components/DashboardLayout.jsx";
 import { STUDENT_NAVIGATION } from "../components/dashboardNavigation.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 import { listarPropiedades } from "../api/properties.js";
 import { imagenHero } from "../data/appData.js";
 import {
@@ -20,7 +20,7 @@ import {
   confirmarVerificacionTelefono,
 } from "../api/students.js";
 import { ApiRequestError } from "../api/client.js";
-import { useLocationSharing } from "../context/LocationContext.jsx";
+import { useLocationSharing } from "../context/useLocationSharing.js";
 
 const SECCIONES = [
   { id: "dashboard", label: "Mi panel" },
@@ -34,6 +34,10 @@ const SECCIONES = [
 export default function StudentDashboardPage() {
   const { usuario, logout, actualizarUsuario } = useAuth();
   const [searchParams] = useSearchParams();
+  const requestedSection = searchParams.get("section");
+  const seccionActiva = SECCIONES.some((item) => item.id === requestedSection)
+    ? requestedSection
+    : "dashboard";
   const {
     isSharing: compartirUbicacion,
     error: errorUbicacion,
@@ -313,10 +317,6 @@ export default function StudentDashboardPage() {
   if (!usuario) return <Navigate to="/login" replace />;
   if (usuario.role !== "student") return <Navigate to="/panel-dueno" replace />;
 
-  const requestedSection = searchParams.get("section");
-  const seccionActiva = SECCIONES.some((item) => item.id === requestedSection)
-    ? requestedSection
-    : "dashboard";
   const seccion = SECCIONES.find((item) => item.id === seccionActiva);
   const usuarioPerfil = perfil?.user || usuario;
 

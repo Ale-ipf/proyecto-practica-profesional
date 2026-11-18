@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import OwnerProfileSummary from "../components/OwnerProfileSummary.jsx";
 import { obtenerPropiedad } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
-import { useAuth } from "../context/AuthContext.jsx";
+import { useAuth } from "../context/useAuth.js";
 import { formatearPrecio, textoAmbientes, textoEstado } from "../utils/formato.js";
 
 export default function PropertyDetailPage() {
