@@ -16,6 +16,7 @@ import {
 } from "../api/owners.js";
 import { useAuth } from "../context/useAuth.js";
 import { useLocationSharing } from "../context/useLocationSharing.js";
+import ThemeSetting from "../components/ThemeSetting.jsx";
 
 function PerfilEstadoVerificacion({ verificado, etiqueta }) {
   return (
@@ -363,6 +364,7 @@ export default function OwnerProfilePage() {
 
         <section className="owner-profile-section" id="ajustes-app">
           <h2>Ajustes de la app</h2>
+          <ThemeSetting />
           <label className="student-setting-row" htmlFor="owner-share-location">
             <span>
               <strong>Compartir mi ubicación durante esta sesión</strong>

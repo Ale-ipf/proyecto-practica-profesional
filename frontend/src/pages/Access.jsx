@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTheme } from "../context/useTheme.js";
 import "./Access.css";
 
 export default function Access({
@@ -7,26 +7,15 @@ export default function Access({
   onTabChange,
   children,
 }) {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme } = useTheme();
 
   return (
-    <main className={`access-page ${darkMode ? "dark-mode" : ""}`}>
+    <main className={`access-page ${theme === "dark" ? "dark-mode" : ""}`}>
       <section className="access-shell" aria-label="Autenticación">
         <header className="access-header">
           <Link className="access-brand" to="/">
             Alquileres Formosa
           </Link>
-          <button
-            type="button"
-            className="access-theme-toggle"
-            onClick={() => setDarkMode((current) => !current)}
-            aria-label={
-              darkMode ? "Activar tema claro" : "Activar tema oscuro"
-            }
-          >
-            <span aria-hidden="true">{darkMode ? "☀" : "◐"}</span>
-            {darkMode ? "Tema claro" : "Tema oscuro"}
-          </button>
         </header>
 
         <div className="access-content">

@@ -1,0 +1,110 @@
+:root {
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  background-color: var(--paper);
+  color-scheme: light;
+  --ink: #17211d;
+  --muted: #64706a;
+  --paper: #f7f8f7;
+  --deep: #fff;
+  --surface: #fff;
+  --surface-soft: #eef1ef;
+  --line: #dfe5e1;
+  --shadow: 0 14px 36px rgb(23 33 29 / 10%);
+}
+
+:root[data-theme="light"] body {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .brand-title {
+  color: var(--ink);
+}
+
+:root[data-theme="light"] button,
+:root[data-theme="light"] input,
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea {
+  color-scheme: light;
+}
+
+:root[data-theme="light"] .dashboard-topbar {
+  background: rgb(255 255 255 / 92%);
+}
+
+:root[data-theme="light"] .dashboard-topbar__brand,
+:root[data-theme="light"] .dashboard-topbar__brand strong {
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .dashboard-navigation__label {
+  color: var(--muted);
+}
+
+:root[data-theme="light"] .dashboard-navigation__link {
+  color: #53615a;
+}
+
+:root[data-theme="light"] .dashboard-navigation__link:hover {
+  background: var(--surface-soft);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .dashboard-navigation__link.is-active,
+:root[data-theme="light"] .dashboard-logout:hover {
+  color: var(--red-dark);
+}
+
+:root[data-theme="light"] .dashboard-section__header h2,
+:root[data-theme="light"] .dashboard-stat strong,
+:root[data-theme="light"] .dashboard-property-card__price,
+:root[data-theme="light"] .property-title-link,
+:root[data-theme="light"] .property-card h3,
+:root[data-theme="light"] .property-details-summary h1,
+:root[data-theme="light"] .listings-toolbar h2,
+:root[data-theme="light"] .listings-section h1,
+:root[data-theme="light"] .panel h2,
+:root[data-theme="light"] .student-profile-heading h1,
+:root[data-theme="light"] .student-profile-panel-heading h2,
+:root[data-theme="light"] .owner-profile-page__header h1,
+:root[data-theme="light"] .owner-profile-section h2,
+:root[data-theme="light"] .route-page h1,
+:root[data-theme="light"] .owner-management h1 {
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .dashboard-quick-card:hover {
+  background: var(--surface-soft);
+}
+
+:root[data-theme="light"] .dashboard-property-card__image {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+:root[data-theme="light"] .dashboard-button--secondary {
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .dashboard-button--secondary:hover {
+  border-color: var(--muted);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea {
+  background-color: var(--surface);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+:root[data-theme="light"] .dashboard-message.is-error,
+:root[data-theme="light"] .error-message,
+:root[data-theme="light"] .empty-message {
+  color: var(--red-dark);
+}

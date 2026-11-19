@@ -169,6 +169,8 @@ function useInstituciones() {
 }
 
 function Header({ usuario, onLogout }) {
+  const { pathname } = useLocation();
+
   return (
     <header className={`site-header${usuario ? " is-authenticated" : ""}`}>
       <Link className="brand-title" to="/">
@@ -176,8 +178,7 @@ function Header({ usuario, onLogout }) {
       </Link>
       {!usuario && (
         <nav className="main-nav" aria-label="Navegación principal">
-          <Link to="/alquileres">Alquileres</Link>
-          <Link to="/mapa-del-delito">Mapa del delito</Link>
+          {pathname !== "/alquileres" && <Link to="/alquileres">Alquileres</Link>}
         </nav>
       )}
       <div className="header-actions">
@@ -282,9 +283,6 @@ function Filters({ filters, setFilters, mostrarFavoritos, sesionActiva }) {
           <button className="button button-accent" type="button" onClick={openModal}>
             Ver más filtros
           </button>
-          <button className="clear-filters" type="button" onClick={limpiarFiltros}>
-            Limpiar filtros
-          </button>
         </div>
       </div>
       <div className="form-grid filter-grid">
@@ -316,6 +314,11 @@ function Filters({ filters, setFilters, mostrarFavoritos, sesionActiva }) {
             <option value="MayorMenor">Descendente</option>
           </select>
         </label>
+      </div>
+      <div className="filter-actions-footer">
+        <button className="clear-filters" type="button" onClick={limpiarFiltros}>
+          Limpiar filtros
+        </button>
       </div>
 
       {modalOpen && (
@@ -1114,7 +1117,20 @@ function App() {
         element={<OwnerPropertyManagementPage usuario={usuario} />}
       />
       <Route path="/mapa" element={<PropertyMapRoute />} />
-      <Route path="/mapa-del-delito" element={<CrimeMapPage />} />
+      <Route
+        path="/mapa-del-delito"
+        element={
+          usuario ? (
+            <CrimeMapPage />
+          ) : (
+            <Navigate
+              to="/login-and-registration"
+              replace
+              state={{ desde: { pathname: "/mapa-del-delito" } }}
+            />
+          )
+        }
+      />
       <Route path="/guia-asistida" element={<GuidedRentalGuidePage />} />
       <Route path="/consejos-seguridad" element={<SafetyTipsPage />} />
       <Route

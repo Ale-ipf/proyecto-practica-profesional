@@ -43,27 +43,6 @@
   text-decoration: none;
 }
 
-.access-theme-toggle {
-  align-items: center;
-  background: transparent;
-  border: 1px solid #cbd5cf;
-  border-radius: 999px;
-  color: inherit;
-  cursor: pointer;
-  display: inline-flex;
-  font: inherit;
-  font-size: 12px;
-  gap: 7px;
-  padding: 7px 11px;
-  transition: background .2s, border-color .2s, transform .2s;
-}
-
-.access-theme-toggle:hover {
-  background: rgba(45, 128, 95, .1);
-  border-color: #2d805f;
-  transform: translateY(-1px);
-}
-
 .access-content {
   align-items: center;
   display: flex;
@@ -117,12 +96,12 @@
 
 .access-tab:hover,
 .access-tab:focus-visible {
-  background: #e9f2ed;
+  background: var(--coral-soft, rgb(240 0 22 / 10%));
   outline: none;
 }
 
 .access-tab.is-active {
-  background: #2d805f;
+  background: var(--red, #f00016);
   color: #fff;
 }
 
@@ -177,8 +156,8 @@
 
 .access-field input:focus,
 .access-field select:focus {
-  border-color: #2d805f;
-  box-shadow: 0 0 0 3px rgba(45, 128, 95, .15);
+  border-color: var(--red, #f00016);
+  box-shadow: 0 0 0 3px rgb(240 0 22 / 15%);
 }
 
 .access-field input::placeholder {
@@ -186,8 +165,8 @@
 }
 
 .access-primary-button {
-  background: #2d805f;
-  border: 2px solid #2d805f;
+  background: var(--red, #f00016);
+  border: 2px solid var(--red, #f00016);
   border-radius: 10px;
   color: #fff;
   cursor: pointer;
@@ -200,8 +179,8 @@
 }
 
 .access-primary-button:hover:not(:disabled) {
-  background: #246b4f;
-  border-color: #246b4f;
+  background: var(--red-dark, #c90012);
+  border-color: var(--red-dark, #c90012);
   transform: translateY(-1px);
 }
 
@@ -222,7 +201,7 @@
 }
 
 .access-field-error {
-  color: #a83232;
+  color: var(--red-dark, #c90012);
   font-size: 12px;
   margin: 0;
 }
@@ -236,7 +215,7 @@
 
 .access-form-footer a,
 .access-footer a {
-  color: #286e52;
+  color: var(--red-dark, #c90012);
   font-weight: 700;
   text-underline-offset: 3px;
 }
@@ -275,13 +254,13 @@
 }
 
 .dark-mode .access-tab.is-active {
-  background: #3b9a72;
+  background: var(--red, #f00016);
   color: #fff;
 }
 
 .dark-mode .access-tab:hover,
 .dark-mode .access-tab:focus-visible {
-  background: #31513f;
+  background: #3b2024;
 }
 
 .dark-mode .access-form-area h1 {
@@ -310,7 +289,7 @@
 
 .dark-mode .access-form-footer a,
 .dark-mode .access-footer a {
-  color: #8bd1ac;
+  color: #ff6572;
 }
 
 @keyframes access-appear {
@@ -326,7 +305,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .access-form-area,
-  .access-theme-toggle,
   .access-tab,
   .access-primary-button {
     animation: none;

@@ -21,6 +21,7 @@ import {
 } from "../api/students.js";
 import { ApiRequestError } from "../api/client.js";
 import { useLocationSharing } from "../context/useLocationSharing.js";
+import ThemeSetting from "../components/ThemeSetting.jsx";
 
 const SECCIONES = [
   { id: "dashboard", label: "Mi panel" },
@@ -929,6 +930,7 @@ export default function StudentDashboardPage() {
 
             {seccionActiva === "app" && (
               <>
+                <ThemeSetting />
                 <label className="student-setting-row" htmlFor="share-location">
                   <span>
                     <strong>Compartir mi ubicación durante esta sesión</strong>
