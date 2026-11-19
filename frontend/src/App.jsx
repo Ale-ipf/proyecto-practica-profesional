@@ -12,6 +12,7 @@ import "./styles/App.css";
 import PropertyCard from "./components/PropertyCard";
 import PropertyDetails from "./components/PropertyDetails";
 import PropertyFormPage from "./components/PropertyFromPage";
+import AppAssistant from "./components/AppAssistant.jsx";
 import PropertyMapPage from "./components/PropertyMapPage";
 import CrimeMapPage from "./components/CrimeMapPage";
 import InstitutionCarousel from "./components/InstitutionCarousel";
@@ -42,6 +43,24 @@ import {
 } from "./api/institutions";
 
 const barrios = ["Centro", "San Miguel", "Guadalupe", "UNaF"];
+const PROPERTY_PAGE_SIZE = 9;
+const API_PAGE_SIZE = 100;
+const INITIAL_FILTERS = {
+  barrio: "Todos",
+  ambientes: "Todos",
+  orden: "Defecto",
+  aceptaMascotas: false,
+  soloVerificados: false,
+  convivencia: "Todos",
+  soloConDocumentacion: false,
+  tipo: "Todos",
+  amoblamiento: "Todos",
+  soloConWifi: false,
+  soloConCable: false,
+  ventilacion: "Todos",
+  modalidad: "Todos",
+  soloFavoritos: false,
+};
 
 function normalizarParadas(busStops) {
   if (Array.isArray(busStops)) return busStops;
@@ -72,8 +91,21 @@ function normalizarPropiedad(property) {
     direccion: address,
     ambientes: Number(property.bedrooms) || 1,
     cuposDisponibles: Number(property.available_spots ?? 1),
-    tipoInmueble: "Directo",
-    tieneAire: /aire acondicionado/i.test(property.description || ""),
+    tipoInmueble: property.owner_type === "agency" ? "Inmobiliaria" : "Directo",
+    aceptaMascotas: property.allows_pets,
+    tieneWifi: property.has_wifi,
+    tieneCable: property.has_cable,
+    tieneVentilador: property.has_fan,
+    tieneAire:
+      property.has_air_conditioning ??
+      /aire acondicionado/i.test(property.description || ""),
+    verificado: Boolean(property.owner?.verified),
+    tieneDocumentacion: Boolean(property.owner?.hasDocumentation),
+    modalidad: property.is_shared == null
+      ? "Sin especificar"
+      : property.is_shared
+        ? "Compartido"
+        : "Solo",
     amoblado: Boolean(property.is_furnished),
     imagen: property.images?.[0]?.url || property.imageUrl || "",
     coordenadas:
@@ -187,7 +219,19 @@ function Header({ usuario, onLogout }) {
   );
 }
 
-function Filters({ filters, setFilters, mostrarFavoritos }) {
+function Filters({ filters, setFilters, mostrarFavoritos, sesionActiva }) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [draftFilters, setDraftFilters] = useState(filters);
+
+  useEffect(() => {
+    if (!modalOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setModalOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [modalOpen]);
+
   const update = (event) =>
     setFilters({
       ...filters,
@@ -196,16 +240,34 @@ function Filters({ filters, setFilters, mostrarFavoritos }) {
           ? event.target.checked
           : event.target.value,
     });
-  const limpiarFiltros = () =>
-    setFilters({
-      barrio: "Todos",
-      ambientes: "Todos",
-      tipo: "Todos",
-      orden: "Defecto",
-      precioMaximo: "",
-      soloConAire: false,
-      soloFavoritos: false,
-    });
+  const updateDraft = (event) =>
+    setDraftFilters((current) => ({
+      ...current,
+      [event.target.name]:
+        event.target.type === "checkbox"
+          ? event.target.checked
+          : event.target.value,
+    }));
+  const openModal = () => {
+    setDraftFilters(filters);
+    setModalOpen(true);
+  };
+  const limpiarFiltros = () => {
+    setFilters({ ...INITIAL_FILTERS });
+    setDraftFilters({ ...INITIAL_FILTERS });
+  };
+  const checkboxFilter = (name, label) => (
+    <label className="checkbox-label" key={name}>
+      <input
+        type="checkbox"
+        name={name}
+        checked={draftFilters[name]}
+        onChange={updateDraft}
+      />
+      {label}
+    </label>
+  );
+
   return (
     <section className="panel filters-panel">
       <div className="filter-heading">
@@ -216,13 +278,14 @@ function Filters({ filters, setFilters, mostrarFavoritos }) {
             Usá los filtros para encontrar una propiedad que se adapte a vos.
           </p>
         </div>
-        <button
-          className="clear-filters"
-          type="button"
-          onClick={limpiarFiltros}
-        >
-          Limpiar filtros
-        </button>
+        <div className="filter-heading-actions">
+          <button className="button button-accent" type="button" onClick={openModal}>
+            Ver más filtros
+          </button>
+          <button className="clear-filters" type="button" onClick={limpiarFiltros}>
+            Limpiar filtros
+          </button>
+        </div>
       </div>
       <div className="form-grid filter-grid">
         <label>
@@ -246,57 +309,156 @@ function Filters({ filters, setFilters, mostrarFavoritos }) {
           </select>
         </label>
         <label>
-          <span>Publicado por</span>
-          <select name="tipo" value={filters.tipo} onChange={update}>
-            <option value="Todos">Dueño o inmobiliaria</option>
-            <option value="Directo">Dueño directo</option>
-            <option value="Inmobiliaria">Inmobiliaria</option>
-          </select>
-        </label>
-        <label>
-          <span>Ordenar por</span>
+          <span>Precio</span>
           <select name="orden" value={filters.orden} onChange={update}>
-            <option value="Defecto">Más recientes</option>
-            <option value="MenorMayor">Menor precio</option>
-            <option value="MayorMenor">Mayor precio</option>
+            <option value="Defecto">Sin ordenar</option>
+            <option value="MenorMayor">Ascendente</option>
+            <option value="MayorMenor">Descendente</option>
           </select>
         </label>
-        <label>
-          <span>Precio máximo</span>
-          <div className="input-with-prefix">
-            <span>$</span>
-            <input
-              type="number"
-              name="precioMaximo"
-              value={filters.precioMaximo}
-              onChange={update}
-              placeholder="Sin límite"
-            />
-          </div>
-        </label>
-        <div className="filter-options">
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              name="soloConAire"
-              checked={filters.soloConAire}
-              onChange={update}
-            />{" "}
-            Solo con aire acondicionado ❄️
-          </label>
-          {mostrarFavoritos && (
-            <label className="checkbox-label favorite-filter">
-              <input
-                type="checkbox"
-                name="soloFavoritos"
-                checked={filters.soloFavoritos}
-                onChange={update}
-              />{" "}
-              ⭐ Ver mis favoritos
-            </label>
-          )}
-        </div>
       </div>
+
+      {modalOpen && (
+        <div
+          className="advanced-filters-overlay"
+          role="presentation"
+          onClick={() => setModalOpen(false)}
+        >
+          <section
+            className="advanced-filters-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="advanced-filters-title"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <header className="advanced-filters-modal__heading">
+              <div>
+                <span className="section-kicker">PERSONALIZÁ TU BÚSQUEDA</span>
+                <h2 id="advanced-filters-title">Más filtros</h2>
+              </div>
+              <button
+                className="student-edit-modal-close"
+                type="button"
+                aria-label="Cerrar filtros"
+                onClick={() => setModalOpen(false)}
+              >
+                ×
+              </button>
+            </header>
+            <div className="advanced-filters-grid">
+              <label>
+                Barrio
+                <select name="barrio" value={draftFilters.barrio} onChange={updateDraft}>
+                  <option value="Todos">Todos los barrios</option>
+                  {barrios.map((barrio) => (
+                    <option key={barrio} value={barrio}>
+                      {barrio === "UNaF" ? "Cerca de la UNaF" : barrio}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Ambientes
+                <select name="ambientes" value={draftFilters.ambientes} onChange={updateDraft}>
+                  <option value="Todos">Cualquier cantidad</option>
+                  <option value="1">Monoambiente</option>
+                  <option value="2">2 ambientes</option>
+                  <option value="3">3 ambientes</option>
+                </select>
+              </label>
+              <label>
+                Precio
+                <select name="orden" value={draftFilters.orden} onChange={updateDraft}>
+                  <option value="Defecto">Sin ordenar</option>
+                  <option value="MenorMayor">Ascendente</option>
+                  <option value="MayorMenor">Descendente</option>
+                </select>
+              </label>
+              <label>
+                Tipo de anunciante
+                <select name="tipo" value={draftFilters.tipo} onChange={updateDraft}>
+                  <option value="Todos">Dueño o inmobiliaria</option>
+                  <option value="Directo">Dueño directo</option>
+                  <option value="Inmobiliaria">Inmobiliaria</option>
+                </select>
+              </label>
+              <label>
+                Amoblamiento
+                <select name="amoblamiento" value={draftFilters.amoblamiento} onChange={updateDraft}>
+                  <option value="Todos">Cualquiera</option>
+                  <option value="Amoblado">Amoblado</option>
+                  <option value="Sin amoblar">Sin amoblar</option>
+                </select>
+              </label>
+              <label>
+                ¿Con quién querés alquilar?
+                <select name="convivencia" value={draftFilters.convivencia} onChange={updateDraft}>
+                  <option value="Todos">Sin preferencia</option>
+                  <option value="Solo">Solo/a</option>
+                  <option value="Acompanado">Con otra persona</option>
+                </select>
+              </label>
+              <label>
+                Modalidad de la publicación
+                <select name="modalidad" value={draftFilters.modalidad} onChange={updateDraft}>
+                  <option value="Todos">Compartida o privada</option>
+                  <option value="Compartido">Compartida</option>
+                  <option value="Solo">Solo</option>
+                </select>
+              </label>
+              <label>
+                Ventilación
+                <select name="ventilacion" value={draftFilters.ventilacion} onChange={updateDraft}>
+                  <option value="Todos">Cualquiera</option>
+                  <option value="Ventilador">Ventilador</option>
+                  <option value="Aire">Aire acondicionado</option>
+                  <option value="Ambos">Ventilador y aire acondicionado</option>
+                </select>
+              </label>
+              <div className="advanced-filters-checks">
+                {checkboxFilter("aceptaMascotas", "Acepta mascotas")}
+                {sesionActiva ? (
+                  <>
+                    {checkboxFilter("soloVerificados", "Cuenta verificada")}
+                    {checkboxFilter("soloConDocumentacion", "Propietario con DNI cargado")}
+                  </>
+                ) : (
+                  <p className="advanced-filters-auth-note">
+                    <Link to="/login-and-registration">Iniciá sesión</Link> para
+                    filtrar por verificación y documentación del propietario.
+                  </p>
+                )}
+                {checkboxFilter("soloConWifi", "Wi-Fi")}
+                {checkboxFilter("soloConCable", "Cable")}
+                {mostrarFavoritos && checkboxFilter("soloFavoritos", "Ver mis favoritos")}
+              </div>
+            </div>
+            <p className="advanced-filters-note">
+              Mascotas, servicios y modalidad se filtran según lo declarado en
+              cada publicación. Las cuentas verificadas tienen correo y
+              teléfono confirmados.
+            </p>
+            <footer className="advanced-filters-modal__actions">
+              <button className="clear-filters" type="button" onClick={limpiarFiltros}>
+                Limpiar filtros
+              </button>
+              <button className="button button-accent" type="button" onClick={() => setModalOpen(false)}>
+                Cancelar
+              </button>
+              <button
+                className="button button-primary"
+                type="button"
+                onClick={() => {
+                  setFilters(draftFilters);
+                  setModalOpen(false);
+                }}
+              >
+                Aplicar filtros
+              </button>
+            </footer>
+          </section>
+        </div>
+      )}
     </section>
   );
 }
@@ -376,6 +538,7 @@ function PropertyDetailsPage() {
   return (
     <PropertyDetails
       propiedad={propiedad}
+      tieneSesion={Boolean(usuario)}
       esEstudiante={rolDeUsuario(usuario) === "student"}
       esPropietario={
         rolDeUsuario(usuario) === "owner" &&
@@ -396,16 +559,10 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
   const [pagina, setPagina] = useState(1);
-  const [totalPaginas, setTotalPaginas] = useState(1);
   const [filters, setFilters] = useState(() => {
     const params = new URLSearchParams(locationSearch);
     return {
-      barrio: "Todos",
-      ambientes: "Todos",
-      tipo: "Todos",
-      orden: "Defecto",
-      precioMaximo: "",
-      soloConAire: false,
+      ...INITIAL_FILTERS,
       soloFavoritos: params.get("favoritos") === "true",
     };
   });
@@ -413,6 +570,8 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
     vista === "perfil-estudiante" && rolDeUsuario(usuario) === "student";
   const esPropietario =
     vista !== "catalogo" && rolDeUsuario(usuario) === "owner";
+  const cargarTodasLasPropiedades =
+    vista === "catalogo" && !esPropietario && !mostrarVistaPrevia;
 
   useEffect(() => {
     let cancelado = false;
@@ -423,18 +582,36 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
         const data = esPropietario
           ? await listarMisPropiedades()
           : await listarPropiedades({
-              page: pagina,
-              limit: mostrarVistaPrevia ? 3 : 9,
+              page: 1,
+              limit: mostrarVistaPrevia
+                ? 3
+                : cargarTodasLasPropiedades
+                  ? API_PAGE_SIZE
+                  : 9,
               status: "available",
             });
         if (cancelado) return;
-        const items = (data.properties || []).map(normalizarPropiedad);
+        let rows = data.properties || [];
+        if (cargarTodasLasPropiedades) {
+          const otherPages = await Promise.all(
+            Array.from(
+              { length: Math.max(0, (data.pagination?.totalPages || 1) - 1) },
+              (_, index) =>
+                listarPropiedades({
+                  page: index + 2,
+                  limit: API_PAGE_SIZE,
+                  status: "available",
+                }),
+            ),
+          );
+          rows = [
+            ...rows,
+            ...otherPages.flatMap((page) => page.properties || []),
+          ];
+        }
+        if (cancelado) return;
+        const items = rows.map(normalizarPropiedad);
         setPropiedades(items);
-        setTotalPaginas(
-          esPropietario || mostrarVistaPrevia
-            ? 1
-            : data.pagination?.totalPages || 1,
-        );
       } catch (requestError) {
         if (!cancelado)
           setError(
@@ -449,11 +626,19 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
     return () => {
       cancelado = true;
     };
-  }, [usuario, pagina, esPropietario, mostrarVistaPrevia]);
+  }, [usuario, esPropietario, mostrarVistaPrevia, cargarTodasLasPropiedades]);
 
   useEffect(() => {
     setPagina(1);
   }, [usuario, vista]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(locationSearch);
+    setFilters({
+      ...INITIAL_FILTERS,
+      soloFavoritos: params.get("favoritos") === "true",
+    });
+  }, [usuario, locationSearch]);
 
   useEffect(() => {
     if (rolDeUsuario(usuario) !== "student") return;
@@ -478,21 +663,53 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
       const cumpleAmbientes =
         filters.ambientes === "Todos" ||
         Number(alquiler.ambientes || 1) === Number(filters.ambientes);
-      const cumpleTipo =
+      const cumpleMascotas =
+        !filters.aceptaMascotas || alquiler.aceptaMascotas === true;
+      const cumpleVerificacion =
+        !filters.soloVerificados || alquiler.verificado;
+      const cumpleConvivencia =
+        filters.convivencia === "Todos" ||
+        (filters.convivencia === "Solo" && alquiler.cuposDisponibles > 0) ||
+        (filters.convivencia === "Acompanado" && alquiler.cuposDisponibles >= 2);
+      const cumpleDocumentacion =
+        !filters.soloConDocumentacion || alquiler.tieneDocumentacion;
+      const cumpleTipoAnunciante =
         filters.tipo === "Todos" ||
         (alquiler.tipoInmueble || "Directo") === filters.tipo;
-      const cumplePrecio =
-        !filters.precioMaximo ||
-        Number(alquiler.precio) <= Number(filters.precioMaximo);
-      const cumpleAire = !filters.soloConAire || alquiler.tieneAire === true;
+      const cumpleAmoblamiento =
+        filters.amoblamiento === "Todos" ||
+        (filters.amoblamiento === "Amoblado" && alquiler.amoblado) ||
+        (filters.amoblamiento === "Sin amoblar" && !alquiler.amoblado);
+      const cumpleWifi = !filters.soloConWifi || alquiler.tieneWifi === true;
+      const cumpleCable = !filters.soloConCable || alquiler.tieneCable === true;
+      const cumpleVentilacion =
+        filters.ventilacion === "Todos" ||
+        (filters.ventilacion === "Ventilador" &&
+          alquiler.tieneVentilador === true &&
+          alquiler.tieneAire !== true) ||
+        (filters.ventilacion === "Aire" &&
+          alquiler.tieneAire === true &&
+          alquiler.tieneVentilador !== true) ||
+        (filters.ventilacion === "Ambos" &&
+          alquiler.tieneVentilador === true &&
+          alquiler.tieneAire === true);
+      const cumpleModalidad =
+        filters.modalidad === "Todos" || alquiler.modalidad === filters.modalidad;
       const cumpleFavorito =
         !filters.soloFavoritos || favoritos.includes(Number(alquiler.id));
       return (
         cumpleBarrio &&
         cumpleAmbientes &&
-        cumpleTipo &&
-        cumplePrecio &&
-        cumpleAire &&
+        cumpleMascotas &&
+        cumpleVerificacion &&
+        cumpleConvivencia &&
+        cumpleDocumentacion &&
+        cumpleTipoAnunciante &&
+        cumpleAmoblamiento &&
+        cumpleWifi &&
+        cumpleCable &&
+        cumpleVentilacion &&
+        cumpleModalidad &&
         cumpleFavorito
       );
     });
@@ -504,6 +721,18 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
           : 0,
     );
   }, [alquileres, favoritos, filters]);
+
+  const totalPaginas =
+    esPropietario || mostrarVistaPrevia
+      ? 1
+      : Math.max(1, Math.ceil(alquileresFiltrados.length / PROPERTY_PAGE_SIZE));
+  const alquileresPaginados =
+    esPropietario || mostrarVistaPrevia
+      ? alquileresFiltrados
+      : alquileresFiltrados.slice(
+          (pagina - 1) * PROPERTY_PAGE_SIZE,
+          pagina * PROPERTY_PAGE_SIZE,
+        );
 
   const borrarPropiedad = async (id) => {
     await eliminarPropiedad(id);
@@ -589,6 +818,7 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
                   setPagina(1);
                 }}
                 mostrarFavoritos={rolDeUsuario(usuario) === "student"}
+                sesionActiva={Boolean(usuario)}
               />
             )}
             <section className="listings-section">
@@ -599,7 +829,7 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
               )}
               <div className="property-grid">
                 {!cargando &&
-                  alquileresFiltrados.map((alquiler) => (
+                  alquileresPaginados.map((alquiler) => (
                     <PropertyCard
                       key={alquiler.id}
                       propiedad={alquiler}
@@ -611,7 +841,7 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
               </div>
               {!cargando && !!alquileres.length && !alquileresFiltrados.length && (
                 <p className="empty-message">
-                  No encontramos alquileres con esos filtros. 🔍
+                  No encontramos alquileres con esos filtros. Probá quitar alguno o elegir otro barrio.
                 </p>
               )}
               {!esPropietario && !mostrarVistaPrevia && totalPaginas > 1 && (
@@ -949,6 +1179,7 @@ function App() {
         }
       />
       </Routes>
+      <AppAssistant />
     </>
   );
 }

@@ -85,7 +85,8 @@
 }
 
 .guided-guide-question select,
-.guided-guide-question input[type="number"] {
+.guided-guide-question input[type="number"],
+.guided-guide-question input[type="text"] {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 8px;

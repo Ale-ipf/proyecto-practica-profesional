@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import OwnerProfileSummary from './OwnerProfileSummary'
 import { textoDisponibilidad } from '../utils/formato'
 
-function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite, esPropietario = false }) {
+function PropertyDetails({ propiedad, tieneSesion = false, esEstudiante, esFavorito, onToggleFavorite, esPropietario = false }) {
   const textoAmbientes = propiedad.ambientes === 3 ? '3 ambientes' : propiedad.ambientes === 2 ? '2 ambientes' : 'Monoambiente'
   const sinDisponibilidad = propiedad.estado === 'rented' || propiedad.cuposDisponibles === 0
   const ubicacion = [propiedad.direccion, propiedad.ciudad || propiedad.propietario?.ciudad, 'Argentina']
@@ -35,12 +35,18 @@ function PropertyDetails({ propiedad, esEstudiante, esFavorito, onToggleFavorite
           ) : (
             <aside className="contact-owner-panel">
               <span className="section-kicker">PUBLICADO POR</span>
-              <h2>{propiedad.propietario?.nombre || propiedad.dueno}</h2>
+              <h2>
+                {tieneSesion
+                  ? propiedad.propietario?.nombre || propiedad.dueno
+                  : "Información reservada"}
+              </h2>
               <p className="muted small-text">
-                Iniciá sesión como estudiante para ver el perfil resumido y sus valoraciones.
+                {tieneSesion
+                  ? "Iniciá sesión como estudiante para ver el perfil resumido y sus valoraciones."
+                  : "Registrate o iniciá sesión para ver los datos del propietario."}
               </p>
               <Link className="button button-accent" to="/login-and-registration">
-                Iniciar sesión
+                {tieneSesion ? "Iniciar sesión" : "Iniciar sesión o registrarme"}
               </Link>
               <Link className="safety-help-link" to="/consejos-seguridad">
                 ¿Cómo sé si es seguro?

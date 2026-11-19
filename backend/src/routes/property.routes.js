@@ -48,13 +48,22 @@ import {
   tenantIdParamValidator,
 } from "../middlewares/validators/property-tenant.validator.js";
 import { validate } from "../middlewares/validate.middleware.js";
-import { authenticate } from "../middlewares/auth.middleware.js";
+import {
+  authenticate,
+  optionalAuthenticate,
+} from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 
 const router = Router();
 
 // --- Rutas públicas ---
-router.get("/", listPropertiesQueryValidator, validate, listProperties);
+router.get(
+  "/",
+  optionalAuthenticate,
+  listPropertiesQueryValidator,
+  validate,
+  listProperties,
+);
 
 // --- Rutas protegidas (solo owner) ---
 // Va antes de "/:id" para que "mine/list" no matchee como un id.
@@ -140,7 +149,13 @@ router.put(
   setPropertyTenantPayment,
 );
 
-router.get("/:id", propertyIdParamValidator, validate, getPropertyById);
+router.get(
+  "/:id",
+  optionalAuthenticate,
+  propertyIdParamValidator,
+  validate,
+  getPropertyById,
+);
 
 router.post(
   "/",

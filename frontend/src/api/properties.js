@@ -13,9 +13,10 @@ const construirQuery = (filtros = {}) => {
 };
 
 export const listarPropiedades = (filtros = {}) =>
-  apiRequest(`/properties${construirQuery(filtros)}`);
+  apiRequest(`/properties${construirQuery(filtros)}`, { auth: true });
 
-export const obtenerPropiedad = (id) => apiRequest(`/properties/${id}`);
+export const obtenerPropiedad = (id) =>
+  apiRequest(`/properties/${id}`, { auth: true });
 
 export const listarMisPropiedades = () =>
   apiRequest("/properties/mine/list", { auth: true });

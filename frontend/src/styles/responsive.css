@@ -34,6 +34,10 @@
   .filter-grid { 
     grid-template-columns: repeat(2, 1fr); 
 }
+  .advanced-filters-grid,
+  .advanced-filters-checks {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .property-grid { 
     grid-template-columns: repeat(2, 1fr); 
 }
@@ -128,6 +132,26 @@
 }
   .filter-heading { 
     gap: 15px; 
+  flex-direction: column;
+}
+.filter-heading-actions {
+  align-items: flex-start;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.advanced-filters-grid,
+.advanced-filters-checks {
+  grid-template-columns: 1fr;
+}
+.advanced-filters-modal {
+  padding: 18px;
+}
+.advanced-filters-modal__actions {
+  align-items: stretch;
+  flex-direction: column-reverse;
+}
+.advanced-filters-modal__actions .button {
+  width: 100%;
 }
   .clear-filters { 
     white-space: nowrap;

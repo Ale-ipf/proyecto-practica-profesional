@@ -48,6 +48,41 @@ export const PropertyModel = sequelize.define("Property", {
     type: DataTypes.BOOLEAN, // Amoblado
     defaultValue: false,
   },
+  allows_pets: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null,
+  },
+  has_wifi: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null,
+  },
+  has_cable: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null,
+  },
+  has_fan: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null,
+  },
+  has_air_conditioning: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null,
+  },
+  is_shared: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: null,
+  },
+  owner_type: {
+    type: DataTypes.ENUM("direct", "agency"),
+    allowNull: false,
+    defaultValue: "direct",
+  },
   status: {
     type: DataTypes.ENUM("available", "rented"),
     defaultValue: "available",

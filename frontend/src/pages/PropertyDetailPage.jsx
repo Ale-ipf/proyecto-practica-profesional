@@ -81,8 +81,18 @@ export default function PropertyDetailPage() {
           </dl>
 
           <p style={{ marginTop: 20, fontSize: "0.9rem" }}>
-            Publicado por <strong>{propiedad.owner?.name}</strong>
+            Publicado por{" "}
+            <strong>
+              {usuario
+                ? propiedad.owner?.name || "Propietario"
+                : "Información reservada"}
+            </strong>
           </p>
+          {!usuario && (
+            <Link to="/login-and-registration">
+              Iniciá sesión para ver los datos del propietario
+            </Link>
+          )}
         </aside>
       </div>
       {usuario?.role === "student" && (

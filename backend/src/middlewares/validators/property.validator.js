@@ -42,6 +42,14 @@ export const createPropertyValidator = [
     .optional()
     .isBoolean().withMessage("is_furnished debe ser true o false."),
 
+  body(["allows_pets", "has_wifi", "has_cable", "has_fan", "has_air_conditioning", "is_shared"])
+    .optional({ nullable: true })
+    .isBoolean().withMessage("Los servicios y preferencias deben ser true o false."),
+
+  body("owner_type")
+    .optional()
+    .isIn(["direct", "agency"]).withMessage("El tipo de anunciante debe ser 'direct' o 'agency'."),
+
   body("status")
     .optional()
     .isIn(["available", "rented"]).withMessage("El estado debe ser 'available' o 'rented'."),
@@ -66,6 +74,10 @@ export const updatePropertyValidator = [
   body("bedrooms").optional().isInt({ min: 0 }).withMessage("La cantidad de dormitorios debe ser un número entero positivo."),
   body("available_spots").optional().isInt({ min: 0 }).withMessage("Los cupos disponibles deben ser un número entero igual o mayor a 0."),
   body("is_furnished").optional().isBoolean().withMessage("is_furnished debe ser true o false."),
+  body(["allows_pets", "has_wifi", "has_cable", "has_fan", "has_air_conditioning", "is_shared"])
+    .optional({ nullable: true })
+    .isBoolean().withMessage("Los servicios y preferencias deben ser true o false."),
+  body("owner_type").optional().isIn(["direct", "agency"]).withMessage("El tipo de anunciante debe ser 'direct' o 'agency'."),
   body("status").optional().isIn(["available", "rented"]).withMessage("El estado debe ser 'available' o 'rented'."),
 ];
 

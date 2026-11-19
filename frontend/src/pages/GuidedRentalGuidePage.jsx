@@ -10,22 +10,28 @@ const TRANSPORTS = [
   { id: "bike", label: "Bicicleta", idealDistanceKm: 4, maxDistanceKm: 8 },
   { id: "bus", label: "Colectivo", idealDistanceKm: 8, maxDistanceKm: 16 },
   { id: "vehicle", label: "Auto o moto", idealDistanceKm: 15, maxDistanceKm: 30 },
+  { id: "ride", label: "Tengo quien me lleve", idealDistanceKm: 15, maxDistanceKm: 30 },
 ];
 
 const STEPS = [
   "Instituto",
   "Transporte",
   "Amoblamiento",
-  "Presupuesto",
   "Ambientes",
+  "Mascotas",
+  "Convivencia",
+  "Presupuesto",
 ];
 
 const INITIAL_ANSWERS = {
   institutionId: "",
+  neighborhood: "",
   transport: "",
   furnished: "",
-  maxPrice: "",
   bedrooms: "",
+  pets: [],
+  household: "",
+  maxPrice: "",
 };
 
 function coordinatesOf(value) {
@@ -75,6 +81,28 @@ function withinTravelLimit(property, answers, institution) {
   );
 }
 
+function matchesNeighborhood(property, neighborhood) {
+  if (!neighborhood.trim()) return true;
+  const searchText = [
+    property.title,
+    property.description,
+    property.address,
+    property.city,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+  const query = neighborhood
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+  return searchText.includes(query);
+}
+
 function formatPrice(price) {
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
@@ -84,7 +112,6 @@ function formatPrice(price) {
 }
 
 function makeRecommendation(property, answers, institution, busStops) {
-  const price = Number(property.price);
   const bedrooms = Number(property.bedrooms) || 1;
   const isFurnished = Boolean(property.is_furnished);
   const propertyCoordinates = coordinatesOf(property);
@@ -102,10 +129,6 @@ function makeRecommendation(property, answers, institution, busStops) {
   const cons = [];
   let score = 0;
   let maxScore = 0;
-
-  maxScore += 25;
-  score += 25 * (1 - (price / Number(answers.maxPrice)) * 0.35);
-  pros.push(`El precio de ${formatPrice(price)} está dentro de tu presupuesto.`);
 
   maxScore += 20;
   score += bedrooms === Number(answers.bedrooms) ? 20 : 15;
@@ -181,16 +204,15 @@ function makeRecommendation(property, answers, institution, busStops) {
   }
 
   const why = [
-    `Se ajusta al presupuesto de hasta ${formatPrice(answers.maxPrice)}.`,
     `Cumple con el mínimo de ${answers.bedrooms} ambiente${Number(answers.bedrooms) === 1 ? "" : "s"}.`,
     institution && distanceToInstitution != null
       ? `La distancia estimada al instituto es ${distanceToInstitution.toFixed(1)} km.`
-      : "Como omitiste el instituto, no se ponderó la distancia al lugar de estudio.",
+      : "No se ponderó la distancia al lugar de estudio.",
   ].join(" ");
 
   return {
     ...property,
-    price,
+    price: Number(property.price),
     bedrooms,
     rating: maxScore ? Math.round((score / maxScore) * 100) : 0,
     why,
@@ -205,6 +227,7 @@ export default function GuidedRentalGuidePage() {
   const { usuario } = useAuth();
   const [step, setStep] = useState(1);
   const [answers, setAnswers] = useState(INITIAL_ANSWERS);
+  const [neighborhoodQuestionOpen, setNeighborhoodQuestionOpen] = useState(false);
   const [institutions, setInstitutions] = useState([]);
   const [loadingInstitutions, setLoadingInstitutions] = useState(true);
   const [institutionError, setInstitutionError] = useState("");
@@ -305,6 +328,28 @@ export default function GuidedRentalGuidePage() {
     }));
   };
 
+  const actualizarMascotas = (event) => {
+    const { checked, value } = event.target;
+    setAnswers((current) => {
+      if (value === "none") {
+        return { ...current, pets: checked ? ["none"] : [] };
+      }
+      const pets = current.pets.filter((pet) => pet !== "none");
+      return {
+        ...current,
+        pets: checked
+          ? [...pets, value]
+          : pets.filter((pet) => pet !== value),
+      };
+    });
+  };
+
+  const petsSummary = answers.pets.includes("none")
+    ? "No tenés mascotas"
+    : answers.pets
+        .map((pet) => ({ dog: "perro", cat: "gato", other: "otra mascota" })[pet])
+        .join(", ");
+
   const calcularRecomendaciones = async () => {
     setLoadingRecommendations(true);
     setRecommendationError("");
@@ -330,10 +375,12 @@ export default function GuidedRentalGuidePage() {
         ...remainingPages.flatMap((page) => page.properties || []),
       ];
       const candidates = properties
-        .filter((property) => Number(property.price) <= Number(answers.maxPrice))
         .filter(
           (property) =>
             (Number(property.bedrooms) || 1) >= Number(answers.bedrooms),
+        )
+        .filter((property) =>
+          matchesNeighborhood(property, answers.neighborhood),
         )
         .filter((property) =>
           withinTravelLimit(property, answers, selectedInstitution),
@@ -363,11 +410,11 @@ export default function GuidedRentalGuidePage() {
   };
 
   const avanzar = () => {
-    if (step === 5) {
+    if (step === 7) {
       calcularRecomendaciones();
       return;
     }
-    setStep((current) => Math.min(current + 1, 5));
+    setStep((current) => Math.min(current + 1, 7));
   };
 
   const nearestStop = selectedRecommendation?.distanceToBusStop;
@@ -383,8 +430,8 @@ export default function GuidedRentalGuidePage() {
         <span className="section-kicker">GUÍA ASISTIDA</span>
         <h1>Encontrá un alquiler que se adapte a vos.</h1>
         <p>
-          Respondé cinco preguntas simples. Vamos a comparar presupuesto,
-          ambientes, amoblamiento y cercanía para sugerirte hasta tres opciones.
+          Respondé siete preguntas simples para encontrar opciones que se
+          adapten a tu búsqueda.
         </p>
       </section>
 
@@ -392,24 +439,24 @@ export default function GuidedRentalGuidePage() {
         <section className="guided-guide-card" aria-labelledby="guided-step-title">
           <div className="guided-guide-progress">
             <div className="guided-guide-progress__labels">
-              <span>Paso {step} de 5</span>
+              <span>Paso {step} de 7</span>
               <span>{STEPS[step - 1]}</span>
             </div>
             <div
               className="guided-guide-progress__track"
               role="progressbar"
               aria-valuemin={1}
-              aria-valuemax={5}
+              aria-valuemax={7}
               aria-valuenow={step}
-              aria-label={`Paso ${step} de 5`}
+              aria-label={`Paso ${step} de 7`}
             >
-              <span style={{ width: `${(step / 5) * 100}%` }} />
+              <span style={{ width: `${(step / 7) * 100}%` }} />
             </div>
           </div>
 
           {step === 1 && (
             <div className="guided-guide-question">
-              <h2 id="guided-step-title">¿En qué instituto querés estudiar?</h2>
+              <h2 id="guided-step-title">¿En qué institución estudiás o querés estudiar?</h2>
               <p>Lo usamos para estimar la distancia entre el alquiler y tus estudios.</p>
               {loadingInstitutions ? (
                 <p className="muted">Cargando instituciones…</p>
@@ -438,17 +485,35 @@ export default function GuidedRentalGuidePage() {
                 type="button"
                 onClick={() => {
                   setAnswers((current) => ({ ...current, institutionId: "" }));
-                  setStep(2);
+                  setNeighborhoodQuestionOpen((current) => !current);
                 }}
               >
-                Omitir esta pregunta
+                {neighborhoodQuestionOpen
+                  ? "Volver a elegir una institución"
+                  : "¿Todavía no elegiste la institución? Omitir esta pregunta por ahora"}
               </button>
+              {neighborhoodQuestionOpen && (
+                <label>
+                  ¿En qué barrio te gustaría alquilar?
+                  <input
+                    type="text"
+                    name="neighborhood"
+                    value={answers.neighborhood}
+                    onChange={actualizarRespuesta}
+                    placeholder="Ej: Centro"
+                  />
+                </label>
+              )}
             </div>
           )}
 
           {step === 2 && (
             <div className="guided-guide-question">
-              <h2 id="guided-step-title">¿Cómo pensás llegar al instituto?</h2>
+              <h2 id="guided-step-title">
+                {selectedInstitution
+                  ? "¿Cómo pensás llegar a la institución?"
+                  : "¿Cómo pensás moverte por la ciudad?"}
+              </h2>
               <p>Así ponderamos la distancia y las paradas registradas cercanas.</p>
               <div className="guided-guide-choice-grid">
                 {TRANSPORTS.map((transport) => (
@@ -494,27 +559,7 @@ export default function GuidedRentalGuidePage() {
 
           {step === 4 && (
             <div className="guided-guide-question">
-              <h2 id="guided-step-title">¿Cuál es tu presupuesto mensual máximo?</h2>
-              <p>Solo recomendaremos publicaciones dentro del monto que indiques.</p>
-              <label>
-                Máximo por mes (ARS)
-                <input
-                  type="number"
-                  name="maxPrice"
-                  min="1"
-                  step="1000"
-                  value={answers.maxPrice}
-                  onChange={actualizarRespuesta}
-                  placeholder="Ej: 180000"
-                  required
-                />
-              </label>
-            </div>
-          )}
-
-          {step === 5 && (
-            <div className="guided-guide-question">
-              <h2 id="guided-step-title">¿Cuántos ambientes necesitás como mínimo?</h2>
+              <h2 id="guided-step-title">¿Cuántos ambientes estás buscando?</h2>
               <p>Las opciones pueden tener más ambientes, pero no menos.</p>
               <div className="guided-guide-choice-grid">
                 {[
@@ -534,6 +579,75 @@ export default function GuidedRentalGuidePage() {
                   </label>
                 ))}
               </div>
+            </div>
+          )}
+
+          {step === 5 && (
+            <div className="guided-guide-question">
+              <h2 id="guided-step-title">¿Tenés mascotas?</h2>
+              <p>Podés elegir más de una opción. Confirmá con el dueño si las acepta.</p>
+              <div className="guided-guide-choice-grid">
+                {[
+                  ["none", "No tengo mascotas"],
+                  ["dog", "Perro"],
+                  ["cat", "Gato"],
+                  ["other", "Otra mascota"],
+                ].map(([value, label]) => (
+                  <label className="guided-guide-choice" key={value}>
+                    <input
+                      type="checkbox"
+                      name="pets"
+                      value={value}
+                      checked={answers.pets.includes(value)}
+                      onChange={actualizarMascotas}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 6 && (
+            <div className="guided-guide-question">
+              <h2 id="guided-step-title">¿Tenés pensado alquilar solo o con otra persona?</h2>
+              <div className="guided-guide-choice-grid">
+                {[
+                  ["alone", "Solo/a"],
+                  ["together", "Con otra persona"],
+                ].map(([value, label]) => (
+                  <label className="guided-guide-choice" key={value}>
+                    <input
+                      type="radio"
+                      name="household"
+                      value={value}
+                      checked={answers.household === value}
+                      onChange={actualizarRespuesta}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {step === 7 && (
+            <div className="guided-guide-question">
+              <h2 id="guided-step-title">¿Cuánto tenés pensado gastar en el alquiler?</h2>
+              <p>Lo vamos a mostrar como referencia; el precio no determina por sí solo las recomendaciones.</p>
+              <label>
+                Presupuesto mensual aproximado (ARS)
+                <input
+                  type="number"
+                  name="maxPrice"
+                  min="1"
+                  step="1000"
+                  value={answers.maxPrice}
+                  onChange={actualizarRespuesta}
+                  placeholder="Ej: 180000"
+                  required
+                />
+              </label>
             </div>
           )}
 
@@ -558,14 +672,16 @@ export default function GuidedRentalGuidePage() {
                 loadingRecommendations ||
                 (step === 2 && !answers.transport) ||
                 (step === 3 && !answers.furnished) ||
-                (step === 4 && Number(answers.maxPrice) <= 0) ||
-                (step === 5 && !answers.bedrooms)
+                (step === 4 && !answers.bedrooms) ||
+                (step === 5 && answers.pets.length === 0) ||
+                (step === 6 && !answers.household) ||
+                (step === 7 && Number(answers.maxPrice) <= 0)
               }
               onClick={avanzar}
             >
               {loadingRecommendations
                 ? "Buscando opciones…"
-                : step === 5
+                : step === 7
                   ? "Ver recomendaciones"
                   : "Continuar"}
             </button>
@@ -576,9 +692,20 @@ export default function GuidedRentalGuidePage() {
           <div className="guided-guide-results__heading">
             <div>
               <span className="section-kicker">RECOMENDACIONES PERSONALIZADAS</span>
-              <h2>Estas opciones coinciden con tus respuestas.</h2>
+              <h2>Opciones para tu búsqueda.</h2>
               <p className="muted">
-                Se muestran hasta tres alquileres disponibles que cumplen tus filtros.
+                Se muestran hasta tres alquileres disponibles según ubicación,
+                ambientes, amoblamiento y traslado. El presupuesto es una
+                referencia, no un criterio único de recomendación.
+              </p>
+              <p className="muted">
+                Presupuesto: {formatPrice(answers.maxPrice)} / mes ·{" "}
+                {answers.household === "alone" ? "Alquilarías solo/a" : "Alquilarías con otra persona"} ·{" "}
+                Mascotas: {petsSummary}
+              </p>
+              <p className="muted">
+                Las publicaciones no detallan si aceptan mascotas ni la cantidad
+                de personas; confirmá esos datos con el dueño.
               </p>
             </div>
             <button
@@ -613,8 +740,8 @@ export default function GuidedRentalGuidePage() {
           ))}
           {recommendations.length === 0 && (
             <div className="guided-guide-empty">
-              <h3>No encontramos opciones con todas tus respuestas.</h3>
-              <p>Probá ampliar el presupuesto o reducir el mínimo de ambientes.</p>
+              <h3>No encontramos opciones para esos criterios de búsqueda.</h3>
+              <p>Probá revisar el barrio, el traslado, el amoblamiento o el mínimo de ambientes.</p>
               <button
                 className="button button-primary"
                 type="button"
@@ -688,6 +815,10 @@ export default function GuidedRentalGuidePage() {
                   {selectedRecommendation.bedrooms} ambientes ·{" "}
                   {selectedRecommendation.is_furnished ? "Amoblado" : "Sin amoblar"}
                 </p>
+                <p>
+                  Tené en cuenta al consultar: {answers.household === "alone" ? "alquilarías solo/a" : "alquilarías con otra persona"};{" "}
+                  {petsSummary.toLowerCase()}. Consultá si la propiedad admite mascotas y cuántas personas pueden alquilarla.
+                </p>
                 {selectedRecommendation.distanceToInstitution != null && selectedInstitution && (
                   <p>
                     A {selectedRecommendation.distanceToInstitution.toFixed(1)} km en línea recta de{" "}
@@ -736,7 +867,7 @@ export default function GuidedRentalGuidePage() {
                   ) : ownerContact.email ? (
                     <a
                       className="button button-primary"
-                      href={`mailto:${ownerContact.email}?subject=${encodeURIComponent(`Consulta por ${selectedRecommendation.title}`)}`}
+                        href={`mailto:${ownerContact.email}?subject=${encodeURIComponent(`Consulta por ${selectedRecommendation.title}`)}&body=${encodeURIComponent(`Hola, quisiera consultar por ${selectedRecommendation.title}.\n\nTengo pensado gastar ${formatPrice(answers.maxPrice)} por mes y alquilar ${answers.household === "alone" ? "solo/a" : "con otra persona"}. ${petsSummary}.\n\n¿Podrían confirmarme si la propiedad admite mascotas y cuántas personas pueden alquilarla?`)}`}
                     >
                       Contactar al dueño
                     </a>

@@ -17,6 +17,13 @@ const initialForm = {
   bedrooms: '1',
   available_spots: '1',
   is_furnished: false,
+  allows_pets: '',
+  has_wifi: null,
+  has_cable: null,
+  has_fan: null,
+  has_air_conditioning: null,
+  is_shared: '',
+  owner_type: 'direct',
   status: 'available',
 }
 
@@ -36,6 +43,13 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
     bedrooms: String(propiedad.bedrooms || 1),
     available_spots: String(propiedad.available_spots ?? 1),
     is_furnished: Boolean(propiedad.is_furnished),
+    allows_pets: propiedad.allows_pets == null ? '' : String(propiedad.allows_pets),
+    has_wifi: propiedad.has_wifi ?? null,
+    has_cable: propiedad.has_cable ?? null,
+    has_fan: propiedad.has_fan ?? null,
+    has_air_conditioning: propiedad.has_air_conditioning ?? null,
+    is_shared: propiedad.is_shared == null ? '' : String(propiedad.is_shared),
+    owner_type: propiedad.owner_type || 'direct',
     status: propiedad.status || 'available',
   } : initialForm)
   const [error, setError] = useState('')
@@ -78,6 +92,13 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
         bedrooms: Number(form.bedrooms),
         available_spots: Number(form.available_spots),
         is_furnished: Boolean(form.is_furnished),
+        allows_pets: form.allows_pets === '' ? null : form.allows_pets === 'true',
+        has_wifi: form.has_wifi,
+        has_cable: form.has_cable,
+        has_fan: form.has_fan,
+        has_air_conditioning: form.has_air_conditioning,
+        is_shared: form.is_shared === '' ? null : form.is_shared === 'true',
+        owner_type: form.owner_type,
         status: form.status,
       })
       navigate(location.state?.returnTo || '/panel-dueno')
@@ -136,6 +157,29 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
               <small>Ingresá 0 si ya no hay espacios libres.</small>
             </label>
             <label>
+              Tipo de anunciante
+              <select name="owner_type" value={form.owner_type} onChange={update}>
+                <option value="direct">Dueño directo</option>
+                <option value="agency">Inmobiliaria</option>
+              </select>
+            </label>
+            <label>
+              ¿Acepta mascotas?
+              <select name="allows_pets" value={form.allows_pets} onChange={update}>
+                <option value="">Sin especificar</option>
+                <option value="true">Sí</option>
+                <option value="false">No</option>
+              </select>
+            </label>
+            <label>
+              Modalidad del alquiler
+              <select name="is_shared" value={form.is_shared} onChange={update}>
+                <option value="">Sin especificar</option>
+                <option value="false">Solo</option>
+                <option value="true">Compartido</option>
+              </select>
+            </label>
+            <label>
               Estado
               <select name="status" value={form.status} onChange={update}>
                 <option value="available">Disponible</option>
@@ -169,6 +213,22 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
               <input type="checkbox" name="is_furnished" checked={form.is_furnished} onChange={update} />
               Amoblado
             </label>
+            {[
+              ['has_wifi', 'Wi-Fi'],
+              ['has_cable', 'Cable'],
+              ['has_fan', 'Ventilador'],
+              ['has_air_conditioning', 'Aire acondicionado'],
+            ].map(([name, label]) => (
+              <label className="checkbox-label" key={name}>
+                <input
+                  type="checkbox"
+                  name={name}
+                  checked={form[name] === true}
+                  onChange={update}
+                />
+                {label}
+              </label>
+            ))}
           </div>
           {error && <p className="error-message" role="alert">{error}</p>}
           <button className="button button-primary" type="submit" disabled={saving}>

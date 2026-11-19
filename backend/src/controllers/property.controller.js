@@ -7,8 +7,31 @@ import { UserModel } from "../models/user.model.js";
 
 const propertyIncludes = [
   { model: PropertyImageModel, as: "images" },
-  { model: UserModel, as: "owner", attributes: ["id", "name"] },
+  {
+    model: UserModel,
+    as: "owner",
+    attributes: ["id", "name", "emailVerified", "phoneVerified", "dni"],
+  },
 ];
+
+function presentProperty(property, includeOwnerDetails) {
+  const result = property.toJSON();
+  if (!includeOwnerDetails) {
+    delete result.userId;
+    delete result.owner;
+    result.images = result.images?.slice(0, 1) || [];
+    return result;
+  }
+  if (result.owner) {
+    const { dni, ...owner } = result.owner;
+    result.owner = {
+      ...owner,
+      verified: Boolean(owner.emailVerified && owner.phoneVerified),
+      hasDocumentation: Boolean(dni),
+    };
+  }
+  return result;
+}
 
 // Busca una propiedad y valida que pertenezca al usuario autenticado.
 // Se reutiliza en update/delete y en el controller de imágenes.
@@ -52,7 +75,9 @@ export const listProperties = asyncHandler(async (req, res) => {
   });
 
   res.json({
-    properties: rows,
+    properties: rows.map((property) =>
+      presentProperty(property, Boolean(req.user)),
+    ),
     pagination: {
       total: count,
       page: Number(page),
@@ -70,7 +95,9 @@ export const getPropertyById = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Propiedad no encontrada.");
   }
 
-  res.json({ property });
+  res.json({
+    property: presentProperty(property, Boolean(req.user)),
+  });
 });
 
 // GET /api/properties/mine/list (protegida, solo owner autenticado)
@@ -81,12 +108,33 @@ export const getMyProperties = asyncHandler(async (req, res) => {
     order: [["id", "DESC"]],
   });
 
-  res.json({ properties });
+  res.json({
+    properties: properties.map((property) => presentProperty(property, true)),
+  });
 });
 
 // POST /api/properties (protegida, solo owner)
 export const createProperty = asyncHandler(async (req, res) => {
-  const { title, description, price, address, latitude, longitude, city, bedrooms, available_spots, is_furnished, status } = req.body;
+  const {
+    title,
+    description,
+    price,
+    address,
+    latitude,
+    longitude,
+    city,
+    bedrooms,
+    available_spots,
+    is_furnished,
+    allows_pets,
+    has_wifi,
+    has_cable,
+    has_fan,
+    has_air_conditioning,
+    is_shared,
+    owner_type,
+    status,
+  } = req.body;
 
   const property = await PropertyModel.create({
     title,
@@ -99,6 +147,13 @@ export const createProperty = asyncHandler(async (req, res) => {
     bedrooms,
     available_spots,
     is_furnished,
+    allows_pets,
+    has_wifi,
+    has_cable,
+    has_fan,
+    has_air_conditioning,
+    is_shared,
+    owner_type,
     status,
     userId: req.user.id,
   });
@@ -110,7 +165,26 @@ export const createProperty = asyncHandler(async (req, res) => {
 export const updateProperty = asyncHandler(async (req, res) => {
   const property = await findOwnedPropertyOrFail(req.params.id, req.user.id);
 
-  const fields = ["title", "description", "price", "address", "latitude", "longitude", "city", "bedrooms", "available_spots", "is_furnished", "status"];
+  const fields = [
+    "title",
+    "description",
+    "price",
+    "address",
+    "latitude",
+    "longitude",
+    "city",
+    "bedrooms",
+    "available_spots",
+    "is_furnished",
+    "allows_pets",
+    "has_wifi",
+    "has_cable",
+    "has_fan",
+    "has_air_conditioning",
+    "is_shared",
+    "owner_type",
+    "status",
+  ];
   const updates = {};
   fields.forEach((field) => {
     if (req.body[field] !== undefined) updates[field] = req.body[field];
