@@ -18,6 +18,23 @@ export const addPropertyImages = asyncHandler(async (req, res) => {
   res.status(201).json({ message: "Imágenes agregadas correctamente.", images });
 });
 
+export const uploadPropertyImages = asyncHandler(async (req, res) => {
+  const { propertyId } = req.params;
+  await findOwnedPropertyOrFail(propertyId, req.user.id);
+
+  if (!req.files?.length) {
+    throw new ApiError(400, "Debés seleccionar al menos una imagen.");
+  }
+
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  const urls = req.files.map((file) => `${baseUrl}/uploads/${file.filename}`);
+  const images = await PropertyImageModel.bulkCreate(
+    urls.map((url) => ({ url, propertyId })),
+  );
+
+  res.status(201).json({ message: "Imágenes subidas correctamente.", images });
+});
+
 // DELETE /api/properties/:propertyId/images/:imageId (protegida, solo el owner dueño)
 export const deletePropertyImage = asyncHandler(async (req, res) => {
   const { propertyId, imageId } = req.params;

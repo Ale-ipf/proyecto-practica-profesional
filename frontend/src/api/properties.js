@@ -1,4 +1,6 @@
-import { apiRequest } from "./client.js";
+import { apiRequest, getToken } from "./client.js";
+
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 
 // Arma el query string a partir de un objeto, ignorando valores vacíos.
 const construirQuery = (filtros = {}) => {
@@ -36,6 +38,24 @@ export const agregarImagenes = (propertyId, urls) =>
     body: { urls },
     auth: true,
   });
+
+export const subirImagenesPropiedad = async (propertyId, files) => {
+  const formData = new FormData();
+  Array.from(files).forEach((file) => formData.append("images", file));
+
+  const token = getToken();
+  const response = await fetch(`${API_URL}/properties/${propertyId}/images/upload`, {
+    method: "POST",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.message || "No pudimos subir la imagen.");
+  }
+  return data;
+};
 
 export const eliminarImagen = (propertyId, imageId) =>
   apiRequest(`/properties/${propertyId}/images/${imageId}`, {

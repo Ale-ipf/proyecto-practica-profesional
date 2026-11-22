@@ -54,6 +54,8 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
   } : initialForm)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [imageFile, setImageFile] = useState(null)
+  const [imagePreview, setImagePreview] = useState(propiedad?.images?.[0]?.url || '')
 
   const update = (event) => {
     const { name, value, type, checked } = event.target
@@ -66,6 +68,30 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
       latitude: latitude.toFixed(7),
       longitude: longitude.toFixed(7),
     }))
+  }
+
+  const selectImage = (event) => {
+    const file = event.target.files?.[0] || null
+    setImageFile(file)
+    setError('')
+
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        setImageFile(null)
+        setError('Seleccioná un archivo de imagen válido.')
+        event.target.value = ''
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        setImageFile(null)
+        setError('La imagen no puede superar los 5 MB.')
+        event.target.value = ''
+        return
+      }
+      setImagePreview(URL.createObjectURL(file))
+    } else {
+      setImagePreview(propiedad?.images?.[0]?.url || '')
+    }
   }
 
   const submit = async (event) => {
@@ -87,6 +113,7 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
         longitude: Number(form.longitude),
         city: form.city,
         imageUrl: form.imageUrl.trim(),
+        imageFile,
         existingImageUrl: propiedad?.images?.[0]?.url || '',
         existingImageIds: propiedad?.images?.map((image) => image.id) || [],
         bedrooms: Number(form.bedrooms),
@@ -198,11 +225,17 @@ function PropertyFormPage({ usuario, propiedad, onSave }) {
               : 'Todavía no seleccionaste una ubicación.'}
           </p>
           <label>
-            URL de la imagen
-            <input type="url" name="imageUrl" value={form.imageUrl} onChange={update} placeholder="https://ejemplo.com/imagen.jpg" />
+            Imagen del alquiler
+            <input
+              type="file"
+              name="imageFile"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={selectImage}
+            />
+            <small>Seleccioná una imagen desde tu dispositivo. Máximo 5 MB.</small>
           </label>
-          {form.imageUrl && (
-            <img className="property-form-image-preview" src={form.imageUrl} alt="Vista previa de la imagen del alquiler" />
+          {imagePreview && (
+            <img className="property-form-image-preview" src={imagePreview} alt="Vista previa de la imagen del alquiler" />
           )}
           <label>
             Descripción

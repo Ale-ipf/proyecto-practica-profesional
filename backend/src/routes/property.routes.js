@@ -10,7 +10,9 @@ import {
 import {
   addPropertyImages,
   deletePropertyImage,
+  uploadPropertyImages,
 } from "../controllers/property-image.controller.js";
+import { upload } from "../middlewares/upload.middleware.js";
 import {
   addPropertyTenant,
   listPropertyTenants,
@@ -184,6 +186,15 @@ router.delete(
 );
 
 // --- Imágenes de la propiedad (solo owner dueño) ---
+router.post(
+  "/:propertyId/images/upload",
+  authenticate,
+  authorize("owner"),
+  propertyIdParamValidator,
+  validate,
+  upload.array("images", 10),
+  uploadPropertyImages,
+);
 router.post(
   "/:propertyId/images",
   authenticate,

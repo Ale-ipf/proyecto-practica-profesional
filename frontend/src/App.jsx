@@ -36,6 +36,7 @@ import {
   eliminarPropiedad,
   agregarImagenes,
   eliminarImagen,
+  subirImagenesPropiedad,
 } from "./api/properties";
 import {
   listarInstituciones,
@@ -1068,14 +1069,21 @@ function App() {
   const { usuario, logout, cargandoSesion } = useAuth();
 
   const guardarPropiedad = async (propiedad) => {
-    const { id, imageUrl, existingImageUrl, existingImageIds, ...datos } =
+    const { id, imageUrl, imageFile, existingImageUrl, existingImageIds, ...datos } =
       propiedad;
     const response = id
       ? await actualizarPropiedad(id, datos)
       : await crearPropiedad(datos);
     const propertyId = id || response.property.id;
 
-    if (imageUrl !== existingImageUrl) {
+    if (imageFile) {
+      await subirImagenesPropiedad(propertyId, [imageFile]);
+      await Promise.all(
+        (existingImageIds || []).map((imageId) =>
+          eliminarImagen(propertyId, imageId),
+        ),
+      );
+    } else if (imageUrl !== existingImageUrl) {
       if (imageUrl) await agregarImagenes(propertyId, [imageUrl]);
       await Promise.all(
         (existingImageIds || []).map((imageId) =>

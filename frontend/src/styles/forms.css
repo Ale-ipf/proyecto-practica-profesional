@@ -261,6 +261,23 @@ input[type='checkbox'] {
     object-fit: cover;
     width: min(100%, 420px);
 }
+.property-form input[type="file"] {
+    background: var(--surface);
+    border: 1px dashed var(--line-strong, var(--line));
+    border-radius: 10px;
+    cursor: pointer;
+    padding: 10px;
+}
+.property-form input[type="file"]::file-selector-button {
+    background: var(--green);
+    border: 0;
+    border-radius: 7px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 700;
+    margin-right: 10px;
+    padding: 8px 12px;
+}
 .location-picker {
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -466,7 +483,7 @@ input[type='checkbox'] {
 }
 .student-verification-settings {
     border-top: 1px solid var(--line);
-    display: grid;
+    display: none;
     gap: 18px;
     margin-top: 30px;
     max-width: 760px;
