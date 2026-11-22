@@ -41,6 +41,7 @@ import {
 import {
   addImagesValidator,
   imageIdParamValidator,
+  propertyIdParamValidator as uploadPropertyIdParamValidator,
 } from "../middlewares/validators/property-image.validator.js";
 import {
   addPropertyTenantValidator,
@@ -190,7 +191,7 @@ router.post(
   "/:propertyId/images/upload",
   authenticate,
   authorize("owner"),
-  propertyIdParamValidator,
+  uploadPropertyIdParamValidator,
   validate,
   upload.array("images", 10),
   uploadPropertyImages,

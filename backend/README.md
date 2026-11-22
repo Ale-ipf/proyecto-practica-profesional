@@ -15,6 +15,19 @@ E.164, por ejemplo `+5493704123456`.
 Los códigos de email vencen a los 10 minutos y tienen un límite de intentos.
 Los nombres de usuario se normalizan a minúsculas y son únicos.
 
+## Imágenes con Cloudinary
+
+Para guardar las imágenes de las propiedades en Cloudinary, copiá las
+credenciales del panel de Cloudinary a `.env`:
+
+- `CLOUDINARY_CLOUD_NAME`
+- `CLOUDINARY_API_KEY`
+- `CLOUDINARY_API_SECRET`
+
+La carga admite JPEG, PNG y WebP de hasta 5 MB por archivo. Las imágenes se
+guardan en la carpeta `property-images` y se eliminan de Cloudinary al borrar
+su registro.
+
 ## Personas y pagos de alquileres
 
 El dueño de una publicación puede agregar cuentas existentes con rol de

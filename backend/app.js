@@ -56,7 +56,7 @@ const normalizeInstitutionBusStops = async () => {
 const startServer = async () => {
   await testConnection();
   await normalizeInstitutionBusStops();
-  await sequelize.sync({ alter: true });
+  await sequelize.sync();
   await seedInstitutions();
   console.log("✅ Modelos sincronizados con la base de datos.");
 

@@ -13,3 +13,7 @@ export const imageIdParamValidator = [
   param("propertyId").isInt({ min: 1 }).withMessage("El id de la propiedad no es válido."),
   param("imageId").isInt({ min: 1 }).withMessage("El id de la imagen no es válido."),
 ];
+
+export const propertyIdParamValidator = [
+  param("propertyId").isInt({ min: 1 }).withMessage("El id de la propiedad no es válido."),
+];

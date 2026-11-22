@@ -1,22 +1,11 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { ApiError } from '../helpers/api-error.js';
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadDirectory = 'public/uploads';
-        fs.mkdirSync(uploadDirectory, { recursive: true });
-        cb(null, uploadDirectory);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 
 const imageFilter = (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) {
-        cb(new Error('Solo se permiten archivos de imagen.'));
+        cb(new ApiError(400, 'Solo se permiten archivos de imagen.'));
         return;
     }
     cb(null, true);
