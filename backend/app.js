@@ -51,6 +51,7 @@ const normalizeInstitutionBusStops = async () => {
   console.warn(
     `⚠️ Se normalizaron ${invalidCount} valores inválidos de Institutions.busStops.`,
   );
+  a
 };
 
 const startServer = async () => {
