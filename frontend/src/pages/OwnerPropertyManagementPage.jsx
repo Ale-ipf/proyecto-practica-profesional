@@ -49,7 +49,12 @@ export default function OwnerPropertyManagementPage({ usuario }) {
   const [addingTenant, setAddingTenant] = useState(false);
   const [updatingTenantId, setUpdatingTenantId] = useState(null);
   const [message, setMessage] = useState("");
+  const [propertyImageError, setPropertyImageError] = useState(false);
   const tenantsRequest = useRef(0);
+
+  useEffect(() => {
+    setPropertyImageError(false);
+  }, [id]);
 
   const isOwner =
     usuario?.role === "owner" &&
@@ -199,12 +204,46 @@ export default function OwnerPropertyManagementPage({ usuario }) {
       onLogout={logout}
     >
       <main className="owner-management">
-        <span className="section-kicker">GESTIÓN DEL ALQUILER</span>
-        <h1>{property.title}</h1>
-        <p className="muted">{property.address}, {property.city}</p>
-        <Link className="button button-primary" to={`/alquileres/${id}/foro`}>
-          Abrir foro del alquiler
-        </Link>
+        <section className="owner-management__header">
+          {property.images?.[0]?.url && !propertyImageError ? (
+            <div className="owner-management__cover">
+              <img
+                src={property.images[0].url}
+                alt={`Foto de ${property.title}`}
+                loading="eager"
+                decoding="async"
+                onError={() => setPropertyImageError(true)}
+              />
+              <span className="owner-management__status">
+                {property.status === "rented" ? "Alquilado" : "Disponible"}
+              </span>
+            </div>
+          ) : (
+            <div className="owner-management__cover owner-management__cover--empty">
+              <strong>Sin foto disponible</strong>
+            </div>
+          )}
+          <div className="owner-management__summary">
+            <span className="section-kicker">GESTIÓN DEL ALQUILER</span>
+            <h1>{property.title}</h1>
+            <p className="owner-management__address">
+              {property.address}, {property.city}
+            </p>
+            <dl className="owner-management__quick-info">
+              <div>
+                <dt>Precio mensual</dt>
+                <dd>${Number(property.price).toLocaleString("es-AR")}</dd>
+              </div>
+              <div>
+                <dt>Espacios libres</dt>
+                <dd>{property.available_spots}</dd>
+              </div>
+            </dl>
+            <Link className="button button-primary" to={`/alquileres/${id}/foro`}>
+              Abrir foro del alquiler
+            </Link>
+          </div>
+        </section>
 
         <div className="owner-management__tabs" role="tablist" aria-label="Apartados del alquiler">
           <button

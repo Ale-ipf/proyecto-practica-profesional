@@ -164,7 +164,7 @@
     display: block; 
 }
   .property-details-image { 
-    min-height: 270px; 
+    height: 270px;
 }
   .property-details-summary { 
     padding: 27px 22px; 

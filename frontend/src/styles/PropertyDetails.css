@@ -74,7 +74,7 @@
 }
 
 .property-details-image {
-	min-height: 480px;
+	height: 480px;
 	position: relative;
 }
 
@@ -82,6 +82,22 @@
 	height: 100%;
 	object-fit: cover;
 	width: 100%;
+}
+
+.property-details-image-placeholder {
+	align-items: center;
+	background: var(--surface-soft);
+	color: var(--muted);
+	display: flex;
+	flex-direction: column;
+	font-size: .78rem;
+	gap: 8px;
+	height: 100%;
+	justify-content: center;
+}
+
+.property-details-image-placeholder span {
+	font-size: 2.5rem;
 }
 
 .detail-status {

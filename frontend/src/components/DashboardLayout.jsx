@@ -123,6 +123,7 @@ export function QuickAccessCard({ to, icon, title, description }) {
 export function DashboardPropertyCard({ property, owner = false, onDelete }) {
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [imageError, setImageError] = useState(false);
   const image = property.images?.[0]?.url || property.imageUrl;
   const price = Number(property.price);
   const hasPrice = property.price != null && Number.isFinite(price);
@@ -161,8 +162,14 @@ export function DashboardPropertyCard({ property, owner = false, onDelete }) {
         to={`/alquileres/${property.id}`}
         aria-label={`Ver ${property.title}`}
       >
-        {image ? (
-          <img src={image} alt={`Foto de ${property.title}`} loading="lazy" />
+        {image && !imageError ? (
+          <img
+            src={image}
+            alt={`Foto de ${property.title}`}
+            loading="lazy"
+            decoding="async"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <DashboardIcon name="building" size={32} />
         )}

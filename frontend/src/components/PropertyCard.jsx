@@ -6,6 +6,7 @@ import { DashboardIcon } from './DashboardLayout.jsx'
 function PropertyCard({ propiedad, usuario, favoritos, onDelete }) {
   const [deleting, setDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [imageError, setImageError] = useState(false)
   const esFavorito = favoritos.includes(Number(propiedad.id))
   const puedeEditar = usuario && (usuario.email === propiedad.dueno || usuario.id === propiedad.propietario?.id)
   const sinDisponibilidad = propiedad.estado === 'rented' || propiedad.cuposDisponibles === 0
@@ -29,8 +30,14 @@ function PropertyCard({ propiedad, usuario, favoritos, onDelete }) {
     <article className="property-card">
       {usuario?.role === 'student' && esFavorito && <span className="favorite-indicator" aria-label="Alquiler guardado en favoritos" title="Guardado en favoritos">⭐</span>}
       <Link className="property-image-link" to={`/alquileres/${propiedad.id}`}>
-        {propiedad.imagen ? (
-          <img src={propiedad.imagen} alt={`Foto de ${propiedad.titulo}`} />
+        {propiedad.imagen && !imageError ? (
+          <img
+            src={propiedad.imagen}
+            alt={`Foto de ${propiedad.titulo}`}
+            loading="lazy"
+            decoding="async"
+            onError={() => setImageError(true)}
+          />
         ) : (
           <span className="property-image-placeholder" aria-hidden="true">
             <DashboardIcon name="building" size={34} />

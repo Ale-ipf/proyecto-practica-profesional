@@ -481,6 +481,8 @@
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 14px;
+  display: grid;
+  grid-template-rows: 172px minmax(0, 1fr);
   min-width: 0;
   overflow: hidden;
 }

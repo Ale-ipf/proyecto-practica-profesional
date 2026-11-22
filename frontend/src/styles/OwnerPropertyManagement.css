@@ -4,6 +4,17 @@
   width: min(1000px, calc(100% - 48px));
 }
 
+.owner-management__header {
+  align-items: stretch;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  display: grid;
+  grid-template-columns: minmax(280px, 1.15fr) minmax(260px, .85fr);
+  overflow: hidden;
+}
+
 .owner-management > h1 {
   color: var(--ink);
   font-family: Georgia, serif;
@@ -11,26 +22,120 @@
   margin: 8px 0;
 }
 
-.owner-management__tabs {
-  border-bottom: 1px solid var(--line);
+.owner-management__cover {
+  border: 1px solid var(--line);
+  border-width: 0 1px 0 0;
+  height: 300px;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.owner-management__cover img {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  width: 100%;
+}
+
+.owner-management__cover--empty {
+  align-items: center;
+  background: var(--surface-soft);
+  color: var(--muted);
   display: flex;
-  gap: 8px;
-  margin-top: 28px;
+  justify-content: center;
+}
+
+.owner-management__status {
+  background: rgb(8 8 8 / 82%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 99px;
+  color: #fff;
+  font-size: .72rem;
+  font-weight: 800;
+  left: 16px;
+  padding: 7px 10px;
+  position: absolute;
+  top: 16px;
+}
+
+.owner-management__summary {
+  align-content: center;
+  display: grid;
+  gap: 10px;
+  padding: 28px;
+}
+
+.owner-management__summary h1 {
+  color: var(--ink);
+  font-family: Georgia, serif;
+  font-size: clamp(1.65rem, 3vw, 2.35rem);
+  line-height: 1.08;
+  margin: 0;
+}
+
+.owner-management__address {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0 0 6px;
+}
+
+.owner-management__quick-info {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 4px 0 10px;
+}
+
+.owner-management__quick-info div {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.owner-management__quick-info dt {
+  color: var(--muted);
+  font-size: .68rem;
+}
+
+.owner-management__quick-info dd {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 4px 0 0;
+}
+
+.owner-management__summary .button {
+  justify-self: start;
+}
+
+.owner-management__tabs {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: grid;
+  gap: 5px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 24px auto 0;
+  padding: 5px;
+  width: min(520px, 100%);
 }
 
 .owner-management__tabs button {
   background: transparent;
   border: 0;
-  border-bottom: 3px solid transparent;
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
-  font: 700 .9rem 'Trebuchet MS', sans-serif;
-  padding: 13px 16px;
+  font: 700 .82rem 'Trebuchet MS', sans-serif;
+  min-height: 44px;
+  padding: 10px 14px;
+  text-align: center;
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
 }
 
 .owner-management__tabs button.is-active {
-  border-bottom-color: var(--green);
-  color: var(--green-dark);
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 14%);
+  color: var(--red);
 }
 
 .owner-management__panel {
@@ -38,7 +143,7 @@
   border: 1px solid var(--line);
   border-radius: 12px;
   box-shadow: var(--shadow);
-  margin-top: 20px;
+  margin-top: 14px;
   padding: 26px;
 }
 
@@ -160,7 +265,62 @@
   margin: 0 0 18px 12px;
 }
 
+@media (max-width: 760px) {
+  .owner-management {
+    width: calc(100% - 36px);
+  }
+
+  .owner-management__header {
+    grid-template-columns: minmax(220px, 1fr) minmax(220px, .82fr);
+  }
+
+  .owner-management__cover {
+    height: 280px;
+  }
+
+  .owner-management__summary {
+    padding: 22px;
+  }
+
+  .owner-management__tenant {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .owner-management__tenant-info {
+    flex-basis: calc(100% - 115px);
+  }
+}
+
 @media (max-width: 600px) {
+  .owner-management {
+    margin: 28px auto;
+    width: calc(100% - 32px);
+  }
+
+  .owner-management__header {
+    grid-template-columns: 1fr;
+  }
+
+  .owner-management__cover {
+    border-bottom: 1px solid var(--line);
+    border-width: 0 0 1px;
+    height: 220px;
+  }
+
+  .owner-management__summary {
+    padding: 20px;
+  }
+
+  .owner-management__tabs {
+    width: 100%;
+  }
+
+  .owner-management__tabs button {
+    min-height: 48px;
+    padding-inline: 8px;
+  }
+
   .owner-management__panel {
     padding: 18px;
   }

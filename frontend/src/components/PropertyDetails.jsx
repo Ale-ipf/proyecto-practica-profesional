@@ -1,8 +1,10 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import OwnerProfileSummary from './OwnerProfileSummary'
 import { textoDisponibilidad } from '../utils/formato'
 
 function PropertyDetails({ propiedad, tieneSesion = false, esEstudiante, esFavorito, onToggleFavorite, esPropietario = false }) {
+  const [imageError, setImageError] = useState(false)
   const textoAmbientes = propiedad.ambientes === 3 ? '3 ambientes' : propiedad.ambientes === 2 ? '2 ambientes' : 'Monoambiente'
   const sinDisponibilidad = propiedad.estado === 'rented' || propiedad.cuposDisponibles === 0
   const ubicacion = [propiedad.direccion, propiedad.ciudad || propiedad.propietario?.ciudad, 'Argentina']
@@ -25,7 +27,23 @@ function PropertyDetails({ propiedad, tieneSesion = false, esEstudiante, esFavor
         <Link className="back-link" to="/alquileres">← Volver a los alquileres</Link>
         {esPropietario && <Link className="button button-primary" to={`/alquileres/${propiedad.id}/gestion`}>Administrar publicación</Link>}
         <section className="property-details-hero">
-          <div className="property-details-image"><img src={propiedad.imagen} alt={`Foto de ${propiedad.titulo}`} /><span className={`detail-status${sinDisponibilidad ? ' detail-status-full' : ''}`} role="status">{textoDisponibilidad(propiedad.estado, propiedad.cuposDisponibles)}</span></div>
+          <div className="property-details-image">
+            {propiedad.imagen && !imageError ? (
+              <img
+                src={propiedad.imagen}
+                alt={`Foto de ${propiedad.titulo}`}
+                loading="eager"
+                decoding="async"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="property-details-image-placeholder">
+                <span aria-hidden="true">⌂</span>
+                Sin foto disponible
+              </div>
+            )}
+            <span className={`detail-status${sinDisponibilidad ? ' detail-status-full' : ''}`} role="status">{textoDisponibilidad(propiedad.estado, propiedad.cuposDisponibles)}</span>
+          </div>
           <div className="property-details-summary"><span className="section-kicker">DETALLE DEL ALQUILER</span><div className="badges"><span>{`Barrio ${propiedad.barrio}`}</span><span>{textoAmbientes}</span><span>{propiedad.amoblado ? 'Amoblado' : 'Sin amoblar'}</span></div><h1>{propiedad.titulo}</h1><p className="property-address">⌖ {propiedad.direccion}</p><p className="detail-price">${Number(propiedad.precio).toLocaleString('es-AR')} <small>/ mes</small></p><p className="property-description detail-description">{propiedad.descripcion}</p>{esEstudiante && <button className="button button-accent favorite-toggle" type="button" onClick={onToggleFavorite} aria-pressed={esFavorito}>{esFavorito ? '⭐ Quitar de favoritos' : '☆ Agregar a favoritos'}</button>}</div>
         </section>
         <section className="property-details-content">
