@@ -329,7 +329,11 @@ input[type='checkbox'] {
     color: var(--ink);
 }
 .student-profile-panel {
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-sizing: border-box;
     min-width: 0;
+    padding: 24px;
 }
 .student-profile-panel-heading {
     border-bottom: 1px solid var(--line);
@@ -675,6 +679,10 @@ input[type='checkbox'] {
     .student-profile-navigation-item:hover,
     .student-profile-navigation-item.is-active {
         border-bottom-color: var(--green);
+    }
+    .student-profile-panel {
+        border-radius: 12px;
+        padding: 16px;
     }
     .student-personal-details {
         grid-template-columns: minmax(0, 1fr);
