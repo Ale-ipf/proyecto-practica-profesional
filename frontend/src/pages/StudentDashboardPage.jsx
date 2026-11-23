@@ -433,9 +433,19 @@ export default function StudentDashboardPage() {
       ) : (
       <div className="student-profile-page">
         <div className="student-profile-heading">
-          <span className="section-kicker">CUENTA DE ESTUDIANTE</span>
-          <h1>{seccionActiva === "profile" ? "Mi perfil" : seccion.label}</h1>
-          <p>Administrá tus datos, preferencias y privacidad.</p>
+          <div>
+            <span className="section-kicker">CUENTA DE ESTUDIANTE</span>
+            <h1>{seccionActiva === "profile" ? "Mi perfil" : seccion.label}</h1>
+            <p>Administrá tus datos, preferencias y privacidad.</p>
+          </div>
+          {seccionActiva !== "profile" && (
+            <Link
+              className="button button-accent"
+              to="/panel-estudiante?section=profile"
+            >
+              Volver al perfil
+            </Link>
+          )}
         </div>
 
         <div className="student-profile-layout">

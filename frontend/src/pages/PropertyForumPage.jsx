@@ -81,7 +81,9 @@ export default function PropertyForumPage() {
     return <Navigate to="/" replace />;
   }
 
-  const backLink = usuario.role === "owner" ? "/panel-dueno" : "/panel-estudiante";
+  const backLink = usuario.role === "owner"
+    ? "/panel-dueno"
+    : "/panel-estudiante?section=profile";
   const backLabel = usuario.role === "owner" ? "Volver al panel" : "Volver a mi perfil";
 
   const submitMessage = async (event) => {

@@ -93,7 +93,12 @@ function InstitutionCarousel({ instituciones, propiedades }) {
         </div>
       </div>
       <div className="institution-slide" aria-live="polite">
-        <div className="institution-badge">{institucion.abreviatura}</div>
+        <div
+          className={`institution-badge${String(institucion.abreviatura || "").length > 5 ? " is-long" : String(institucion.abreviatura || "").length > 3 ? " is-medium" : ""}`}
+          title={institucion.nombre}
+        >
+          {institucion.abreviatura}
+        </div>
         <div>
           <span className="institution-type">{institucion.tipo}</span>
           <h3>{institucion.nombre}</h3>

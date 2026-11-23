@@ -759,6 +759,43 @@
   .dashboard-property-card__actions > * {
     flex: 1;
   }
+
+  .dashboard-topbar {
+    gap: 10px;
+  }
+
+  .dashboard-topbar__brand {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .dashboard-topbar__user {
+    flex: 0 0 auto;
+  }
+
+  .dashboard-property-card {
+    grid-template-rows: 190px minmax(0, 1fr);
+  }
+
+  .dashboard-property-card__image {
+    height: 190px;
+  }
+
+  .dashboard-property-card__body {
+    padding: 14px;
+  }
+
+  .dashboard-button {
+    min-height: 40px;
+  }
+
+  .student-profile-heading > .button,
+  .owner-profile-page__header > .button {
+    box-sizing: border-box;
+    width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

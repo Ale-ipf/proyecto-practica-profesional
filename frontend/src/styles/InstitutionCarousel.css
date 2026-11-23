@@ -78,12 +78,24 @@
 .institution-badge { 
     align-items: center; 
     background: var(--coral-soft); 
-    border-radius: 10px; color: var(--coral); 
-    display: flex; font-size: .82rem; 
-    font-weight: 900; height: 48px; 
+    border-radius: 12px; color: var(--coral); 
+    display: flex; font-size: .9rem; 
+    font-weight: 900; height: 64px; 
     justify-content: center; 
     margin-bottom: 13px; 
-    width: 48px; 
+    min-width: 64px;
+    max-width: 100%;
+    padding: 0 10px;
+    text-align: center;
+    width: fit-content;
+}
+.institution-badge.is-medium {
+    font-size: .78rem;
+    letter-spacing: -.02em;
+}
+.institution-badge.is-long {
+    font-size: .68rem;
+    letter-spacing: -.03em;
 }
 .institution-type { 
     color: var(--green); 

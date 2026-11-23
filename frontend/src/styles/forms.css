@@ -296,12 +296,19 @@ input[type='checkbox'] {
 .student-profile-page {
     display: block;
     grid-template-columns: none;
-    margin: 38px auto 72px;
+    margin: 0 auto;
     max-width: 1080px;
-    padding: 0 24px;
+    padding: 0;
 }
 .student-profile-heading {
+    align-items: flex-start;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
     margin-bottom: 26px;
+}
+.student-profile-heading > .button {
+    flex: 0 0 auto;
 }
 .student-profile-heading h1 {
     color: var(--ink);
@@ -677,8 +684,11 @@ input[type='checkbox'] {
 }
 @media (max-width: 720px) {
     .student-profile-page {
-        margin-top: 26px;
-        padding: 0 16px;
+        margin-top: 0;
+        padding: 0;
+    }
+    .student-profile-heading {
+        flex-direction: column;
     }
     .student-profile-layout {
         display: block;

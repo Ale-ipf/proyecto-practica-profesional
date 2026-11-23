@@ -247,7 +247,9 @@ export default function OwnerProfilePage() {
             <h1>Mi perfil</h1>
             <p>Completá tus datos y verificá tu correo y teléfono.</p>
           </div>
-          <Link className="button button-accent" to="/panel-dueno">Volver al panel</Link>
+          <Link className="button button-accent" to="/perfil-dueno">
+            Volver al perfil
+          </Link>
         </header>
 
         {loading && <p className="dashboard-message">Cargando perfil…</p>}
