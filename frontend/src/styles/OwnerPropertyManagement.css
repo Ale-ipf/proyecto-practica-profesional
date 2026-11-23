@@ -1,18 +1,21 @@
 .owner-management {
-  margin: 48px auto;
-  max-width: 1000px;
-  width: min(1000px, calc(100% - 48px));
+  margin: 0 auto;
+  max-width: 1120px;
+  min-width: 0;
+  width: 100%;
 }
 
 .owner-management__header {
   align-items: stretch;
   background: var(--surface);
+  background: linear-gradient(135deg, var(--surface) 0%, color-mix(in srgb, var(--surface) 88%, var(--red)) 100%);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 20px;
   box-shadow: var(--shadow);
   display: grid;
-  grid-template-columns: minmax(280px, 1.15fr) minmax(260px, .85fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, .85fr);
   overflow: hidden;
+  position: relative;
 }
 
 .owner-management > h1 {
@@ -25,7 +28,7 @@
 .owner-management__cover {
   border: 1px solid var(--line);
   border-width: 0 1px 0 0;
-  height: 300px;
+  height: 340px;
   overflow: hidden;
   position: relative;
   width: 100%;
@@ -36,6 +39,11 @@
   height: 100%;
   object-fit: cover;
   width: 100%;
+  transition: transform .45s ease;
+}
+
+.owner-management__header:hover .owner-management__cover img {
+  transform: scale(1.025);
 }
 
 .owner-management__cover--empty {
@@ -62,16 +70,25 @@
 .owner-management__summary {
   align-content: center;
   display: grid;
-  gap: 10px;
-  padding: 28px;
+  gap: 14px;
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.owner-management__summary .section-kicker {
+  color: var(--red);
+  font-size: .68rem;
+  font-weight: 850;
+  letter-spacing: .16em;
 }
 
 .owner-management__summary h1 {
   color: var(--ink);
   font-family: Georgia, serif;
   font-size: clamp(1.65rem, 3vw, 2.35rem);
+  letter-spacing: -.035em;
   line-height: 1.08;
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .owner-management__address {
@@ -88,8 +105,10 @@
 }
 
 .owner-management__quick-info div {
-  border-top: 1px solid var(--line);
-  padding-top: 10px;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
 }
 
 .owner-management__quick-info dt {
@@ -108,15 +127,15 @@
 }
 
 .owner-management__tabs {
-  background: var(--surface-soft);
+  background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 14px;
   display: grid;
   gap: 5px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 24px auto 0;
-  padding: 5px;
-  width: min(520px, 100%);
+  margin: 28px 0 0;
+  padding: 6px;
+  width: min(560px, 100%);
 }
 
 .owner-management__tabs button {
@@ -133,18 +152,19 @@
 }
 
 .owner-management__tabs button.is-active {
-  background: var(--surface);
-  box-shadow: 0 4px 14px rgb(0 0 0 / 14%);
-  color: var(--red);
+  background: var(--red);
+  box-shadow: 0 5px 14px rgb(0 0 0 / 18%);
+  color: #fff;
 }
 
 .owner-management__panel {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
-  margin-top: 14px;
-  padding: 26px;
+  margin-top: 12px;
+  padding: clamp(20px, 3vw, 32px);
+  min-width: 0;
 }
 
 .owner-management__panel h2,
@@ -159,6 +179,13 @@
   display: flex;
   gap: 20px;
   justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.owner-management__section-heading p {
+  line-height: 1.55;
+  margin: 0;
+  max-width: 620px;
 }
 
 .owner-management__period {
@@ -170,7 +197,7 @@
   border-bottom: 1px solid var(--line);
   display: flex;
   gap: 12px;
-  margin: 22px 0;
+  margin: 0 0 22px;
   padding-bottom: 22px;
 }
 
@@ -180,8 +207,17 @@
 
 .owner-management__empty {
   background: var(--surface-soft);
-  border-radius: 8px;
-  padding: 22px;
+  border: 1px dashed var(--line);
+  border-radius: 12px;
+  padding: 26px;
+}
+
+.owner-management__empty h3 {
+  margin-bottom: 6px;
+}
+
+.owner-management__empty p {
+  margin: 0;
 }
 
 .owner-management__tenant-list {
@@ -205,11 +241,17 @@
 .owner-management__tenant-payment small {
   color: var(--muted);
   font-size: .78rem;
+  overflow-wrap: anywhere;
 }
 
 .owner-management__tenant {
   border-top: 1px solid var(--line);
-  padding: 16px 0;
+  padding: 18px 0;
+  transition: background .18s ease;
+}
+
+.owner-management__tenant:hover {
+  background: color-mix(in srgb, var(--surface-soft) 65%, transparent);
 }
 
 .owner-management__tenant-info,
@@ -221,11 +263,16 @@
 .owner-management__tenant-info {
   flex: 1;
   min-width: 140px;
+  padding-left: 8px;
 }
 
 .owner-management__tenant-payment {
   align-items: start;
   min-width: 190px;
+}
+
+.owner-management__tenant-payment .button {
+  margin-top: 5px;
 }
 
 .payment-status {
@@ -265,13 +312,9 @@
   margin: 0 0 18px 12px;
 }
 
-@media (max-width: 760px) {
-  .owner-management {
-    width: calc(100% - 36px);
-  }
-
+@media (max-width: 1050px) {
   .owner-management__header {
-    grid-template-columns: minmax(220px, 1fr) minmax(220px, .82fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .owner-management__cover {
@@ -292,12 +335,7 @@
   }
 }
 
-@media (max-width: 600px) {
-  .owner-management {
-    margin: 28px auto;
-    width: calc(100% - 32px);
-  }
-
+@media (max-width: 760px) {
   .owner-management__header {
     grid-template-columns: 1fr;
   }
@@ -305,6 +343,16 @@
   .owner-management__cover {
     border-bottom: 1px solid var(--line);
     border-width: 0 0 1px;
+    height: 240px;
+  }
+}
+
+@media (max-width: 600px) {
+  .owner-management {
+    margin: 0 auto;
+  }
+
+  .owner-management__cover {
     height: 220px;
   }
 
@@ -331,13 +379,24 @@
     flex-direction: column;
   }
 
+  .owner-management__period,
+  .owner-management__section-heading > .button,
+  .owner-management__add-form > .button {
+    width: 100%;
+  }
+
   .owner-management__tenant {
     align-items: flex-start;
     flex-wrap: wrap;
   }
 
   .owner-management__tenant-payment {
-    flex: 1;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .owner-management__tenant > button {
+    width: 100%;
   }
 
   .owner-management__property-info {

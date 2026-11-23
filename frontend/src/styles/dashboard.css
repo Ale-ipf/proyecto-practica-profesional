@@ -325,6 +325,16 @@
   padding: clamp(24px, 4vw, 52px);
 }
 
+/* Las reglas globales de main en base.css/home.css son para el layout público. */
+.dashboard-content > main {
+  display: block;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 auto;
+  padding: 0;
+  width: 100%;
+}
+
 .dashboard-welcome {
   background: linear-gradient(110deg, #1c1c1c 0%, #171717 68%, #231316 100%);
   border: 1px solid #303030;

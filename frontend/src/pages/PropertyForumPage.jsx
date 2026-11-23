@@ -183,7 +183,10 @@ export default function PropertyForumPage() {
               ) : (
                 <div className="property-forum-messages">
                   {messages.map((message) => (
-                    <article className="property-forum-message" key={message.id}>
+                    <article
+                      className={`property-forum-message property-forum-message--${message.category}`}
+                      key={message.id}
+                    >
                       <div className="property-forum-message-heading">
                         <span className={`property-forum-category property-forum-category--${message.category}`}>
                           {etiquetasCategoria[message.category] || "General"}

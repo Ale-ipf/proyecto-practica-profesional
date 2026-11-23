@@ -69,26 +69,42 @@
 }
 
 .property-forum {
-  margin: 44px auto 72px;
+  /* Aísla este main del grid global definido para las páginas públicas. */
+  display: block;
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr);
+  margin: 0 auto;
   max-width: 900px;
-  width: min(900px, calc(100% - 40px));
+  padding: 44px 0 72px;
+  width: min(100%, 900px);
 }
 
 .property-forum > h1 {
   color: var(--ink);
-  font-family: Georgia, serif;
-  font-size: clamp(2rem, 5vw, 3rem);
-  margin: 8px 0;
+  font-family: inherit;
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  letter-spacing: -.045em;
+  line-height: 1.08;
+  margin: 8px 0 10px;
+  overflow-wrap: anywhere;
+}
+
+.property-forum > .section-kicker {
+  color: #ff6573;
+}
+
+.property-forum > .muted {
+  margin: 0 0 26px;
 }
 
 .property-forum-composer,
 .property-forum-feed {
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
   margin-top: 24px;
-  padding: 24px;
+  padding: clamp(20px, 3vw, 30px);
 }
 
 .property-forum-composer form {
@@ -145,9 +161,32 @@
 }
 
 .property-forum-message {
+  background: color-mix(in srgb, var(--surface) 72%, var(--surface-soft));
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 18px;
+  border-radius: 12px;
+  padding: 20px;
+  transition: border-color .18s ease, transform .18s ease;
+}
+
+.property-forum-message:hover {
+  border-color: color-mix(in srgb, #187044 52%, var(--line));
+  transform: translateY(-1px);
+}
+
+.property-forum-message--issue:hover {
+  border-color: color-mix(in srgb, #b42318 52%, var(--line));
+}
+
+.property-forum-message--announcement:hover {
+  border-color: color-mix(in srgb, #175cd3 52%, var(--line));
+}
+
+.property-forum-message--notice:hover {
+  border-color: color-mix(in srgb, #7a5d00 52%, var(--line));
+}
+
+.property-forum-message--general:hover {
+  border-color: color-mix(in srgb, #187044 52%, var(--line));
 }
 
 .property-forum-message > p {
@@ -159,30 +198,46 @@
 }
 
 .property-forum-category {
-  background: var(--surface-soft);
+  background: #e9edf2;
+  border: 1px solid #d7dde5;
   border-radius: 999px;
-  color: var(--green-dark);
+  color: #344054;
+  display: inline-flex;
   font-size: .75rem;
   font-weight: 800;
   padding: 5px 10px;
 }
 
 .property-forum-category--issue {
-  background: #fae7e2;
-  color: #983d2c;
+  background: #fee4e2;
+  border-color: #fecdca;
+  color: #b42318;
 }
 
 .property-forum-category--announcement {
-  background: #e8eefc;
-  color: #36518a;
+  background: #eaf2ff;
+  border-color: #c7dcff;
+  color: #175cd3;
 }
 
 .property-forum-category--notice {
-  background: #f7edcf;
-  color: #785b11;
+  background: #fff4cc;
+  border-color: #f5df91;
+  color: #7a5d00;
+}
+
+.property-forum-category--general {
+  background: #e7f6ec;
+  border-color: #b7e4c7;
+  color: #187044;
 }
 
 @media (max-width: 600px) {
+  .property-forum {
+    padding: 28px 0 48px;
+    width: 100%;
+  }
+
   .student-rental-card,
   .property-forum-composer-actions,
   .property-forum-feed-heading,
