@@ -308,6 +308,25 @@
   margin: 6px 0 0;
 }
 
+.owner-management__payment-reminder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px) auto;
+  align-items: end;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface, #fff);
+}
+
+.owner-management__payment-reminder h3 { margin: 0 0 6px; }
+.owner-management__payment-reminder p { margin: 0; }
+.owner-management__payment-reminder label { display: grid; gap: 6px; font-weight: 600; }
+.owner-management__payment-reminder select { min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface, #fff); color: inherit; }
+.owner-management__payment-reminder [role="status"],
+.owner-management__payment-reminder [role="alert"] { grid-column: 1 / -1; }
+
 .property-details-page > .button {
   margin: 0 0 18px 12px;
 }
@@ -402,4 +421,7 @@
   .owner-management__property-info {
     grid-template-columns: 1fr;
   }
+
+  .owner-management__payment-reminder { grid-template-columns: 1fr; }
+  .owner-management__payment-reminder button { width: 100%; }
 }
