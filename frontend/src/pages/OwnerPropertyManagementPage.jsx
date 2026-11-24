@@ -259,10 +259,6 @@ export default function OwnerPropertyManagementPage({ usuario }) {
                 <dt>Espacios libres</dt>
                 <dd>{property.available_spots}</dd>
               </div>
-              <div>
-                <dt>Método de pago</dt>
-                <dd>{property.payment_method === "cash" ? "Efectivo" : property.payment_method === "transfer" ? "Transferencia" : "Sin definir"}</dd>
-              </div>
             </dl>
             <Link className="button button-primary" to={`/alquileres/${id}/foro`}>
               Abrir foro del alquiler
@@ -314,25 +310,6 @@ export default function OwnerPropertyManagementPage({ usuario }) {
               <div><dt>Amoblado</dt><dd>{property.is_furnished ? "Sí" : "No"}</dd></div>
               <div><dt>Descripción</dt><dd>{property.description}</dd></div>
             </dl>
-            <form className="owner-management__payment-reminder" onSubmit={savePaymentMethod}>
-              <div>
-                <h3>Método de pago (recordatorio)</h3>
-                <p>Solo lo ves vos. Es una nota para recordar cómo acordaste cobrar; no registra ni modifica pagos.</p>
-              </div>
-              <label>
-                Método acordado
-                <select value={paymentMethod} onChange={(event) => { setPaymentMethod(event.target.value); setPaymentMethodMessage(""); }}>
-                  <option value="">Sin definir</option>
-                  <option value="cash">Efectivo</option>
-                  <option value="transfer">Transferencia</option>
-                </select>
-              </label>
-              <button className="button button-primary" type="submit" disabled={savingPaymentMethod}>
-                {savingPaymentMethod ? "Guardando…" : "Guardar recordatorio"}
-              </button>
-              {paymentMethodMessage && <p className="mensaje-alerta mensaje-alerta--exito" role="status">{paymentMethodMessage}</p>}
-              {paymentMethodError && <p className="error-message" role="alert">{paymentMethodError}</p>}
-            </form>
           </section>
         ) : (
           <section className="owner-management__panel" role="tabpanel">
@@ -355,6 +332,25 @@ export default function OwnerPropertyManagementPage({ usuario }) {
                 />
               </label>
             </div>
+            <form className="owner-management__payment-reminder" onSubmit={savePaymentMethod}>
+              <div>
+                <h3>Método de pago (recordatorio)</h3>
+                <p>Solo lo ves vos. Es una nota para recordar cómo acordaste cobrar; no registra ni modifica pagos.</p>
+              </div>
+              <label>
+                Método acordado
+                <select value={paymentMethod} onChange={(event) => { setPaymentMethod(event.target.value); setPaymentMethodMessage(""); }}>
+                  <option value="">Sin definir</option>
+                  <option value="cash">Efectivo</option>
+                  <option value="transfer">Transferencia</option>
+                </select>
+              </label>
+              <button className="button button-primary" type="submit" disabled={savingPaymentMethod}>
+                {savingPaymentMethod ? "Guardando…" : "Guardar recordatorio"}
+              </button>
+              {paymentMethodMessage && <p className="mensaje-alerta mensaje-alerta--exito" role="status">{paymentMethodMessage}</p>}
+              {paymentMethodError && <p className="error-message" role="alert">{paymentMethodError}</p>}
+            </form>
             <form className="owner-management__add-form" onSubmit={addTenant}>
               <label>
                 <span>Email de la cuenta del estudiante</span>
