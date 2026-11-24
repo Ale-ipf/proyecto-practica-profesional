@@ -335,6 +335,131 @@
   width: 100%;
 }
 
+.dashboard-content > .property-form-page {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  color: var(--ink);
+  margin: 0 auto;
+  max-width: 1080px;
+  padding: 0;
+  width: 100%;
+}
+
+.property-form-page > .eyebrow {
+  color: #ff6573;
+  font-size: .68rem;
+  letter-spacing: .14em;
+}
+
+.property-form-page > h1 {
+  font-family: inherit;
+  font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+  letter-spacing: -.045em;
+  line-height: 1.1;
+  margin: 10px 0;
+}
+
+.property-form-page > .route-description {
+  margin: 0 0 24px;
+}
+
+.property-form-page > .property-form {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  gap: 22px;
+  margin: 0;
+  padding: clamp(20px, 3.5vw, 36px);
+}
+
+.property-form-page .property-form-grid {
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.property-form-page .property-form label {
+  min-width: 0;
+}
+
+.property-form-page .property-form label > small {
+  color: var(--muted);
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.property-form-page .property-form input:not([type="checkbox"]),
+.property-form-page .property-form select,
+.property-form-page .property-form textarea {
+  background: var(--deep);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--ink);
+  min-height: 46px;
+  padding: 11px 12px;
+  width: 100%;
+}
+
+.property-form-page .property-form textarea {
+  min-height: 130px;
+}
+
+.property-form-page .property-form input:focus,
+.property-form-page .property-form select:focus,
+.property-form-page .property-form textarea:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgb(240 0 22 / 13%);
+  outline: 0;
+}
+
+.property-form-page .location-picker {
+  border-color: var(--line);
+  border-radius: 12px;
+}
+
+.property-form-page .selected-location {
+  background: var(--surface-soft);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.5;
+  margin: -10px 0 0;
+  padding: 12px 14px;
+}
+
+.property-form-page .property-form-options {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+}
+
+.property-form-page .property-form-options .checkbox-label {
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  min-height: 44px;
+  padding: 10px 12px;
+}
+
+.property-form-page .property-form input[type="checkbox"] {
+  accent-color: var(--red);
+}
+
+.property-form-page .property-form-image-preview {
+  border-radius: 12px;
+  max-height: 320px;
+  width: min(100%, 520px);
+}
+
+.property-form-page .property-form > .button {
+  justify-self: start;
+  min-height: 46px;
+  padding-inline: 22px;
+}
+
 .dashboard-welcome {
   background: linear-gradient(110deg, #1c1c1c 0%, #171717 68%, #231316 100%);
   border: 1px solid #303030;
@@ -804,6 +929,21 @@
   .student-profile-heading > .button,
   .owner-profile-page__header > .button {
     box-sizing: border-box;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .property-form-page .property-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .property-form-page .property-form {
+    border-radius: 14px;
+    padding: 18px;
+  }
+
+  .property-form-page .property-form > .button {
     width: 100%;
   }
 }
