@@ -32,6 +32,27 @@ const SECCIONES = [
   { id: "privacy", label: "Privacidad" },
 ];
 
+function StudentRentalList({ rentals }) {
+  return (
+    <div className="student-rentals-list">
+      {rentals.map((alquiler) => (
+        <article className="student-rental-card" key={alquiler.id}>
+          <div>
+            <span className="section-kicker">PUBLICACIÓN COMPARTIDA</span>
+            <h3><Link to={`/alquileres/${alquiler.id}`}>{alquiler.title}</Link></h3>
+            <p>{[alquiler.address, alquiler.city].filter(Boolean).join(", ") || "Ubicación no informada"}</p>
+            <small>Propietario: {alquiler.owner?.name || "No informado"}</small>
+          </div>
+          <div className="student-rental-card__actions">
+            <Link className="button button-accent" to={`/alquileres/${alquiler.id}`}>Ver publicación</Link>
+            <Link className="button button-primary" to={`/alquileres/${alquiler.id}/foro`}>Abrir foro</Link>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export default function StudentDashboardPage() {
   const { usuario, logout, actualizarUsuario } = useAuth();
   const [searchParams] = useSearchParams();
@@ -145,6 +166,7 @@ export default function StudentDashboardPage() {
   }, []);
 
   useEffect(() => {
+    if (usuario?.role !== "student") return undefined;
     if (seccionActiva !== "rentals" && seccionActiva !== "dashboard") return;
 
     let cancelado = false;
@@ -169,7 +191,7 @@ export default function StudentDashboardPage() {
     return () => {
       cancelado = true;
     };
-  }, [actualizacionAlquileres, seccionActiva]);
+  }, [actualizacionAlquileres, seccionActiva, usuario?.role]);
 
   const actualizarCampo = (campo) => (event) =>
     setForm((current) => ({ ...current, [campo]: event.target.value }));
@@ -381,12 +403,30 @@ export default function StudentDashboardPage() {
                 description="Revisá recomendaciones para una búsqueda segura."
               />
             </div>
-            {errorAlquileres && !cargandoAlquileres && (
-              <p className="dashboard-message is-error" role="alert">
-                {errorAlquileres}
-              </p>
+          </DashboardSection>
+
+          {!cargandoAlquileres && !errorAlquileres && alquileres.length > 0 && (
+          <DashboardSection
+            eyebrow="TU ALQUILER"
+            title="Mi alquiler"
+            description="Encontrá la publicación compartida con vos y accedé a su espacio de comunicación."
+          >
+            {cargandoAlquileres && <p className="dashboard-message">Cargando tu alquiler…</p>}
+            {!cargandoAlquileres && errorAlquileres && (
+              <p className="dashboard-message is-error" role="alert">{errorAlquileres}</p>
+            )}
+            {!cargandoAlquileres && !errorAlquileres && alquileres.length === 0 && (
+              <div className="student-rentals-empty">
+                <h3>Todavía no tenés un alquiler compartido</h3>
+                <p>Cuando el propietario te agregue a una publicación, aparecerá acá.</p>
+                <Link className="button button-primary" to="/alquileres">Explorar alquileres</Link>
+              </div>
+            )}
+            {!cargandoAlquileres && !errorAlquileres && alquileres.length > 0 && (
+              <StudentRentalList rentals={alquileres} />
             )}
           </DashboardSection>
+          )}
 
           <DashboardSection
             eyebrow="PUBLICACIONES RECIENTES"

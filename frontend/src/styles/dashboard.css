@@ -569,6 +569,13 @@
   transition: border-color .2s ease, background .2s ease, transform .2s ease;
 }
 
+button.dashboard-quick-card {
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  width: 100%;
+}
+
 .dashboard-quick-card:hover {
   background: #202020;
   border-color: rgb(240 0 22 / 48%);
@@ -739,6 +746,10 @@
   display: grid;
   gap: 13px;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.owner-dashboard-stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
 }
 
 .dashboard-stat {

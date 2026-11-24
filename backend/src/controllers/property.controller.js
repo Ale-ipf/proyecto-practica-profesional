@@ -15,16 +15,14 @@ const propertyIncludes = [
   },
 ];
 
-function presentProperty(property, includeOwnerDetails, viewerId = null) {
+function presentProperty(property, includeOwnerDetails) {
   const result = property.toJSON();
   if (!includeOwnerDetails) {
     delete result.userId;
     delete result.owner;
-    delete result.payment_method;
     result.images = result.images?.slice(0, 1) || [];
     return result;
   }
-  if (Number(result.userId) !== Number(viewerId)) delete result.payment_method;
   if (result.owner) {
     const { dni, ...owner } = result.owner;
     result.owner = {
@@ -79,7 +77,7 @@ export const listProperties = asyncHandler(async (req, res) => {
 
   res.json({
     properties: rows.map((property) =>
-      presentProperty(property, Boolean(req.user), req.user?.id),
+      presentProperty(property, Boolean(req.user)),
     ),
     pagination: {
       total: count,
@@ -99,7 +97,7 @@ export const getPropertyById = asyncHandler(async (req, res) => {
   }
 
   res.json({
-    property: presentProperty(property, Boolean(req.user), req.user?.id),
+    property: presentProperty(property, Boolean(req.user)),
   });
 });
 
@@ -112,7 +110,7 @@ export const getMyProperties = asyncHandler(async (req, res) => {
   });
 
   res.json({
-    properties: properties.map((property) => presentProperty(property, true, req.user.id)),
+    properties: properties.map((property) => presentProperty(property, true)),
   });
 });
 
@@ -186,7 +184,6 @@ export const updateProperty = asyncHandler(async (req, res) => {
     "has_air_conditioning",
     "is_shared",
     "owner_type",
-    "payment_method",
     "status",
   ];
   const updates = {};

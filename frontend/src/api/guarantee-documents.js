@@ -8,6 +8,9 @@ export const listarDocumentosGarantia = (propertyId) =>
 export const listarSolicitudesAccesoGarantia = (propertyId) =>
   apiRequest(`/properties/${propertyId}/guarantee-access-requests`, { auth: true });
 
+export const listarMisSolicitudesPendientesGarantia = () =>
+  apiRequest("/owners/me/guarantee-access-requests", { auth: true });
+
 export const decidirSolicitudAccesoGarantia = (propertyId, requestId, status) =>
   apiRequest(`/properties/${propertyId}/guarantee-access-requests/${requestId}`, {
     method: "PATCH", body: { status }, auth: true,

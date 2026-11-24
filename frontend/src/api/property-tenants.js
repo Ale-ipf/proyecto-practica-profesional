@@ -18,9 +18,9 @@ export const eliminarPersonaDelAlquiler = (propertyId, tenantId) =>
     auth: true,
   });
 
-export const actualizarPagoDelAlquiler = (propertyId, tenantId, period, paid) =>
+export const actualizarPagoDelAlquiler = (propertyId, tenantId, period, paid, paymentMethod = null) =>
   apiRequest(`/properties/${propertyId}/tenants/${tenantId}/payment`, {
     method: "PUT",
-    body: { period, paid },
+    body: { period, paid, paymentMethod },
     auth: true,
   });

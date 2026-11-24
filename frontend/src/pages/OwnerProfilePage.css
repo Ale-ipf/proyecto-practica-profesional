@@ -89,6 +89,36 @@
   font-weight: 700;
 }
 
+.owner-profile-guarantee-requests {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.owner-profile-guarantee-requests li {
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 14px;
+}
+
+.owner-profile-guarantee-requests li > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.owner-profile-guarantee-requests li span {
+  color: var(--muted);
+  font-size: .86rem;
+  overflow-wrap: anywhere;
+}
+
 @media (max-width: 640px) {
   .owner-profile-page__header {
     align-items: flex-start;
@@ -99,6 +129,11 @@
   .owner-profile-form,
   .owner-profile-verification-form {
     grid-template-columns: 1fr;
+  }
+
+  .owner-profile-guarantee-requests li {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 .owner-profile-section#verificacion-identidad {

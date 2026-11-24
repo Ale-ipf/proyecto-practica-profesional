@@ -41,6 +41,12 @@
   padding: 20px;
 }
 
+.student-rental-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .student-rental-card h3 {
   font-size: 1.2rem;
   margin-top: 6px;
@@ -244,6 +250,10 @@
   .property-forum-message-heading {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .student-rental-card__actions {
+    width: 100%;
   }
 
   .student-rental-card .button,

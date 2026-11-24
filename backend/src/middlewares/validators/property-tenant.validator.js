@@ -30,4 +30,14 @@ export const setPropertyTenantPaymentValidator = [
   body("paid")
     .isBoolean()
     .withMessage("El estado del pago debe ser pagado o pendiente."),
+  body("paymentMethod").custom((value, { req }) => {
+    const isPaid = req.body.paid === true || req.body.paid === "true";
+    if (isPaid && !["cash", "transfer"].includes(value)) {
+      throw new Error("Elegí efectivo o transferencia para confirmar el pago.");
+    }
+    if (!isPaid && value != null && value !== "") {
+      throw new Error("El método de pago solo se informa al marcar el pago como pagado.");
+    }
+    return true;
+  }),
 ];

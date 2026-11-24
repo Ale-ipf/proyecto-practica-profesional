@@ -346,14 +346,29 @@ function PropertyMapPage({
                         popupAnchor: [0, -12],
                       })}
                     >
-                      <Popup>
+                      <Popup className="map-property-popup" minWidth={220}>
+                        <div className="map-property-preview">
                         <strong>{propiedad.titulo}</strong>
+                        <br />
+                        {propiedad.barrio || "Formosa"}
+                        {propiedad.ambientes ? ` · ${propiedad.ambientes} ambientes` : ""}
                         <br />
                         {propiedad.distancia == null
                           ? "Alquiler disponible"
                           : `${propiedad.distancia.toFixed(1)} km de tu ubicación`}
                         <br />
                         {textoDisponibilidad(propiedad.estado)}
+                        <br />
+                        <strong className="map-property-preview__price">
+                          {propiedad.precio
+                            ? `$${Number(propiedad.precio).toLocaleString("es-AR")} / mes`
+                            : "Precio a consultar"}
+                        </strong>
+                        <br />
+                        <Link className="button button-primary map-property-preview__link" to={`/alquileres/${propiedad.id}`}>
+                          Ver publicación
+                        </Link>
+                        </div>
                       </Popup>
                     </Marker>
                   );

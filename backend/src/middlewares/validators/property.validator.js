@@ -78,7 +78,6 @@ export const updatePropertyValidator = [
     .optional({ nullable: true })
     .isBoolean().withMessage("Los servicios y preferencias deben ser true o false."),
   body("owner_type").optional().isIn(["direct", "agency"]).withMessage("El tipo de anunciante debe ser 'direct' o 'agency'."),
-  body("payment_method").optional({ nullable: true }).isIn(["cash", "transfer"]).withMessage("El mÃ©todo de pago debe ser efectivo o transferencia."),
   body("status").optional().isIn(["available", "rented"]).withMessage("El estado debe ser 'available' o 'rented'."),
 ];
 

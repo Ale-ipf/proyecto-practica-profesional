@@ -3,7 +3,7 @@ import { Link, Navigate, useParams } from "react-router-dom";
 import DashboardLayout from "../components/DashboardLayout.jsx";
 import { OWNER_NAVIGATION } from "../components/dashboardNavigation.js";
 import { useAuth } from "../context/useAuth.js";
-import { actualizarPropiedad, obtenerPropiedad } from "../api/properties.js";
+import { obtenerPropiedad } from "../api/properties.js";
 import {
   actualizarPagoDelAlquiler,
   agregarPersonaAlAlquiler,
@@ -50,10 +50,8 @@ export default function OwnerPropertyManagementPage({ usuario }) {
   const [updatingTenantId, setUpdatingTenantId] = useState(null);
   const [message, setMessage] = useState("");
   const [propertyImageError, setPropertyImageError] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [savingPaymentMethod, setSavingPaymentMethod] = useState(false);
-  const [paymentMethodMessage, setPaymentMethodMessage] = useState("");
-  const [paymentMethodError, setPaymentMethodError] = useState("");
+  const [confirmingPaymentTenantId, setConfirmingPaymentTenantId] = useState(null);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("");
   const tenantsRequest = useRef(0);
 
   useEffect(() => {
@@ -97,7 +95,6 @@ export default function OwnerPropertyManagementPage({ usuario }) {
           return;
         }
         setProperty(result);
-        setPaymentMethod(result.payment_method || "");
       })
       .catch((error) => {
         if (!cancelled) {
@@ -152,11 +149,18 @@ export default function OwnerPropertyManagementPage({ usuario }) {
   };
 
   const togglePayment = async (tenant) => {
+    if (!tenant.paid) {
+      setConfirmingPaymentTenantId((current) => current === tenant.id ? null : tenant.id);
+      setSelectedPaymentMethod("");
+      setTenantsError("");
+      return;
+    }
     setUpdatingTenantId(tenant.id);
     setTenantsError("");
     setMessage("");
     try {
-      await actualizarPagoDelAlquiler(id, tenant.id, period, !tenant.paid);
+      await actualizarPagoDelAlquiler(id, tenant.id, period, false);
+      setConfirmingPaymentTenantId(null);
       await loadTenants();
     } catch (error) {
       setTenantsError(error.message || "No pudimos actualizar el estado del pago.");
@@ -165,20 +169,26 @@ export default function OwnerPropertyManagementPage({ usuario }) {
     }
   };
 
-  const savePaymentMethod = async (event) => {
-    event.preventDefault();
-    setSavingPaymentMethod(true);
-    setPaymentMethodError("");
-    setPaymentMethodMessage("");
+  const confirmTenantPayment = async (tenant) => {
+    if (!selectedPaymentMethod) return;
+    setUpdatingTenantId(tenant.id);
+    setTenantsError("");
+    setMessage("");
     try {
-      const data = await actualizarPropiedad(id, { payment_method: paymentMethod || null });
-      setProperty((current) => ({ ...current, ...data.property }));
-      setPaymentMethodMessage("Recordatorio de método de pago guardado.");
+      await actualizarPagoDelAlquiler(id, tenant.id, period, true, selectedPaymentMethod);
+      setConfirmingPaymentTenantId(null);
+      setSelectedPaymentMethod("");
+      await loadTenants();
     } catch (error) {
-      setPaymentMethodError(error.message || "No pudimos guardar el método de pago.");
+      setTenantsError(error.message || "No pudimos confirmar el pago.");
     } finally {
-      setSavingPaymentMethod(false);
+      setUpdatingTenantId(null);
     }
+  };
+
+  const cancelPaymentConfirmation = () => {
+    setConfirmingPaymentTenantId(null);
+    setSelectedPaymentMethod("");
   };
 
   if (!usuario) return <Navigate to="/login-and-registration" replace />;
@@ -327,30 +337,12 @@ export default function OwnerPropertyManagementPage({ usuario }) {
                   onChange={(event) => {
                     setPeriod(event.target.value);
                     setMessage("");
+                    cancelPaymentConfirmation();
                   }}
                   aria-label="Mes de alquiler"
                 />
               </label>
             </div>
-            <form className="owner-management__payment-reminder" onSubmit={savePaymentMethod}>
-              <div>
-                <h3>Método de pago (recordatorio)</h3>
-                <p>Solo lo ves vos. Es una nota para recordar cómo acordaste cobrar; no registra ni modifica pagos.</p>
-              </div>
-              <label>
-                Método acordado
-                <select value={paymentMethod} onChange={(event) => { setPaymentMethod(event.target.value); setPaymentMethodMessage(""); }}>
-                  <option value="">Sin definir</option>
-                  <option value="cash">Efectivo</option>
-                  <option value="transfer">Transferencia</option>
-                </select>
-              </label>
-              <button className="button button-primary" type="submit" disabled={savingPaymentMethod}>
-                {savingPaymentMethod ? "Guardando…" : "Guardar recordatorio"}
-              </button>
-              {paymentMethodMessage && <p className="mensaje-alerta mensaje-alerta--exito" role="status">{paymentMethodMessage}</p>}
-              {paymentMethodError && <p className="error-message" role="alert">{paymentMethodError}</p>}
-            </form>
             <form className="owner-management__add-form" onSubmit={addTenant}>
               <label>
                 <span>Email de la cuenta del estudiante</span>
@@ -393,6 +385,9 @@ export default function OwnerPropertyManagementPage({ usuario }) {
                         {tenant.paid ? "Pagó" : "Pendiente"}
                       </span>
                       {tenant.paid && <small>Registrado el {formatPaymentDate(tenant.paidAt)}</small>}
+                      {tenant.paid && tenant.paymentMethod && (
+                        <small>Método: {tenant.paymentMethod === "cash" ? "Efectivo" : "Transferencia"}</small>
+                      )}
                       <button
                         type="button"
                         className="button button-small button-accent"
@@ -403,8 +398,30 @@ export default function OwnerPropertyManagementPage({ usuario }) {
                           ? "Guardando…"
                           : tenant.paid
                             ? "Marcar pendiente"
-                            : "Marcar pagado"}
+                            : confirmingPaymentTenantId === tenant.id
+                              ? "Cancelar"
+                              : "Marcar pagado"}
                       </button>
+                      {!tenant.paid && confirmingPaymentTenantId === tenant.id && (
+                        <div className="owner-management__payment-confirmation">
+                          <label>
+                            Método de pago
+                            <select value={selectedPaymentMethod} onChange={(event) => setSelectedPaymentMethod(event.target.value)}>
+                              <option value="">Elegí una opción</option>
+                              <option value="cash">Efectivo</option>
+                              <option value="transfer">Transferencia</option>
+                            </select>
+                          </label>
+                          <button
+                            type="button"
+                            className="button button-small button-primary"
+                            onClick={() => confirmTenantPayment(tenant)}
+                            disabled={!selectedPaymentMethod || updatingTenantId === tenant.id}
+                          >
+                            {updatingTenantId === tenant.id ? "Guardando…" : "Confirmar pagado"}
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <button
                       type="button"

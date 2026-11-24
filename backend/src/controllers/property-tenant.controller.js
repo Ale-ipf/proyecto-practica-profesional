@@ -46,6 +46,7 @@ export const listPropertyTenants = asyncHandler(async (req, res) => {
         user: tenant.tenant,
         paid: Boolean(payment?.paidAt),
         paidAt: payment?.paidAt || null,
+        paymentMethod: payment?.paymentMethod || null,
       };
     }),
   });
@@ -118,19 +119,27 @@ export const setPropertyTenantPayment = asyncHandler(async (req, res) => {
   }
 
   const period = getPeriod(req.body.period);
+  const isPaid = req.body.paid === true || req.body.paid === "true";
   const [payment, created] = await RentPaymentModel.findOrCreate({
     where: { propertyTenantId: tenant.id, period },
-    defaults: { paidAt: req.body.paid ? new Date() : null },
+    defaults: {
+      paidAt: isPaid ? new Date() : null,
+      paymentMethod: isPaid ? req.body.paymentMethod : null,
+    },
   });
   if (!created) {
-    await payment.update({ paidAt: req.body.paid ? new Date() : null });
+    await payment.update({
+      paidAt: isPaid ? new Date() : null,
+      paymentMethod: isPaid ? req.body.paymentMethod : null,
+    });
   }
 
   res.json({
-    message: req.body.paid
+    message: isPaid
       ? "El pago quedó registrado."
       : "El pago quedó como pendiente.",
     paid: Boolean(payment.paidAt),
     paidAt: payment.paidAt,
+    paymentMethod: payment.paymentMethod,
   });
 });

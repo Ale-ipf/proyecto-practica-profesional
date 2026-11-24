@@ -21,6 +21,11 @@ export const RentPaymentModel = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    paymentMethod: {
+      type: DataTypes.ENUM("cash", "transfer"),
+      allowNull: true,
+      defaultValue: null,
+    },
   },
   {
     indexes: [{ unique: true, fields: ["propertyTenantId", "period"] }],

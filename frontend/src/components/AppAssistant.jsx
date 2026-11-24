@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/useAuth.js";
 
 const STORAGE_KEY = "alquileres-formosa-assistant-history";
 const HISTORY_TTL_MS = 60 * 60 * 1000;
@@ -7,6 +8,7 @@ const MAX_MESSAGES = 40;
 const DEVELOPERS_EMAIL = "mailto:hola@alquileresformosa.com.ar";
 const SAFE_ROUTES = [
   "/alquileres",
+  "/alquileres/nuevo",
   "/guia-asistida",
   "/login-and-registration",
   "/mapa",
@@ -15,16 +17,29 @@ const SAFE_ROUTES = [
   "/instituciones",
   "/panel-estudiante",
   "/panel-dueno",
+  "/panel-dueno/garantias",
+  "/perfil-dueno",
 ];
+
+function esRutaSegura(ruta) {
+  if (typeof ruta !== "string" || !ruta.startsWith("/")) return false;
+  const [pathname] = ruta.split(/[?#]/, 1);
+  return SAFE_ROUTES.includes(pathname) || /^\/alquileres\/\d+\/(foro|gestion)$/.test(pathname);
+}
 
 const WELCOME_TEXT =
   "¡Hola! Puedo orientarte sobre cómo usar Alquileres Formosa, encontrar páginas y contactar al equipo de desarrollo.";
 
-function nuevoSaludo() {
+function nuevoSaludo(role) {
+  const text = role === "owner"
+    ? "Hola. Te ayudo a publicar y administrar alquileres, preparar garantias y responder solicitudes."
+    : role === "student"
+      ? "Hola. Te ayudo a buscar alquileres, revisar favoritos, entrar a Mi alquiler y consultar seguridad."
+      : WELCOME_TEXT;
   return {
     id: `assistant-${Date.now()}`,
     role: "assistant",
-    text: WELCOME_TEXT,
+    text,
   };
 }
 
@@ -40,8 +55,86 @@ function contieneAlguno(texto, terminos) {
   return terminos.some((termino) => texto.includes(termino));
 }
 
-function responderConsulta(consulta) {
+function responderConsulta(consulta, role) {
   const texto = normalizar(consulta);
+
+  if (contieneAlguno(texto, ["garantia", "documentacion", "escritura", "informe de dominio", "consentimiento", "compartir documentos"])) {
+    if (role === "student" || contieneAlguno(texto, ["solicitar", "estudiante", "acceso", "ver documentos"])) {
+      return {
+        text: "Desde el detalle de un alquiler, solicitá acceso a la documentación de la garantía. El dueño debe aprobarlo; si lo hace, vas a poder consultar los archivos durante 24 horas.",
+        actions: [{ label: "Buscar alquileres", to: "/alquileres" }],
+      };
+    }
+    return {
+      text: "Como dueño, podés guardar la documentación por propiedad en Garantías y documentos. Para compartirla, cargá la escritura o título y el informe de dominio; también podés agregar el consentimiento de los titulares. Las solicitudes pendientes se responden desde esa sección o desde tu perfil. El acceso aprobado dura 24 horas.",
+      actions: [
+        { label: "Garantías y documentos", to: "/panel-dueno/garantias" },
+        { label: "Perfil del dueño", to: "/perfil-dueno" },
+      ],
+    };
+  }
+
+  if (role === "student" && contieneAlguno(texto, ["pago", "pagado", "mensualidad", "alquiler mensual", "efectivo", "transferencia"])) {
+    return {
+      text: "El propietario registra los pagos mensuales e indica si recibió efectivo o transferencia. Para consultar avisos del alquiler, entrá a Mi alquiler.",
+      actions: [{ label: "Ir a Mi alquiler", to: "/panel-estudiante?section=rentals" }],
+    };
+  }
+
+  if (contieneAlguno(texto, ["pago", "pagado", "mensualidad", "alquiler mensual", "efectivo", "transferencia"])) {
+    return {
+      text: "En la gestión de una publicación, el dueño puede agregar estudiantes al alquiler y registrar el estado de pago de cada mes. Al marcarlo como pagado, elige efectivo o transferencia; también puede volver a dejarlo pendiente.",
+      actions: [{ label: "Panel de propietario", to: "/panel-dueno" }],
+    };
+  }
+
+  if (role === "owner" && contieneAlguno(texto, ["foro", "mensaje", "mensajes", "inquilino", "inquilinos", "personas agregadas"])) {
+    return {
+      text: "El foro privado aparece para los estudiantes que agregues desde la gestión de la publicación. Usalo para compartir avisos y coordinar temas del alquiler.",
+      actions: [{ label: "Administrar alquileres", to: "/panel-dueno#propiedades" }],
+    };
+  }
+
+  if (contieneAlguno(texto, ["foro", "mensaje", "mensajes", "inquilino", "inquilinos", "personas agregadas"])) {
+    return {
+      text: "Cada alquiler tiene un foro privado para avisos y mensajes. El dueño agrega estudiantes desde la gestión de la publicación; las personas agregadas pueden abrir el foro desde Mis alquileres en su panel.",
+      actions: [
+        { label: "Mi alquiler", to: "/panel-estudiante?section=rentals" },
+        { label: "Panel de propietario", to: "/panel-dueno" },
+      ],
+    };
+  }
+
+  if (role === "owner" && contieneAlguno(texto, ["mi alquiler", "mis alquileres", "alquiler compartido", "alquiler donde me agregaron"])) {
+    return {
+      text: "En el panel de propietario podés administrar las publicaciones donde registrás a tus estudiantes y los pagos mensuales.",
+      actions: [{ label: "Ver mis propiedades", to: "/panel-dueno#propiedades" }],
+    };
+  }
+
+  if (contieneAlguno(texto, ["mi alquiler", "mis alquileres", "alquiler compartido", "alquiler donde me agregaron"])) {
+    return {
+      text: "En Mi alquiler encontrás las publicaciones a las que te agregó el propietario y podés abrir el foro privado de cada una.",
+      actions: [{ label: "Ir a Mi alquiler", to: "/panel-estudiante?section=rentals" }],
+    };
+  }
+
+  if (role === "owner" && contieneAlguno(texto, ["publicar", "publicacion", "nuevo alquiler", "mis propiedades"])) {
+    return {
+      text: "Desde el panel podés publicar un inmueble nuevo o administrar tus publicaciones existentes.",
+      actions: [
+        { label: "Publicar propiedad", to: "/alquileres/nuevo" },
+        { label: "Mis propiedades", to: "/panel-dueno#propiedades" },
+      ],
+    };
+  }
+
+  if (contieneAlguno(texto, ["guia", "instituto", "estudiar", "alquilar cerca", "precio sugerido"])) {
+    return {
+      text: "La Guía Asistida te ayuda a definir ubicación, traslado, ambientes, mascotas y presupuesto, y comparar alquileres recomendados. En el presupuesto podés elegir $100.000, $150.000, $200.000 o indicar otro monto.",
+      actions: [{ label: "Abrir Guía Asistida", to: "/guia-asistida" }],
+    };
+  }
 
   if (contieneAlguno(texto, ["desarroll", "equipo", "soporte", "reportar un problema"])) {
     return {
@@ -108,11 +201,15 @@ function responderConsulta(consulta) {
 
   if (contieneAlguno(texto, ["favorito", "guardado"])) {
     return {
-      text: "Las cuentas de estudiante pueden guardar alquileres como favoritos y consultarlos desde su panel.",
-      actions: [
-        { label: "Ver alquileres", to: "/alquileres" },
-        { label: "Panel de estudiante", to: "/panel-estudiante" },
-      ],
+      text: role === "owner"
+        ? "Los favoritos se guardan desde una cuenta de estudiante. Desde tu panel de propietario podés gestionar publicaciones y documentos."
+        : "Las cuentas de estudiante pueden guardar alquileres como favoritos y consultarlos desde su panel.",
+      actions: role === "owner"
+        ? [{ label: "Panel de propietario", to: "/panel-dueno" }]
+        : [
+            { label: "Ver mis favoritos", to: "/alquileres?favoritos=true" },
+            { label: "Panel de estudiante", to: "/panel-estudiante" },
+          ],
     };
   }
 
@@ -175,7 +272,7 @@ function normalizarMensajes(value) {
             (action) =>
               action &&
               typeof action.label === "string" &&
-              (SAFE_ROUTES.includes(action.to) ||
+              (esRutaSegura(action.to) ||
                 action.href === DEVELOPERS_EMAIL),
           )
         : [],
@@ -184,25 +281,42 @@ function normalizarMensajes(value) {
 }
 
 export default function AppAssistant() {
+  const { usuario } = useAuth();
+  const role = usuario?.role;
+  const storageKey = `${STORAGE_KEY}-${role || "guest"}`;
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([nuevoSaludo()]);
+  const [messages, setMessages] = useState(() => [nuevoSaludo(role)]);
   const [draft, setDraft] = useState("");
   const [expiresAt, setExpiresAt] = useState(null);
   const [storageReady, setStorageReady] = useState(false);
   const [storageAvailable, setStorageAvailable] = useState(true);
   const [storageError, setStorageError] = useState("");
   const messagesEndRef = useRef(null);
+  const previousRole = useRef(role);
+
+  useEffect(() => {
+    if (previousRole.current === role) return;
+    previousRole.current = role;
+    setMessages([nuevoSaludo(role)]);
+    setExpiresAt(null);
+  }, [role]);
+
+  useEffect(() => {
+    const openAssistant = () => setOpen(true);
+    window.addEventListener("app-assistant:open", openAssistant);
+    return () => window.removeEventListener("app-assistant:open", openAssistant);
+  }, []);
 
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
+      const saved = window.localStorage.getItem(storageKey);
       if (saved) {
         let history;
         try {
           history = JSON.parse(saved);
         } catch {
-          window.localStorage.removeItem(STORAGE_KEY);
+          window.localStorage.removeItem(storageKey);
           setStorageError("No se pudo leer el historial anterior; inicié uno nuevo.");
         }
 
@@ -212,10 +326,10 @@ export default function AppAssistant() {
             setMessages(restoredMessages);
             setExpiresAt(Number(history.expiresAt));
           } else {
-            window.localStorage.removeItem(STORAGE_KEY);
+            window.localStorage.removeItem(storageKey);
           }
         } else if (history) {
-          window.localStorage.removeItem(STORAGE_KEY);
+          window.localStorage.removeItem(storageKey);
         }
       }
     } catch {
@@ -224,16 +338,16 @@ export default function AppAssistant() {
     } finally {
       setStorageReady(true);
     }
-  }, []);
+  }, [storageKey]);
 
   useEffect(() => {
     if (!storageReady || !storageAvailable) return;
     try {
       if (expiresAt == null) {
-        window.localStorage.removeItem(STORAGE_KEY);
+        window.localStorage.removeItem(storageKey);
       } else {
         window.localStorage.setItem(
-          STORAGE_KEY,
+          storageKey,
           JSON.stringify({ messages, expiresAt }),
         );
       }
@@ -241,22 +355,22 @@ export default function AppAssistant() {
       setStorageAvailable(false);
       setStorageError("No se pudo guardar el historial de esta conversación.");
     }
-  }, [expiresAt, messages, storageAvailable, storageReady]);
+  }, [expiresAt, messages, storageAvailable, storageKey, storageReady]);
 
   useEffect(() => {
     if (!expiresAt) return undefined;
     const remaining = expiresAt - Date.now();
     if (remaining <= 0) {
-      setMessages([nuevoSaludo()]);
+      setMessages([nuevoSaludo(role)]);
       setExpiresAt(null);
       return undefined;
     }
     const timeout = window.setTimeout(() => {
-      setMessages([nuevoSaludo()]);
+      setMessages([nuevoSaludo(role)]);
       setExpiresAt(null);
     }, remaining);
     return () => window.clearTimeout(timeout);
-  }, [expiresAt]);
+  }, [expiresAt, role]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -266,7 +380,7 @@ export default function AppAssistant() {
     const text = consulta.trim();
     if (!text) return;
     const timestamp = Date.now();
-    const response = responderConsulta(text);
+    const response = responderConsulta(text, role);
     const nextMessages = [
       ...messages,
       { id: `user-${timestamp}`, role: "user", text },
@@ -283,14 +397,14 @@ export default function AppAssistant() {
   };
 
   const activarAccion = (action) => {
-    if (action.to && SAFE_ROUTES.includes(action.to)) {
+    if (action.to && esRutaSegura(action.to)) {
       navigate(action.to);
       setOpen(false);
     }
   };
 
   const iniciarConversacion = () => {
-    setMessages([nuevoSaludo()]);
+    setMessages([nuevoSaludo(role)]);
     setExpiresAt(null);
   };
 
@@ -306,7 +420,7 @@ export default function AppAssistant() {
         >
           <header className="app-assistant__header">
             <div>
-              <strong>Asistente de ayuda</strong>
+              <strong>{role === "owner" ? "Asistente para propietarios" : role === "student" ? "Asistente para estudiantes" : "Asistente de ayuda"}</strong>
               <span>Respuestas sobre la aplicación · historial por 1 hora</span>
             </div>
             <div className="app-assistant__header-actions">
@@ -341,7 +455,7 @@ export default function AppAssistant() {
                 {message.actions?.length > 0 && (
                   <div className="app-assistant__actions">
                     {message.actions.map((action) =>
-                      action.to && SAFE_ROUTES.includes(action.to) ? (
+                      action.to && esRutaSegura(action.to) ? (
                         <button
                           key={`${message.id}-${action.label}`}
                           type="button"
@@ -364,12 +478,38 @@ export default function AppAssistant() {
                 )}
               </article>
             ))}
-            {messages.length === 1 && (
+            {messages.length === 1 && role === "owner" && (
+              <div className="app-assistant__suggestions" aria-label="Preguntas sugeridas para propietarios">
+                {[
+                  "Como publico una propiedad?",
+                  "Como cargo la garantia?",
+                  "Como respondo solicitudes de garantia?",
+                ].map((suggestion) => (
+                  <button type="button" key={suggestion} onClick={() => enviarConsulta(suggestion)}>
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+            {messages.length === 1 && role === "student" && (
+              <div className="app-assistant__suggestions" aria-label="Preguntas sugeridas para estudiantes">
+                {[
+                  "Donde veo mis favoritos?",
+                  "Como entro a Mi alquiler?",
+                  "Que consejos de seguridad hay?",
+                ].map((suggestion) => (
+                  <button type="button" key={suggestion} onClick={() => enviarConsulta(suggestion)}>
+                    {suggestion}
+                  </button>
+                ))}
+              </div>
+            )}
+            {messages.length === 1 && !role && (
               <div className="app-assistant__suggestions" aria-label="Preguntas sugeridas">
                 {[
                   "¿Cómo busco un alquiler?",
-                  "¿Cómo me registro?",
-                  "Contactar desarrollo",
+                  "¿Cómo solicito la garantía?",
+                  "¿Cómo registro un pago?",
                 ].map((suggestion) => (
                   <button
                     type="button"

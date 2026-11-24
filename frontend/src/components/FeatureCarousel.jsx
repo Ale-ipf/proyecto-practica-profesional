@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../styles/FeatureCarousel.css";
 
-const features = [
+const studentFeatures = [
   {
     label: "ALQUILERES",
     title: "Opciones para encontrar tu próximo hogar",
@@ -32,7 +32,35 @@ const features = [
   },
 ];
 
-export default function FeatureCarousel() {
+const ownerFeatures = [
+  {
+    label: "PUBLICACIONES",
+    title: "Mostrá tus alquileres a estudiantes de Formosa",
+    description: "Creá publicaciones con precio, ubicación, disponibilidad y servicios para que cada estudiante encuentre la opción adecuada.",
+    details: ["Publicá un inmueble", "Actualizá disponibilidad", "Administrá tus anuncios"],
+  },
+  {
+    label: "GARANTÍA",
+    title: "Prepará la documentación antes de compartirla",
+    description: "Guardá por propiedad la escritura, el informe de dominio y el consentimiento de titulares, y respondé las solicitudes de acceso.",
+    details: ["Archivos privados", "Solicitudes por propiedad", "Acceso aprobado por 24 horas"],
+  },
+  {
+    label: "GESTIÓN",
+    title: "Organizá el seguimiento de tus alquileres",
+    description: "Agregá estudiantes a tus publicaciones y registrá el pago mensual indicando efectivo o transferencia.",
+    details: ["Personas asociadas", "Estado mensual", "Foro privado del alquiler"],
+  },
+  {
+    label: "ASISTENTE",
+    title: "Encontrá ayuda para cada tarea del propietario",
+    description: "Consultá cómo publicar, preparar documentos, responder solicitudes o administrar tus alquileres.",
+    details: ["Orientación sobre la app", "Accesos directos", "Ayuda disponible desde cualquier pantalla"],
+  },
+];
+
+export default function FeatureCarousel({ audience = "student" }) {
+  const features = audience === "owner" ? ownerFeatures : studentFeatures;
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const feature = features[selectedIndex];

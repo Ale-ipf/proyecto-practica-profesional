@@ -308,24 +308,16 @@
   margin: 6px 0 0;
 }
 
-.owner-management__payment-reminder {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, 260px) auto;
+.owner-management__payment-confirmation {
+  display: flex;
   align-items: end;
-  gap: 16px;
-  margin-top: 24px;
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: var(--surface, #fff);
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.owner-management__payment-reminder h3 { margin: 0 0 6px; }
-.owner-management__payment-reminder p { margin: 0; }
-.owner-management__payment-reminder label { display: grid; gap: 6px; font-weight: 600; }
-.owner-management__payment-reminder select { min-height: 44px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface, #fff); color: inherit; }
-.owner-management__payment-reminder [role="status"],
-.owner-management__payment-reminder [role="alert"] { grid-column: 1 / -1; }
+.owner-management__payment-confirmation label { display: grid; gap: 5px; font-size: .82rem; }
+.owner-management__payment-confirmation select { min-height: 36px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface, #fff); color: inherit; }
 
 .property-details-page > .button {
   margin: 0 0 18px 12px;
@@ -422,6 +414,6 @@
     grid-template-columns: 1fr;
   }
 
-  .owner-management__payment-reminder { grid-template-columns: 1fr; }
-  .owner-management__payment-reminder button { width: 100%; }
+  .owner-management__payment-confirmation { align-items: stretch; flex-direction: column; }
+  .owner-management__payment-confirmation button { width: 100%; }
 }

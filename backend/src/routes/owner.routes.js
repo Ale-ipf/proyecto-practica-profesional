@@ -3,6 +3,7 @@ import {
   getMyOwnerProfile,
   updateMyOwnerProfile,
 } from "../controllers/owner.controller.js";
+import { listMyPendingGuaranteeAccessRequests } from "../controllers/property-guarantee.controller.js";
 import {
   confirmEmailVerification,
   confirmPhoneVerification,
@@ -25,6 +26,7 @@ const router = Router();
 router.use(authenticate, authorize("owner"));
 
 router.get("/me/profile", getMyOwnerProfile);
+router.get("/me/guarantee-access-requests", listMyPendingGuaranteeAccessRequests);
 router.put("/me/profile", updateOwnerProfileValidator, validate, updateMyOwnerProfile);
 router.post(
   "/me/email-verification",

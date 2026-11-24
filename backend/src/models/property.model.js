@@ -83,11 +83,6 @@ export const PropertyModel = sequelize.define("Property", {
     allowNull: false,
     defaultValue: "direct",
   },
-  payment_method: {
-    type: DataTypes.ENUM("cash", "transfer"),
-    allowNull: true,
-    defaultValue: null,
-  },
   status: {
     type: DataTypes.ENUM("available", "rented"),
     defaultValue: "available",

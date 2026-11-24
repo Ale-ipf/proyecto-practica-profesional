@@ -91,7 +91,7 @@ export const seedDemoRentalData = async () => {
   const [owner] = await UserModel.findOrCreate({
     where: { email: DEMO_OWNER_EMAIL },
     defaults: {
-      name: "Propietario de demostración",
+      name: "Propietario 1",
       email: DEMO_OWNER_EMAIL,
       password,
       role: "owner",
@@ -101,10 +101,13 @@ export const seedDemoRentalData = async () => {
       phoneVerified: true,
     },
   });
+  if (owner.name !== "Propietario 1" || owner.role !== "owner") {
+    await owner.update({ name: "Propietario 1", role: "owner" });
+  }
   const [student] = await UserModel.findOrCreate({
     where: { email: DEMO_STUDENT_EMAIL },
     defaults: {
-      name: "Estudiante de demostración",
+      name: "Lucas",
       email: DEMO_STUDENT_EMAIL,
       password,
       role: "student",
@@ -112,6 +115,9 @@ export const seedDemoRentalData = async () => {
       phoneVerified: true,
     },
   });
+  if (student.name !== "Lucas" || student.role !== "student") {
+    await student.update({ name: "Lucas", role: "student" });
+  }
   await StudentModel.findOrCreate({ where: { userId: student.id }, defaults: { userId: student.id } });
 
   const properties = [];

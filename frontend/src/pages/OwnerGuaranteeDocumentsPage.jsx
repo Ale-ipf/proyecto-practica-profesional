@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 import DashboardLayout, { DashboardSection } from "../components/DashboardLayout.jsx";
 import { OWNER_NAVIGATION } from "../components/dashboardNavigation.js";
 import { listarMisPropiedades } from "../api/properties.js";
@@ -22,6 +22,8 @@ const documentLabel = (type) => DOCUMENT_TYPES.find((item) => item.id === type)?
 
 export default function OwnerGuaranteeDocumentsPage() {
   const { usuario, logout } = useAuth();
+  const [searchParams] = useSearchParams();
+  const requestedPropertyId = searchParams.get("propertyId");
   const [properties, setProperties] = useState([]);
   const [selectedId, setSelectedId] = useState("");
   const [documents, setDocuments] = useState([]);
@@ -39,11 +41,12 @@ export default function OwnerGuaranteeDocumentsPage() {
     listarMisPropiedades()
       .then(({ properties: owned = [] }) => {
         setProperties(owned);
-        setSelectedId(String(owned[0]?.id || ""));
+        const requestedProperty = owned.find((property) => String(property.id) === requestedPropertyId);
+        setSelectedId(String(requestedProperty?.id || owned[0]?.id || ""));
       })
       .catch((requestError) => setError(requestError.message || "No pudimos cargar tus propiedades."))
       .finally(() => setLoading(false));
-  }, [usuario?.role]);
+  }, [usuario?.role, requestedPropertyId]);
 
   useEffect(() => {
     if (!selectedId) { setDocuments([]); return; }

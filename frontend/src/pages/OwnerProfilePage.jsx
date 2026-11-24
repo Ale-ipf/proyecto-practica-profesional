@@ -15,6 +15,7 @@ import {
   solicitarVerificacionTelefonoDuenio,
 } from "../api/owners.js";
 import { useAuth } from "../context/useAuth.js";
+import { listarMisSolicitudesPendientesGarantia } from "../api/guarantee-documents.js";
 import { useLocationSharing } from "../context/useLocationSharing.js";
 import ThemeSetting from "../components/ThemeSetting.jsx";
 
@@ -49,6 +50,21 @@ export default function OwnerProfilePage() {
   const [verifyingPhone, setVerifyingPhone] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [pendingGuaranteeRequests, setPendingGuaranteeRequests] = useState([]);
+  const [guaranteeRequestsError, setGuaranteeRequestsError] = useState("");
+
+  useEffect(() => {
+    if (usuario?.role !== "owner") return undefined;
+    let cancelled = false;
+    listarMisSolicitudesPendientesGarantia()
+      .then(({ requests = [] }) => {
+        if (!cancelled) setPendingGuaranteeRequests(requests);
+      })
+      .catch((requestError) => {
+        if (!cancelled) setGuaranteeRequestsError(requestError.message || "No pudimos cargar las solicitudes de garantía.");
+      });
+    return () => { cancelled = true; };
+  }, [usuario?.role]);
 
   useEffect(() => {
     if (usuario?.role !== "owner") return undefined;
@@ -260,6 +276,33 @@ export default function OwnerProfilePage() {
         )}
         {error && profile && <p className="error-message" role="alert">{error}</p>}
         {success && <p className="owner-profile-success" role="status">{success}</p>}
+        {guaranteeRequestsError && <p className="error-message" role="alert">{guaranteeRequestsError}</p>}
+
+        {pendingGuaranteeRequests.length > 0 && (
+          <DashboardSection
+            eyebrow="SOLICITUDES PENDIENTES"
+            title="Estudiantes que quieren revisar una garantía"
+            description="Respondé las solicitudes para compartir la documentación de tus propiedades."
+          >
+            <ul className="owner-profile-guarantee-requests">
+              {pendingGuaranteeRequests.map((request) => (
+                <li key={request.id}>
+                  <div>
+                    <strong>{request.student?.name || "Estudiante"}</strong>
+                    <span>{request.student?.email}</span>
+                    <span>Propiedad: {request.property?.title}</span>
+                  </div>
+                  <Link
+                    className="button button-primary"
+                    to={`/panel-dueno/garantias?propertyId=${request.property?.id}`}
+                  >
+                    Revisar solicitud
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </DashboardSection>
+        )}
 
         {profile && (
           <>

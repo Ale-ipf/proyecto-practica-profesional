@@ -105,9 +105,9 @@ export function DashboardSection({ eyebrow, title, description, action, children
   );
 }
 
-export function QuickAccessCard({ to, icon, title, description }) {
-  return (
-    <Link className="dashboard-quick-card" to={to}>
+export function QuickAccessCard({ to, icon, title, description, onClick }) {
+  const content = (
+    <>
       <span className="dashboard-quick-card__icon">
         <DashboardIcon name={icon} />
       </span>
@@ -116,6 +116,16 @@ export function QuickAccessCard({ to, icon, title, description }) {
         <span>{description}</span>
       </span>
       <DashboardIcon name="arrow" size={18} />
+    </>
+  );
+
+  return onClick ? (
+    <button className="dashboard-quick-card" type="button" onClick={onClick}>
+      {content}
+    </button>
+  ) : (
+    <Link className="dashboard-quick-card" to={to}>
+      {content}
     </Link>
   );
 }

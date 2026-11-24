@@ -10,6 +10,7 @@ import { useAuth } from "../context/useAuth.js";
 import { eliminarPropiedad, listarMisPropiedades } from "../api/properties.js";
 import { ApiRequestError } from "../api/client.js";
 import { imagenHero } from "../data/appData.js";
+import { listarMisSolicitudesPendientesGarantia } from "../api/guarantee-documents.js";
 
 export default function OwnerDashboardPage() {
   const { usuario, logout } = useAuth();
@@ -17,6 +18,7 @@ export default function OwnerDashboardPage() {
   const [propiedades, setPropiedades] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
+  const [solicitudesGarantiaPendientes, setSolicitudesGarantiaPendientes] = useState(null);
 
   const cargarPropiedades = useCallback(async () => {
     setCargando(true);
@@ -38,6 +40,9 @@ export default function OwnerDashboardPage() {
   useEffect(() => {
     if (usuario?.role !== "owner") return;
     cargarPropiedades();
+    listarMisSolicitudesPendientesGarantia()
+      .then(({ requests = [] }) => setSolicitudesGarantiaPendientes(requests.length))
+      .catch(() => setSolicitudesGarantiaPendientes(null));
   }, [cargarPropiedades, usuario?.role]);
 
   const eliminarPublicacion = async (id) => {
@@ -85,7 +90,7 @@ export default function OwnerDashboardPage() {
       </section>
 
       <DashboardSection eyebrow="RESUMEN" title="Tu actividad">
-        <div className="dashboard-stats-grid">
+        <div className="dashboard-stats-grid owner-dashboard-stats-grid">
           <article className="dashboard-stat">
             <span>Propiedades publicadas</span>
             <strong>{cargando || error ? "—" : propiedades.length}</strong>
@@ -97,6 +102,10 @@ export default function OwnerDashboardPage() {
           <article className="dashboard-stat">
             <span>Alquiladas</span>
             <strong>{cargando || error ? "—" : alquiladas}</strong>
+          </article>
+          <article className="dashboard-stat">
+            <span>Solicitudes de garantía</span>
+            <strong>{solicitudesGarantiaPendientes ?? "—"}</strong>
           </article>
         </div>
       </DashboardSection>
@@ -127,8 +136,33 @@ export default function OwnerDashboardPage() {
             title="Mi perfil"
             description="Actualizá tus datos y verificaciones."
           />
+          <QuickAccessCard
+            to="/panel-dueno/garantias"
+            icon="lock"
+            title="Documentación de garantía"
+            description="Guardá documentos para compartirlos cuando te los soliciten."
+          />
+          <QuickAccessCard
+            icon="guide"
+            title="Preguntarle al asistente"
+            description="Consultá sobre publicaciones, garantías y gestión de alquileres."
+            onClick={() => window.dispatchEvent(new Event("app-assistant:open"))}
+          />
         </div>
       </DashboardSection>
+
+      {solicitudesGarantiaPendientes > 0 && (
+        <DashboardSection
+          eyebrow="DOCUMENTACIÓN"
+          title="Tenés solicitudes de garantía pendientes"
+          description={`Hay ${solicitudesGarantiaPendientes} estudiante${solicitudesGarantiaPendientes === 1 ? "" : "s"} esperando una respuesta sobre la documentación de una propiedad.`}
+          action={
+            <Link className="dashboard-button dashboard-button--primary" to="/panel-dueno/garantias">
+              Revisar solicitudes
+            </Link>
+          }
+        />
+      )}
 
       <DashboardSection
         eyebrow="TUS PUBLICACIONES"

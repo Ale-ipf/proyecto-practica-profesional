@@ -218,11 +218,7 @@ export const listAdminProperties = asyncHandler(async (req, res) => {
     order: [["id", "DESC"]],
   });
   res.json({
-    properties: rows.map((property) => {
-      const result = property.toJSON();
-      delete result.payment_method;
-      return result;
-    }),
+    properties: rows,
     pagination: { total: count, page, limit, totalPages: Math.ceil(count / limit) },
   });
 });
@@ -239,9 +235,7 @@ export const updateAdminProperty = asyncHandler(async (req, res) => {
       .map((field) => [field, req.body[field]]),
   );
   await property.update(updates);
-  const result = property.toJSON();
-  delete result.payment_method;
-  res.json({ message: "Propiedad actualizada correctamente.", property: result });
+  res.json({ message: "Propiedad actualizada correctamente.", property });
 });
 
 export const deleteAdminProperty = asyncHandler(async (req, res) => {

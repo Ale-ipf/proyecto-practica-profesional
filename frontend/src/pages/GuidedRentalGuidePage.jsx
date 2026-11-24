@@ -31,6 +31,7 @@ const INITIAL_ANSWERS = {
   bedrooms: "",
   pets: [],
   household: "",
+  budgetOption: "",
   maxPrice: "",
 };
 
@@ -325,6 +326,14 @@ export default function GuidedRentalGuidePage() {
     setAnswers((current) => ({
       ...current,
       [event.target.name]: event.target.value,
+    }));
+  };
+
+  const seleccionarPresupuesto = (value) => {
+    setAnswers((current) => ({
+      ...current,
+      budgetOption: value,
+      maxPrice: value === "other" ? "" : value,
     }));
   };
 
@@ -635,19 +644,40 @@ export default function GuidedRentalGuidePage() {
             <div className="guided-guide-question">
               <h2 id="guided-step-title">¿Cuánto tenés pensado gastar en el alquiler?</h2>
               <p>Lo vamos a mostrar como referencia; el precio no determina por sí solo las recomendaciones.</p>
-              <label>
-                Presupuesto mensual aproximado (ARS)
-                <input
-                  type="number"
-                  name="maxPrice"
-                  min="1"
-                  step="1000"
-                  value={answers.maxPrice}
-                  onChange={actualizarRespuesta}
-                  placeholder="Ej: 180000"
-                  required
-                />
-              </label>
+              <div className="guided-guide-choice-grid" role="radiogroup" aria-label="Presupuesto mensual">
+                {[
+                  { value: "100000", label: "$100.000" },
+                  { value: "150000", label: "$150.000" },
+                  { value: "200000", label: "$200.000" },
+                  { value: "other", label: "Otro" },
+                ].map((option) => (
+                  <label className="guided-guide-choice" key={option.value}>
+                    <input
+                      type="radio"
+                      name="budgetOption"
+                      value={option.value}
+                      checked={answers.budgetOption === option.value}
+                      onChange={() => seleccionarPresupuesto(option.value)}
+                    />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+              {answers.budgetOption === "other" && (
+                <label>
+                  Otro presupuesto mensual aproximado (ARS)
+                  <input
+                    type="number"
+                    name="maxPrice"
+                    min="1"
+                    step="1000"
+                    value={answers.maxPrice}
+                    onChange={actualizarRespuesta}
+                    placeholder="Ingresá un monto"
+                    required
+                  />
+                </label>
+              )}
             </div>
           )}
 

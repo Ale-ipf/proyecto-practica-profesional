@@ -199,11 +199,6 @@ function Header({ usuario, onLogout }) {
                 ? "👤 Mi panel"
                 : "🎓 Mi panel"}
             </Link>
-            {rolDeUsuario(usuario) === "owner" && (
-                <Link className="button button-accent" to="/perfil-dueno">
-                  Mi perfil
-                </Link>
-            )}
             <button
               className="button button-outline-danger"
               type="button"
@@ -765,7 +760,8 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
             {errorInstituciones}
           </p>
         )}
-        {!cargandoInstituciones &&
+        {!esPropietario &&
+          !cargandoInstituciones &&
           instituciones.length === 0 &&
           !errorInstituciones && (
             <p className="muted">
@@ -774,14 +770,56 @@ function HomePage({ usuario, onLogout, vista = "inicio" }) {
           )}
         {vista !== "catalogo" && (
           <>
-            <FeatureCarousel />
-            <section className="guided-guide-prompt">
+            <FeatureCarousel audience={esPropietario ? "owner" : "student"} />
+            {esPropietario && (
+              <section className="guided-guide-prompt owner-home-prompt">
+                <h2>Todo lo que necesitás para gestionar tus alquileres</h2>
+                <p>Publicá una propiedad, prepará la garantía y organizá la comunicación con tus estudiantes.</p>
+                <div className="owner-home-actions">
+                  <Link className="button button-primary" to="/alquileres/nuevo">Publicar propiedad</Link>
+                  <Link className="button button-accent" to="/panel-dueno/garantias">Cargar documentación</Link>
+                  <button className="button button-accent" type="button" onClick={() => window.dispatchEvent(new Event("app-assistant:open"))}>Preguntarle al asistente</button>
+                </div>
+              </section>
+            )}
+            {!esPropietario && <section className="guided-guide-prompt">
               <h2>¿No sabés por dónde comenzar? Probá la Guía Asistida</h2>
               <Link className="button button-primary" to="/guia-asistida">
                 Ir ahora
               </Link>
-            </section>
+            </section>}
           </>
+        )}
+        {vista !== "catalogo" && esPropietario && (
+          <section className="listings-section owner-home-listings">
+            <div className="listings-toolbar">
+              <div>
+                <span className="section-kicker">TUS PUBLICACIONES</span>
+                <h2>Propiedades que administrás</h2>
+              </div>
+              <Link className="button button-primary" to="/alquileres/nuevo">+ Agregar publicación</Link>
+            </div>
+            {cargando && <p className="muted">Cargando tus propiedades…</p>}
+            {error && <p className="error-message" role="alert">{error}</p>}
+            {!cargando && !error && alquileres.length === 0 && (
+              <div className="empty-message">
+                Todavía no publicaste propiedades. Creá una publicación para que estudiantes puedan encontrarla.
+              </div>
+            )}
+            {!cargando && !error && alquileres.length > 0 && (
+              <div className="property-grid">
+                {alquileresPaginados.map((alquiler) => (
+                  <PropertyCard
+                    key={alquiler.id}
+                    propiedad={alquiler}
+                    usuario={usuario}
+                    favoritos={favoritos}
+                    onDelete={borrarPropiedad}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
         )}
         {vista !== "catalogo" && !esPropietario && instituciones.length > 0 && (
           <InstitutionCarousel
@@ -1111,6 +1149,10 @@ function App() {
       <Routes>
       <Route
         path="/"
+        element={<HomePage usuario={usuario} onLogout={logout} />}
+      />
+      <Route
+        path="/home"
         element={<HomePage usuario={usuario} onLogout={logout} />}
       />
       <Route

@@ -110,6 +110,24 @@ export const listPropertyGuaranteeAccessRequests = asyncHandler(async (req, res)
   res.json({ requests });
 });
 
+export const listMyPendingGuaranteeAccessRequests = asyncHandler(async (req, res) => {
+  const requests = await PropertyGuaranteeAccessRequestModel.findAll({
+    where: { status: "pending" },
+    include: [
+      {
+        model: PropertyModel,
+        as: "property",
+        attributes: ["id", "title"],
+        where: { userId: req.user.id },
+        required: true,
+      },
+      { model: UserModel, as: "student", attributes: ["id", "name", "email"] },
+    ],
+    order: [["createdAt", "ASC"]],
+  });
+  res.json({ requests });
+});
+
 export const decidePropertyGuaranteeAccess = asyncHandler(async (req, res) => {
   await findOwnedPropertyOrFail(req.params.id, req.user.id);
   const request = await PropertyGuaranteeAccessRequestModel.findOne({

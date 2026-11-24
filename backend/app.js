@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import "./src/models/associations.js";
 import { PropertyModel } from "./src/models/property.model.js";
+import { RentPaymentModel } from "./src/models/rent-payment.model.js";
 import { sequelize, testConnection } from "./src/config/database.js";
 import { errorHandler, notFound } from "./src/middlewares/error.middleware.js";
 import router from "./src/routes/index.routes.js";
@@ -59,6 +60,30 @@ const ensurePropertyOptionalColumns = async () => {
   }
 };
 
+const ensureRentPaymentMethodColumn = async () => {
+  const expectedTableName = RentPaymentModel.getTableName();
+  const [tables] = await sequelize.query(
+    "SELECT TABLE_NAME AS tableName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = LOWER(:tableName) LIMIT 1",
+    { replacements: { tableName: expectedTableName } },
+  );
+  if (tables.length === 0) return;
+
+  const tableName = tables[0].tableName;
+  const [columns] = await sequelize.query(
+    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = LOWER(:tableName)",
+    { replacements: { tableName: expectedTableName } },
+  );
+  if (columns.some(({ COLUMN_NAME }) => COLUMN_NAME.toLowerCase() === "paymentmethod")) return;
+
+  const attribute = RentPaymentModel.rawAttributes.paymentMethod;
+  await sequelize.getQueryInterface().addColumn(tableName, "paymentMethod", {
+    type: attribute.type,
+    allowNull: true,
+    defaultValue: null,
+  });
+  console.log(`✅ Se agregó la columna ${tableName}.paymentMethod.`);
+};
+
 const normalizeInstitutionBusStops = async () => {
   const [columns] = await sequelize.query(
     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = LOWER('Institutions') AND COLUMN_NAME = 'busStops'",
@@ -87,6 +112,7 @@ const startServer = async () => {
   await normalizeInstitutionBusStops();
   await sequelize.sync();
   await ensurePropertyOptionalColumns();
+  await ensureRentPaymentMethodColumn();
   await seedInstitutions();
   await seedDemoRentalData();
   console.log("✅ Modelos sincronizados con la base de datos.");
