@@ -1,7 +1,74 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import OwnerProfileSummary from './OwnerProfileSummary'
 import { textoDisponibilidad } from '../utils/formato'
+import { obtenerAccesoGarantia, obtenerDescargaDocumentoGarantia, solicitarAccesoGarantia } from '../api/guarantee-documents.js'
+
+function GuaranteeAccessPanel({ propertyId }) {
+  const [access, setAccess] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [working, setWorking] = useState(false)
+  const [error, setError] = useState('')
+
+  const refresh = async () => setAccess(await obtenerAccesoGarantia(propertyId))
+
+  useEffect(() => {
+    let active = true
+    obtenerAccesoGarantia(propertyId)
+      .then((result) => { if (active) setAccess(result) })
+      .catch((requestError) => { if (active) setError(requestError.message || 'No pudimos consultar el acceso.') })
+      .finally(() => { if (active) setLoading(false) })
+    return () => { active = false }
+  }, [propertyId])
+
+  const requestAccess = async () => {
+    setWorking(true); setError('')
+    try { await solicitarAccesoGarantia(propertyId); await refresh() }
+    catch (requestError) { setError(requestError.message || 'No pudimos enviar la solicitud.') }
+    finally { setWorking(false) }
+  }
+
+  const openDocument = async (document) => {
+    setError('')
+    try {
+      const result = await obtenerDescargaDocumentoGarantia(propertyId, document.id)
+      window.open(result.url, '_blank', 'noopener,noreferrer')
+    } catch (requestError) { setError(requestError.message || 'No pudimos abrir el documento.') }
+  }
+
+  const status = access?.request?.status
+  const label = (type) => type === 'title_deed' ? 'Escritura o título' : type === 'domain_report' ? 'Informe de dominio' : 'Consentimiento de titulares'
+
+  return (
+    <section className="property-guarantee-share" aria-labelledby="property-guarantee-title">
+      <div>
+        <span className="section-kicker">GARANTÍA PROPIETARIA</span>
+        <h2 id="property-guarantee-title">Documentación de la garantía</h2>
+        <p>Solicitá acceso al dueño. Si lo aprueba, podrás revisar los archivos durante 24 horas.</p>
+      </div>
+      {error && <p className="guarantee-message is-error" role="alert">{error}</p>}
+      {status === 'approved' ? (
+        <>
+          <p className="guarantee-message" role="status">Acceso vigente hasta {new Date(access.request.expiresAt).toLocaleString('es-AR')}.</p>
+          <ul className="property-guarantee-files">
+            {(access.documents || []).map((document) => (
+              <li key={document.id}>
+                <span>{label(document.documentType)} · {document.originalName}</span>
+                <button className="button button-accent" type="button" onClick={() => openDocument(document)}>Abrir documento</button>
+              </li>
+            ))}
+          </ul>
+        </>
+      ) : status === 'pending' ? (
+        <p className="guarantee-message" role="status">Solicitud enviada. Revisá esta propiedad más tarde para ver la respuesta.</p>
+      ) : (
+        <button className="button button-primary" type="button" onClick={requestAccess} disabled={loading || working}>
+          {loading ? 'Consultando acceso…' : working ? 'Enviando solicitud…' : status === 'rejected' ? 'Volver a solicitar acceso' : 'Solicitar acceso'}
+        </button>
+      )}
+    </section>
+  )
+}
 
 function PropertyDetails({ propiedad, tieneSesion = false, esEstudiante, esFavorito, onToggleFavorite, esPropietario = false }) {
   const [imageError, setImageError] = useState(false)
@@ -72,6 +139,7 @@ function PropertyDetails({ propiedad, tieneSesion = false, esEstudiante, esFavor
             </aside>
           )}
         </section>
+        {esEstudiante && <GuaranteeAccessPanel propertyId={propiedad.id} />}
         <section className="map-section"><div className="map-heading"><div><span className="section-kicker">UBICACIÓN DE REFERENCIA</span><h2>Conocé la zona</h2><p className="muted small-text">Mapa orientativo de la ubicación publicada. La ubicación exacta se confirma al coordinar la visita.</p></div><span className="map-location">⌖ {ubicacion}</span></div><div className="map-frame"><iframe title={`Mapa de ${propiedad.titulo}`} src={mapaUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe></div></section>
       </main>
     </div>

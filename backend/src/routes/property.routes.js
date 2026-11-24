@@ -13,6 +13,19 @@ import {
   uploadPropertyImages,
 } from "../controllers/property-image.controller.js";
 import { upload } from "../middlewares/upload.middleware.js";
+import { guaranteeUpload } from "../middlewares/guarantee-upload.middleware.js";
+import { guaranteeDocumentIdParamValidator } from "../middlewares/validators/property-guarantee.validator.js";
+import { guaranteeAccessRequestIdParamValidator, decideGuaranteeAccessValidator } from "../middlewares/validators/property-guarantee-access.validator.js";
+import {
+  deletePropertyGuaranteeDocument,
+  decidePropertyGuaranteeAccess,
+  getMyPropertyGuaranteeAccess,
+  getPropertyGuaranteeDocumentDownload,
+  listPropertyGuaranteeAccessRequests,
+  listPropertyGuaranteeDocuments,
+  requestPropertyGuaranteeAccess,
+  uploadPropertyGuaranteeDocument,
+} from "../controllers/property-guarantee.controller.js";
 import {
   addPropertyTenant,
   listPropertyTenants,
@@ -71,6 +84,77 @@ router.get(
 // --- Rutas protegidas (solo owner) ---
 // Va antes de "/:id" para que "mine/list" no matchee como un id.
 router.get("/mine/list", authenticate, authorize("owner"), getMyProperties);
+
+router.get(
+  "/:id/guarantee-access",
+  authenticate,
+  authorize("student"),
+  propertyIdParamValidator,
+  validate,
+  getMyPropertyGuaranteeAccess,
+);
+router.post(
+  "/:id/guarantee-access",
+  authenticate,
+  authorize("student"),
+  propertyIdParamValidator,
+  validate,
+  requestPropertyGuaranteeAccess,
+);
+router.get(
+  "/:id/guarantee-access-requests",
+  authenticate,
+  authorize("owner"),
+  propertyIdParamValidator,
+  validate,
+  listPropertyGuaranteeAccessRequests,
+);
+router.patch(
+  "/:id/guarantee-access-requests/:requestId",
+  authenticate,
+  authorize("owner"),
+  propertyIdParamValidator,
+  guaranteeAccessRequestIdParamValidator,
+  decideGuaranteeAccessValidator,
+  validate,
+  decidePropertyGuaranteeAccess,
+);
+
+router.get(
+  "/:id/guarantee-documents",
+  authenticate,
+  authorize("owner"),
+  propertyIdParamValidator,
+  validate,
+  listPropertyGuaranteeDocuments,
+);
+router.post(
+  "/:id/guarantee-documents",
+  authenticate,
+  authorize("owner"),
+  propertyIdParamValidator,
+  validate,
+  guaranteeUpload,
+  uploadPropertyGuaranteeDocument,
+);
+router.get(
+  "/:id/guarantee-documents/:documentId/download",
+  authenticate,
+  authorize("owner", "student"),
+  propertyIdParamValidator,
+  guaranteeDocumentIdParamValidator,
+  validate,
+  getPropertyGuaranteeDocumentDownload,
+);
+router.delete(
+  "/:id/guarantee-documents/:documentId",
+  authenticate,
+  authorize("owner"),
+  propertyIdParamValidator,
+  guaranteeDocumentIdParamValidator,
+  validate,
+  deletePropertyGuaranteeDocument,
+);
 
 router.get(
   "/:id/owner-profile",

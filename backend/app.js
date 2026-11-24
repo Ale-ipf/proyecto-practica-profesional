@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import "./src/models/associations.js";
+import { PropertyModel } from "./src/models/property.model.js";
 import { sequelize, testConnection } from "./src/config/database.js";
 import { errorHandler, notFound } from "./src/middlewares/error.middleware.js";
 import router from "./src/routes/index.routes.js";
@@ -30,6 +31,33 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 
+const ensurePropertyOptionalColumns = async () => {
+  const [tables] = await sequelize.query(
+    "SELECT TABLE_NAME AS tableName FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = LOWER('Properties') LIMIT 1",
+  );
+  if (tables.length === 0) return;
+
+  const tableName = tables[0].tableName;
+  const [columns] = await sequelize.query(
+    "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = LOWER('Properties')",
+  );
+  const existingColumns = new Set(columns.map(({ COLUMN_NAME }) => COLUMN_NAME.toLowerCase()));
+  const queryInterface = sequelize.getQueryInterface();
+
+  for (const [attributeName, attribute] of Object.entries(PropertyModel.rawAttributes)) {
+    const columnName = attribute.field || attributeName;
+    if (["id", "userId", "createdAt", "updatedAt"].includes(attributeName)) continue;
+    if (existingColumns.has(columnName.toLowerCase())) continue;
+    // Para campos obligatorios sin valor predeterminado no se puede inventar
+    // un dato válido para registros existentes; esos requieren una migración propia.
+    if (!attribute.allowNull && attribute.defaultValue === undefined) continue;
+    const definition = { type: attribute.type, allowNull: attribute.allowNull };
+    if (attribute.defaultValue !== undefined) definition.defaultValue = attribute.defaultValue;
+    await queryInterface.addColumn(tableName, columnName, definition);
+    console.log(`✅ Se agregó la columna Properties.${columnName}.`);
+  }
+};
+
 const normalizeInstitutionBusStops = async () => {
   const [columns] = await sequelize.query(
     "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND LOWER(TABLE_NAME) = LOWER('Institutions') AND COLUMN_NAME = 'busStops'",
@@ -51,13 +79,13 @@ const normalizeInstitutionBusStops = async () => {
   console.warn(
     `⚠️ Se normalizaron ${invalidCount} valores inválidos de Institutions.busStops.`,
   );
-  a
 };
 
 const startServer = async () => {
   await testConnection();
   await normalizeInstitutionBusStops();
   await sequelize.sync();
+  await ensurePropertyOptionalColumns();
   await seedInstitutions();
   console.log("✅ Modelos sincronizados con la base de datos.");
 

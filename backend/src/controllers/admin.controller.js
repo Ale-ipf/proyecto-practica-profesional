@@ -8,6 +8,7 @@ import { PropertyImageModel } from "../models/property-image.model.js";
 import { PropertyModel } from "../models/property.model.js";
 import { StudentModel } from "../models/student.model.js";
 import { UserModel } from "../models/user.model.js";
+import { deleteGuaranteeDocumentsForProperties } from "../services/property-guarantee-storage.service.js";
 
 const userProfileFields = [
   "university",
@@ -179,6 +180,7 @@ export const deleteUser = asyncHandler(async (req, res) => {
     });
     const propertyIds = properties.map((property) => property.id);
     if (propertyIds.length) {
+      await deleteGuaranteeDocumentsForProperties(propertyIds, transaction);
       await PropertyImageModel.destroy({
         where: { propertyId: propertyIds },
         transaction,
@@ -241,6 +243,7 @@ export const deleteAdminProperty = asyncHandler(async (req, res) => {
   if (!property) {
     throw new ApiError(404, "Propiedad no encontrada.");
   }
+  await deleteGuaranteeDocumentsForProperties([property.id]);
   await property.destroy();
   res.json({ message: "Propiedad y sus imágenes eliminadas correctamente." });
 });

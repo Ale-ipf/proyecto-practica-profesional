@@ -4,6 +4,7 @@ import { ApiError } from "../helpers/api-error.js";
 import { PropertyModel } from "../models/property.model.js";
 import { PropertyImageModel } from "../models/property-image.model.js";
 import { UserModel } from "../models/user.model.js";
+import { deleteGuaranteeDocumentsForProperties } from "../services/property-guarantee-storage.service.js";
 
 const propertyIncludes = [
   { model: PropertyImageModel, as: "images" },
@@ -199,6 +200,7 @@ export const updateProperty = asyncHandler(async (req, res) => {
 export const deleteProperty = asyncHandler(async (req, res) => {
   const property = await findOwnedPropertyOrFail(req.params.id, req.user.id);
 
+  await deleteGuaranteeDocumentsForProperties([property.id]);
   await property.destroy();
 
   res.json({ message: "Propiedad eliminada correctamente." });

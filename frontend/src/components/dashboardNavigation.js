@@ -22,6 +22,7 @@ export const OWNER_NAVIGATION = [
   { key: "properties", label: "Mis propiedades", icon: "building", to: "/panel-dueno#propiedades" },
   { key: "publish", label: "Publicar propiedad", icon: "plus", to: "/alquileres/nuevo" },
   { key: "management", label: "Gestión de alquileres", icon: "settings", to: "/panel-dueno#propiedades" },
+  { key: "guarantees", label: "Garantías y documentos", icon: "lock", to: "/panel-dueno/garantias" },
   { key: "personal", label: "Datos personales", icon: "user", to: "/perfil-dueno#datos-personales", group: "account" },
   { key: "safety", label: "Consejos de seguridad", icon: "shield", to: "/consejos-seguridad", group: "account" },
   { key: "app", label: "Ajustes de la app", icon: "settings", to: "/perfil-dueno#ajustes-app", group: "account" },

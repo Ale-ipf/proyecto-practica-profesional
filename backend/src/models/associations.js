@@ -1,4 +1,6 @@
 import { PropertyImageModel } from "./property-image.model.js";
+import { PropertyGuaranteeDocumentModel } from "./property-guarantee-document.model.js";
+import { PropertyGuaranteeAccessRequestModel } from "./property-guarantee-access-request.model.js";
 import { PropertyForumMessageModel } from "./property-forum-message.model.js";
 import { PropertyModel } from "./property.model.js";
 import { PropertyReviewModel } from "./property-review.model.js";
@@ -69,6 +71,38 @@ UserModel.hasMany(PropertyModel, {
 PropertyModel.hasMany(PropertyImageModel, {
   as: "images",
   foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+
+PropertyModel.hasMany(PropertyGuaranteeDocumentModel, {
+  as: "guaranteeDocuments",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+PropertyGuaranteeDocumentModel.belongsTo(PropertyModel, {
+  as: "property",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+
+PropertyModel.hasMany(PropertyGuaranteeAccessRequestModel, {
+  as: "guaranteeAccessRequests",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+PropertyGuaranteeAccessRequestModel.belongsTo(PropertyModel, {
+  as: "property",
+  foreignKey: "propertyId",
+  onDelete: "CASCADE",
+});
+PropertyGuaranteeAccessRequestModel.belongsTo(UserModel, {
+  as: "student",
+  foreignKey: "studentId",
+  onDelete: "CASCADE",
+});
+UserModel.hasMany(PropertyGuaranteeAccessRequestModel, {
+  as: "guaranteeAccessRequests",
+  foreignKey: "studentId",
   onDelete: "CASCADE",
 });
 

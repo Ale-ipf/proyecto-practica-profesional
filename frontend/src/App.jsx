@@ -25,6 +25,7 @@ import SafetyTipsPage from "./pages/SafetyTipsPage.jsx";
 import StudentDashboardPage from "./pages/StudentDashboardPage";
 import OwnerDashboardPage from "./pages/OwnerDashboardPage.jsx";
 import OwnerPropertyManagementPage from "./pages/OwnerPropertyManagementPage.jsx";
+import OwnerGuaranteeDocumentsPage from "./pages/OwnerGuaranteeDocumentsPage.jsx";
 import PropertyForumPage from "./pages/PropertyForumPage.jsx";
 import { useAuth } from "./context/useAuth.js";
 import {
@@ -1170,6 +1171,7 @@ function App() {
         path="/panel-dueno"
         element={<OwnerDashboardPage />}
       />
+      <Route path="/panel-dueno/garantias" element={<OwnerGuaranteeDocumentsPage />} />
       <Route path="/perfil-dueno" element={<OwnerProfilePage />} />
       <Route path="/panel-estudiante" element={<StudentDashboardPage />} />
       <Route
