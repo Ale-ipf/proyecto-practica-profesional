@@ -180,23 +180,35 @@ export default function StudentDashboardPage() {
     setMensajeExito("");
     setError("");
     try {
-      const data = await actualizarMiPerfilEstudiante(form);
+      const data = await actualizarMiPerfilEstudiante({
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        username: form.username.trim().toLowerCase(),
+        biography: form.biography.trim(),
+        origin_city: form.origin_city.trim(),
+      });
       setPerfil(data.student);
       actualizarUsuario(data.student.user);
       setForm((current) => ({
         ...current,
-        firstName: data.student.user.firstName,
-        lastName: data.student.user.lastName,
-        username: data.student.user.username,
+        firstName: data.student.user.firstName || "",
+        lastName: data.student.user.lastName || "",
+        username: data.student.user.username || "",
+        biography: data.student.biography || "",
+        origin_city: data.student.origin_city || "",
       }));
       setModalEdicionAbierto(false);
       setMensajeExito("Perfil actualizado.");
+      await cargarPerfil();
     } catch (requestError) {
-      setError(
-        requestError instanceof ApiRequestError
-          ? requestError.message
-          : "No pudimos guardar los cambios.",
-      );
+      if (requestError instanceof ApiRequestError) {
+        const fieldMessages = requestError.fieldErrors
+          .map((fieldError) => fieldError.message)
+          .filter(Boolean);
+        setError(fieldMessages.length > 0 ? fieldMessages.join(" ") : requestError.message);
+      } else {
+        setError("No pudimos guardar los cambios.");
+      }
     } finally {
       setGuardando(false);
     }

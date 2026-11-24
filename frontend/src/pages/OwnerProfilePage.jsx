@@ -295,7 +295,8 @@ export default function OwnerProfilePage() {
                 </label>
                 <label>
                   Correo electrónico
-                  <input type="email" value={email} onChange={(event) => setEmail(event.target.value)} required />
+                  <input type="email" value={email} readOnly />
+                  <small>El correo se verifica por separado en el apartado de verificación de identidad.</small>
                 </label>
                 <button className="button button-primary" type="submit" disabled={saving}>
                   {saving ? "Guardando…" : "Guardar perfil"}

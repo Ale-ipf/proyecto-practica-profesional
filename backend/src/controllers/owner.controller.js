@@ -77,13 +77,19 @@ export const updateMyOwnerProfile = asyncHandler(async (req, res) => {
   }
 
   const { firstName, lastName, dni } = req.body;
+  const normalizedFirstName = String(firstName || "").trim();
+  const normalizedLastName = String(lastName || "").trim();
   const normalizedDni = String(dni || "").replace(/\D/g, "") || null;
+
+  if (!normalizedFirstName || !normalizedLastName) {
+    throw new ApiError(400, "El nombre y el apellido son obligatorios.");
+  }
 
   try {
     await user.update({
-      firstName,
-      lastName,
-      name: `${firstName} ${lastName}`.trim(),
+      firstName: normalizedFirstName,
+      lastName: normalizedLastName,
+      name: `${normalizedFirstName} ${normalizedLastName}`.trim(),
       ...(dni !== undefined && { dni: normalizedDni }),
     });
   } catch (error) {

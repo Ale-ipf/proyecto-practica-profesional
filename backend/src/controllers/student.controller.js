@@ -104,7 +104,24 @@ export const updateMyStudentProfile = asyncHandler(async (req, res) => {
   } =
     req.body;
   const user = await UserModel.findByPk(req.user.id);
-  const normalizedUsername = username?.trim().toLowerCase();
+  const normalizedFirstName =
+    firstName === undefined ? undefined : String(firstName).trim();
+  const normalizedLastName =
+    lastName === undefined ? undefined : String(lastName).trim();
+  const normalizedUsername =
+    username === undefined || username === null
+      ? undefined
+      : String(username).trim().toLowerCase();
+
+  if (normalizedFirstName === "") {
+    throw new ApiError(400, "El nombre no puede estar vacío.");
+  }
+  if (normalizedLastName === "") {
+    throw new ApiError(400, "El apellido no puede estar vacío.");
+  }
+  if (normalizedUsername === "") {
+    throw new ApiError(400, "El nombre de usuario es obligatorio.");
+  }
   const legacyNameParts = (user.name || "").trim().split(/\s+/);
   const existingFirstName = user.firstName || legacyNameParts.shift() || "";
   const existingLastName = user.lastName || legacyNameParts.join(" ");
@@ -135,10 +152,10 @@ export const updateMyStudentProfile = asyncHandler(async (req, res) => {
 
       await user.update(
         {
-          ...(firstName !== undefined && { firstName }),
-          ...(lastName !== undefined && { lastName }),
+          ...(normalizedFirstName !== undefined && { firstName: normalizedFirstName }),
+          ...(normalizedLastName !== undefined && { lastName: normalizedLastName }),
           ...((firstName !== undefined || lastName !== undefined) && {
-            name: `${firstName ?? existingFirstName} ${lastName ?? existingLastName}`.trim(),
+            name: `${normalizedFirstName ?? existingFirstName} ${normalizedLastName ?? existingLastName}`.trim(),
           }),
           ...(normalizedUsername !== undefined && {
             username: normalizedUsername,
