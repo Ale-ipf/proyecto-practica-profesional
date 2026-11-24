@@ -257,15 +257,18 @@ export default function DashboardLayout({
   const profileTarget = user?.role === "owner"
     ? "/perfil-dueno"
     : "/panel-estudiante?section=profile";
-  const groupedNavigation = ["explore", "account"]
+  const visibleNavigation = user?.role === "owner"
+    ? navigation.filter((item) => item.group !== "explore")
+    : navigation;
+  const groupedNavigation = ["properties", "explore", "account"]
     .map((id) => ({
       id,
-      label: id === "explore" ? "Explorar" : "Mi cuenta",
-      icon: id === "explore" ? "search" : "user",
-      items: navigation.filter((item) => item.group === id),
+      label: id === "properties" ? "Propiedades" : id === "explore" ? "Explorar" : "Mi cuenta",
+      icon: id === "properties" ? "building" : id === "explore" ? "search" : "user",
+      items: visibleNavigation.filter((item) => item.group === id),
     }))
     .filter((group) => group.items.length > 0);
-  const mainNavigation = navigation.filter((item) => !item.group);
+  const mainNavigation = visibleNavigation.filter((item) => !item.group);
   const dashboardNavigation = mainNavigation.filter((item) => item.key === "dashboard");
   const secondaryNavigation = mainNavigation.filter((item) => item.key !== "dashboard");
   const [openGroups, setOpenGroups] = useState(() =>
