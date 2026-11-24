@@ -7,6 +7,7 @@ import { sequelize, testConnection } from "./src/config/database.js";
 import { errorHandler, notFound } from "./src/middlewares/error.middleware.js";
 import router from "./src/routes/index.routes.js";
 import { seedInstitutions } from "./src/seeders/institution.seed.js";
+import { seedDemoRentalData } from "./src/seeders/demo-rental.seed.js";
 
 dotenv.config();
 
@@ -87,6 +88,7 @@ const startServer = async () => {
   await sequelize.sync();
   await ensurePropertyOptionalColumns();
   await seedInstitutions();
+  await seedDemoRentalData();
   console.log("✅ Modelos sincronizados con la base de datos.");
 
   app.listen(PORT, () => {

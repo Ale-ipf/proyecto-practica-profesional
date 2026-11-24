@@ -41,3 +41,19 @@ dueño y verifican que la publicación le pertenezca:
 - `DELETE /api/properties/:id/tenants/:tenantId`
 - `PUT /api/properties/:id/tenants/:tenantId/payment` con
   `{ "period": "AAAA-MM", "paid": true }`
+
+## Datos de demostraciÃ³n
+
+En entornos distintos de producciÃ³n, el backend crea automÃ¡ticamente dos
+cuentas demo, ocho publicaciones que cubren las combinaciones de filtros y
+mensajes para probar el foro. El sembrado es repetible y no duplica las
+publicaciones ni los mensajes al reiniciar.
+
+- DueÃ±o: `demo.propietario@alquileres.test`
+- Estudiante: `demo.estudiante@alquileres.test`
+- ContraseÃ±a inicial: `DemoAlquiler2026!`
+
+PodÃ©s definir `DEMO_SEED_PASSWORD` en `.env` para usar otra contraseÃ±a al crear
+las cuentas demo. DefinÃ­ `SEED_DEMO_RENTALS=false` para desactivar el sembrado;
+los registros ya creados no se borran automÃ¡ticamente. Las cuentas y los datos
+demo no se crean cuando `NODE_ENV=production`.
